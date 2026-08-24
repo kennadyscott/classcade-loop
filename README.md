@@ -169,6 +169,24 @@ work*, and *Everything feeding this* (the signal audit trail). Inside each conve
 part a parent came for. **Nothing a parent came to the page to read is ever behind a fold** — the
 insight, the evidence, the thing to try at home and the question to ask are always open.
 
+**Second pass (Aug 2026) — the dashboard went 4.7 screens → 3.4, Settings 3.5 → 2.1.** What moved the
+needle, in order: the header collapsed from two stacked rows to one scrollable strip (130px → 67px of
+permanent chrome); the greeting shortened to *"Hi, Kennady! 👋"* with the redundant subtitle dropped,
+since the child pill directly beneath already names the child; the hero's why-it-matters line was cut
+on phones because it repeats verbatim on Growth; home-observation chips went from one-per-row to
+two-up; and the coin dial shrank. The school feed, the moment's rationale, the Settings sections, the
+Messages manifesto and the Boggie picker all became folds.
+
+**Every mobile rule is mirrored under `body.appview`.** A media query reads the browser viewport, not
+the 392px phone frame, so without the mirror the App preview renders desktop layout at phone width —
+which makes it useless as a test. The JS-driven folds don't need mirroring because `wide()` already
+checks for `appview`.
+
+**Nothing may size itself from its content.** Flex and grid items default to `min-width:auto`, so a
+horizontally-scrolling nav strip, a `nowrap` reference table, or a 6-card carousel will silently widen
+the whole page instead of scrolling inside itself. `min-width:0` on grid/flex children is load-bearing;
+all nine surfaces are verified at `scrollWidth == clientWidth` on a 375px viewport.
+
 **Chrome gets out of the way.** The sidebar becomes a sticky compact bar with a horizontally
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.

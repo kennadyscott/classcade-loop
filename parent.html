@@ -4,15 +4,18 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=22">
+<link rel="stylesheet" href="loop.css?v=31">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=22"></script>
-<script src="loop.engine.js?v=22"></script>
-<script src="loop.shell.js?v=22"></script>
+<script src="loop.data.js?v=31"></script>
+<script src="loop.engine.js?v=31"></script>
+<script src="loop.shell.js?v=31"></script>
 <script>
 const d = LOOP.child(ME);
+/* folds start open on a wide screen and closed on a phone */
+const wide = () => window.matchMedia('(min-width:901px)').matches
+                 && !document.body.classList.contains('appview');
 
 function render(){
   const tier = LOOP.store.tier();
@@ -77,7 +80,7 @@ function hero(ins, tier){
           <div class="dim-ico lg" style="background:${ins.dim.tint};box-shadow:none">${ins.dim.ico}</div>
           <div>
             <h2>${esc(ins.head)}</h2>
-            <p>${esc(ins.why)}</p>
+            <p class="hide-sm">${esc(ins.why)}</p>
           </div>
         </div>
         <a class="btn gold sm" style="margin-top:16px" href="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</a>
@@ -126,8 +129,11 @@ function startersCard(){
       <div class="followq">Then: &ldquo;${esc(x.follow)}&rdquo;</div>
       <div class="acts">
         <button class="btn sm ${done?'sel':''}" data-talked="${esc(key)}">
-          ${done?'✓ We talked':'We talked about this'}</button>
-        <button class="btn sm ghost" id="shuffleQ">↻ Another question</button>
+          <span class="hide-sm">${done?'✓ We talked about this':'We talked about this'}</span>
+          <span class="show-sm">${done?'✓ Talked':'We talked'}</span></button>
+        <button class="btn sm ghost" id="shuffleQ">
+          <span class="hide-sm">↻ Another question</span>
+          <span class="show-sm">↻ Another</span></button>
       </div>
     </div>
 
@@ -153,8 +159,13 @@ function momentCard(m){
       <h4 style="margin-top:1px">${esc(m.title)}</h4></div>
     </div>
     <p style="font-size:14.5px;font-weight:700">${esc(m.prompt)}</p>
-    <div class="callout why" style="margin-top:11px"><div class="lbl">Why it matters</div>${esc(m.why)}</div>
-    <p class="small muted" style="margin-top:10px">If it lands, follow with: <strong>${esc(m.follow)}</strong></p>
+    <details class="fold" ${wide()?'open':''} style="margin-top:11px">
+      <summary>Why it matters · what to say next</summary>
+      <div class="foldbody">
+        <p class="small" style="margin-bottom:9px">${esc(m.why)}</p>
+        <p class="small muted">If it lands, follow with: <strong>${esc(m.follow)}</strong></p>
+      </div>
+    </details>
     <button class="btn sm ghost" style="margin-top:12px" id="momentDone">✓ We did this</button>
   </div>`;
 }
@@ -171,14 +182,15 @@ function coinCard(cn){
       <div><div class="mini-lbl">ClassCade moment</div>
       <h4 style="margin-top:1px">${esc(d.first)} earned ${cn.total} coins this week</h4></div>
     </div>
-    <div style="display:flex;align-items:center;gap:18px;margin-top:6px">
+    <div style="display:flex;align-items:center;gap:15px;margin-top:6px">
       <div class="donut" style="background:conic-gradient(#108b2f ${pct*3.6}deg, #e9f0fb 0)">
         <div style="width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center">
           <span>${pct}%</span></div>
       </div>
-      <div>
+      <div style="min-width:0">
         <div style="font-weight:800">From ${esc(cn.top?cn.top.label:'—')}</div>
-        <p class="small muted" style="margin-top:4px">Coins are Showdown's currency, not Loop's read. They're here because ${esc(d.subj)}'ll mention them at dinner.</p>
+        <p class="small muted hide-sm" style="margin-top:4px">Coins are Showdown's currency, not Loop's read. They're here because ${esc(d.subj)}'ll mention them at dinner.</p>
+        <p class="tiny muted show-sm" style="margin-top:3px">Showdown's currency, not Loop's read.</p>
       </div>
     </div>
   </div>`;
@@ -217,16 +229,13 @@ function familyCard(){
 
 /* ── what happened at school ──────────────────────────── */
 function feedCard(){
-  const small = !window.matchMedia('(min-width:901px)').matches || document.body.classList.contains('appview');
+  const small = !wide();
   const total = LOOP.activity(ME, 40).length;
   const rows = LOOP.activity(ME, small ? 4 : 6);
   return `
-  <div class="card" style="margin-top:14px">
-    <div class="wl-head" style="margin:0 0 6px">
-      <h3 style="font-size:17px">What happened at school</h3>
-      <span class="spacer"></span>
-      <a href="growth.html" class="small">View all activity →</a>
-    </div>
+  <details class="fold card" ${wide()?'open':''} style="margin-top:14px;background:#fff;box-shadow:var(--shadow)">
+    <summary>What happened at school · ${total}</summary>
+    <div class="foldbody">
     <table class="feed">
       ${rows.map(x=>`<tr>
         <td class="dt">${fmt(x.d)}</td>
@@ -238,8 +247,10 @@ function feedCard(){
       </tr>`).join('')}
     </table>
     <p class="tiny muted" style="margin-top:12px">
-      Showing ${rows.length} of ${total}. Captured while ${esc(d.first)}'s teacher ran Showdown normally — nobody filled anything out.</p>
-  </div>`;
+      Showing ${rows.length} of ${total}. Captured while ${esc(d.first)}'s teacher ran Showdown normally — nobody filled anything out.
+      <a href="school.html">See everything →</a></p>
+    </div>
+  </details>`;
 }
 function fmt(s){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const p=s.split('-'); return m[+p[1]-1]+' '+(+p[2]) }
@@ -288,7 +299,7 @@ function addFromHome(){
     <div class="mini-head"><div class="mini-ico" style="background:#fff">➕</div>
       <div class="lbl" style="color:var(--home)">Add something from home</div></div>
     <h4>Notice something we should know?</h4>
-    <p>Your insight helps us give a more complete picture of ${esc(d.poss)} growth.</p>
+    <p class="hide-sm">Your insight helps us give a more complete picture of ${esc(d.poss)} growth.</p>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
       ${HOME_OBS.slice(0,4).map(o=>`<button class="btn sm" data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
     </div>

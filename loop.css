@@ -434,7 +434,7 @@ textarea.note:focus{outline:2px solid rgba(7,93,250,.35);outline-offset:1px}
 .q-hero .because{align-self:flex-start}
 .q-hero .because.plain{color:var(--muted);background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
 .q-hero .followq{font-size:13.5px}
-.q-hero .acts{margin-top:3px}
+.q-hero .acts{display:flex;gap:9px;margin-top:3px;flex-wrap:wrap}
 .q-hero.done .qq{opacity:.5;text-decoration:line-through;text-decoration-color:var(--muted-2)}
 @media(max-width:900px){
   .q-hero{padding:16px}
@@ -729,3 +729,146 @@ body.appview .side nav.mainnav{order:0;width:100%;overflow:visible}
   .viewtoggle{top:auto;bottom:16px;right:14px}
   body.appview .viewtoggle{bottom:16px;right:14px}
 }
+
+/* ══ MOBILE PASS 2 ═════════════════════════════════════════════════
+   The phone is the primary surface, so chrome and browsable detail
+   both have to get out of the way of the one thing a parent came for. */
+.hide-sm{display:initial}
+.show-sm{display:none}
+
+@media (max-width:900px){
+  .hide-sm{display:none !important}
+  .show-sm{display:block !important}
+
+  /* header: one scrollable row, not two stacked ones */
+  .side{
+    flex-wrap:nowrap;overflow-x:auto;gap:7px;padding:9px 12px;
+    scrollbar-width:none;align-items:center
+  }
+  .side::-webkit-scrollbar{display:none}
+  .side .brand{flex:0 0 auto;position:sticky;left:0;z-index:2;
+    background:var(--ink);padding-right:9px;margin-right:-2px}
+  .side nav{flex:0 0 auto;overflow:visible;width:auto}
+  .side nav.mainnav{order:0;flex-basis:auto;width:auto}
+  .side nav a{padding:6px 9px;font-size:12.5px}
+  .side .tier{order:9;flex:0 0 auto;margin:0}
+  .side .tier button{padding:5px 11px;font-size:12px}
+
+  /* greeting: tighter, and the child pill sits with it */
+  .topline{gap:9px;margin-bottom:14px;align-items:center}
+  .topline h1{font-size:21px;letter-spacing:-.04em}
+  .topline p{font-size:13px;margin-top:3px !important}
+  .kidpick{padding:7px 11px;border-radius:13px;gap:9px}
+  .kidpick .av{width:30px;height:30px;border-radius:9px;font-size:12px}
+  .kidpick .meta{font-size:11.5px}
+
+  /* hero: headline + evidence only */
+  .hero-card{padding:17px}
+  .hero-card h2{font-size:21px}
+  .hero-quote{padding:8px 10px;font-size:12px}
+
+  /* chip rows go two-up instead of one-per-line */
+  .card [data-obs],.card [data-dim],.card [data-type]{
+    flex:1 1 calc(50% - 4px);justify-content:flex-start;min-width:0
+  }
+  .card [data-obs]{white-space:normal;text-align:left;line-height:1.3}
+
+  /* coins: a line, not a dial */
+  .donut{width:52px;height:52px}
+  .donut > div{width:38px !important;height:38px !important}
+  .donut span{font-size:12px}
+}
+
+@media (max-width:900px){
+  /* a returning user does not need a two-line greeting every day, and the
+     child pill already names the child the subtitle was naming */
+  .topline h1{font-size:20px;letter-spacing:-.035em}
+  .topline h1 .show-sm{display:inline !important}
+  .topline > div:first-child > p{display:none}
+  .topline{margin-bottom:12px}
+  /* two short buttons fit side by side */
+  .q-hero .acts{flex-direction:row;gap:8px}
+  .q-hero .acts .btn{width:auto;flex:1 1 0;padding:10px 8px;font-size:12.5px;white-space:nowrap}
+  /* section headers keep their link on the same line */
+  .wl-head{gap:8px}
+  .wl-head h3{font-size:16px}
+  .wl-head .small{font-size:12.5px;white-space:nowrap}
+}
+@media (max-width:900px){ .btn .show-sm{display:inline !important} }
+
+/* grid items default to min-width:auto, so the scrolling nav strip was
+   widening the page instead of scrolling inside itself */
+.app > *{min-width:0}
+
+/* section-level fold used on Settings — invisible on desktop */
+.fold-sec > summary{
+  cursor:pointer;list-style:none;font-size:11.5px;font-weight:900;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--muted-2);padding:2px 0 10px;display:flex;align-items:center;gap:8px
+}
+.fold-sec > summary::-webkit-details-marker{display:none}
+.fold-sec > summary::after{content:"⌄";margin-left:auto;font-size:15px;transition:transform .16s}
+.fold-sec[open] > summary::after{transform:rotate(180deg)}
+
+@media (max-width:900px){
+  /* header rows with trailing controls wrap instead of pushing the page wide */
+  .wl-head{flex-wrap:wrap}
+  .wl-head > div:last-child{flex-wrap:wrap;display:flex;gap:6px}
+  /* wide reference tables scroll inside their card */
+  table.map{display:block;overflow-x:auto;white-space:nowrap}
+  .flow{grid-template-columns:1fr}
+  .conn{display:none}
+}
+
+@media (max-width:900px){
+  /* nothing may size itself from its content and widen the page */
+  .grid-2 > *,.grid-3 > *,.stack > *,.rail > *,.card{min-width:0}
+  #bogRow{flex-wrap:wrap}
+}
+
+/* ══ APP VIEW INHERITS THE PHONE RULES ═════════════════════════════
+   A media query reads the browser viewport, not the 392px frame, so the
+   phone preview would otherwise render desktop layout at phone width. */
+body.appview .hide-sm{display:none !important}
+body.appview .show-sm{display:block !important}
+body.appview .btn .show-sm,
+body.appview .topline h1 .show-sm{display:inline !important}
+body.appview .topline{gap:9px;margin-bottom:12px;align-items:center;padding-right:0}
+body.appview .topline h1{font-size:20px;letter-spacing:-.035em}
+body.appview .topline > div:first-child > p{display:none}
+body.appview .kidpick{padding:7px 11px;border-radius:13px;gap:9px;width:100%}
+body.appview .kidpick .av{width:30px;height:30px;border-radius:9px;font-size:12px}
+body.appview .kidpick .meta{font-size:11.5px}
+body.appview .hero-card{padding:17px}
+body.appview .hero-card h2{font-size:21px}
+body.appview .hero-quote{padding:8px 10px;font-size:12px}
+body.appview .card [data-obs],
+body.appview .card [data-dim],
+body.appview .card [data-type]{flex:1 1 calc(50% - 4px);justify-content:flex-start;min-width:0}
+body.appview .card [data-obs]{white-space:normal;text-align:left;line-height:1.3}
+body.appview .q-hero{padding:16px}
+body.appview .q-hero .qq{font-size:19px}
+body.appview .q-hero .acts{flex-direction:row;gap:8px}
+body.appview .q-hero .acts .btn{width:auto;flex:1 1 0;padding:10px 8px;font-size:12.5px;white-space:nowrap}
+body.appview .wl-head{flex-wrap:wrap;gap:8px}
+body.appview .wl-head h3{font-size:16px}
+body.appview .wl-head .small{font-size:12.5px;white-space:nowrap}
+body.appview .wl-head > div:last-child{flex-wrap:wrap;display:flex;gap:6px}
+body.appview .donut{width:52px;height:52px}
+body.appview .donut > div{width:38px !important;height:38px !important}
+body.appview .donut span{font-size:12px}
+body.appview .grid-2 > *,body.appview .grid-3 > *,
+body.appview .stack > *,body.appview .rail > *,body.appview .card{min-width:0}
+body.appview table.map{display:block;overflow-x:auto;white-space:nowrap}
+body.appview .feed,body.appview .feed tbody,body.appview .feed tr,body.appview .feed td{display:block;width:auto}
+body.appview .feed tr{
+  border-top:1px solid var(--line-soft);padding:12px 0;
+  display:grid;grid-template-columns:24px 1fr auto;gap:3px 9px;align-items:center
+}
+body.appview .feed tr:first-child{border-top:0}
+body.appview .feed td{padding:0;border:0}
+body.appview .feed td:nth-child(2){grid-row:1;grid-column:1}
+body.appview .feed td.sg{grid-row:1;grid-column:2}
+body.appview .feed td:nth-child(6){grid-row:1;grid-column:3;text-align:right}
+body.appview .feed td.muted{grid-row:2;grid-column:2/4;font-size:13px}
+body.appview .feed td.dt{grid-row:3;grid-column:2/4;font-size:11.5px}
+body.appview .feed td.who{display:none}

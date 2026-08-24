@@ -4,12 +4,12 @@
 <title>My Kids · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=22">
+<link rel="stylesheet" href="loop.css?v=31">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=22"></script>
-<script src="loop.engine.js?v=22"></script>
-<script src="loop.shell.js?v=22"></script>
+<script src="loop.data.js?v=31"></script>
+<script src="loop.engine.js?v=31"></script>
+<script src="loop.shell.js?v=31"></script>
 <script>
 function render(){
   const kids = FAMILY.map(f=>{
@@ -74,15 +74,15 @@ function kidCard(k){
         </div>`).join('')}
       </div>` : ''}
     </div>
-    <div class="hairline"></div>
-    <div class="sec-label">${esc(k.label.split(' ')[0])}’s Boggie</div>
-    <div style="display:flex;gap:9px;flex-wrap:wrap">
+    <details class="fold" ${wideScreen()?'open':''} style="margin-top:14px">
+    <summary>${esc(k.label.split(' ')[0])}’s Boggie · ${esc(BOGGIES[k.bog])}</summary>
+    <div class="foldbody"><div style="display:flex;gap:9px;flex-wrap:wrap">
       ${Object.keys(BOGGIES).slice(0,8).map(b=>`
         <button style="border:0;background:none;padding:0;cursor:pointer;border-radius:50%;
           box-shadow:${b===k.bog?'0 0 0 3px var(--blue)':'none'}"
           data-bogpick="${b}" data-kid="${k.id}" data-name="${esc(k.label.split(' ')[0])}"
           title="${esc(BOGGIES[b])}">${bog(b,'sm')}</button>`).join('')}
-    </div>
+    </div></div></details>
   </div>`;
 }
 mountApp('kids');

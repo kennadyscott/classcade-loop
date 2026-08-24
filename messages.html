@@ -4,12 +4,12 @@
 <title>Messages · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=22">
+<link rel="stylesheet" href="loop.css?v=31">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=22"></script>
-<script src="loop.engine.js?v=22"></script>
-<script src="loop.shell.js?v=22"></script>
+<script src="loop.data.js?v=31"></script>
+<script src="loop.engine.js?v=31"></script>
+<script src="loop.shell.js?v=31"></script>
 <script>
 const d = LOOP.child(ME);
 let pickDim = null, pickType = null;
@@ -27,9 +27,10 @@ function render(){
             <div><div class="mini-lbl">Why this looks so limited</div>
             <h4 style="margin-top:1px">Loop is not a messaging app, and this page is where that gets enforced.</h4></div>
           </div>
-          <p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is
+          <div class="hide-sm"><p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is
           <strong>one tap plus at most ${NOTE_CAP} characters</strong>, always attached to a specific area of growth.
-          The cap is the feature — it's what stops this becoming email.</p>
+          The cap is the feature — it's what stops this becoming email.</p></div>
+          <div class="show-sm">${foldable('Why', `<p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is <strong>one tap plus at most ${NOTE_CAP} characters</strong>, always attached to a specific area of growth. The cap is the feature — it's what stops this becoming email.</p>`)}</div>
         </div>
 
         <div class="card">
