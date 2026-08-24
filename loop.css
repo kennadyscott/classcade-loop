@@ -499,7 +499,10 @@ textarea.note:focus{outline:2px solid rgba(7,93,250,.35);outline-offset:1px}
 /* phone frame */
 body.appview{background:#e6ecf8;padding:0}
 body.appview .app{
-  width:392px;height:min(830px, calc(100vh - 76px));margin:38px auto;grid-template-columns:1fr;
+  /* min-height:100vh on the base .app rule beats `height`, which stretched the
+     "phone" to the full browser window and sliced its bottom off. */
+  min-height:0;
+  width:392px;height:min(844px, calc(100vh - 72px));margin:36px auto;grid-template-columns:1fr;
   border-radius:46px;overflow:hidden;position:relative;background:var(--page);
   box-shadow:0 0 0 11px #0a1226,0 0 0 13px #26355c,0 34px 70px rgba(6,24,70,.4)
 }
