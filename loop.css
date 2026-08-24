@@ -872,3 +872,115 @@ body.appview .feed td:nth-child(6){grid-row:1;grid-column:3;text-align:right}
 body.appview .feed td.muted{grid-row:2;grid-column:2/4;font-size:13px}
 body.appview .feed td.dt{grid-row:3;grid-column:2/4;font-size:11.5px}
 body.appview .feed td.who{display:none}
+
+/* ══════════════════════════════════════════════════════════════════
+   PHONE (body.sm) — a mobile design, not a narrow desktop one.
+   Three structural changes do most of the work: navigation moves to
+   the thumb, cards stop floating, and the title behaves like a title
+   bar instead of a headline.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── 1 · navigation lives at the bottom ──────────────────────────── */
+body.sm .side{
+  position:fixed;bottom:0;left:0;right:0;top:auto;height:auto;width:auto;
+  flex-direction:row;justify-content:space-around;align-items:center;
+  padding:7px 6px calc(7px + env(safe-area-inset-bottom));
+  gap:0;border-radius:0;overflow:visible;z-index:60;
+  background:rgba(6,24,70,.94);backdrop-filter:blur(14px);
+  box-shadow:0 -1px 0 rgba(255,255,255,.09)
+}
+body.sm .side .brand,
+body.sm .side .side-label,
+body.sm .side .side-promo,
+body.sm .side .tier,
+body.sm .side nav:nth-of-type(2){display:none}
+body.sm .side nav.mainnav{
+  display:flex;flex-direction:row;justify-content:space-around;
+  width:100%;gap:0;overflow:visible;order:0
+}
+body.sm .side nav a{
+  flex:1;flex-direction:column;align-items:center;gap:2px;
+  padding:4px 2px;font-size:10px;letter-spacing:-.01em;border-radius:0;
+  color:rgba(255,255,255,.5);text-align:center;background:none;box-shadow:none
+}
+body.sm .side nav a.notab{display:none}
+body.sm .side nav a .ic{
+  width:auto;height:20px;line-height:20px;font-size:17px;
+  filter:grayscale(1) opacity(.62);transition:filter .14s,transform .14s
+}
+body.sm .side nav a.on{color:#fff;background:none;box-shadow:none}
+body.sm .side nav a.on .ic{filter:none;transform:translateY(-1px)}
+
+/* ── 2 · a real title bar, not a headline ────────────────────────── */
+.mobilebar{
+  display:none;position:fixed;top:0;left:0;right:0;z-index:55;height:52px;
+  background:rgba(243,247,254,.82);backdrop-filter:blur(16px) saturate(1.5);
+  border-bottom:1px solid transparent;
+  opacity:0;transform:translateY(-6px);transition:opacity .18s,transform .18s,border-color .18s;
+  pointer-events:none
+}
+body.sm .mobilebar{display:block}
+body.sm.scrolled .mobilebar{opacity:1;transform:none;border-bottom-color:var(--line);pointer-events:auto}
+.mb-in{display:flex;align-items:center;gap:8px;height:100%;padding:0 16px;max-width:520px;margin:0 auto}
+.mb-title{font-weight:900;font-size:16px;letter-spacing:-.03em}
+.mb-kid{font-size:12.5px;font-weight:800;color:var(--muted)}
+body.appview .mobilebar{position:absolute;top:44px}
+body.appview.scrolled .mobilebar{transform:none}
+
+/* the large title scrolls away like an iOS large title */
+body.sm .topline h1{font-size:29px;letter-spacing:-.045em}
+body.sm .topline{padding-top:6px}
+
+/* ── 3 · cards stop floating ─────────────────────────────────────
+   Drop shadows and 20px radii on a white card over a tinted page is a
+   desktop dashboard idiom. Phones use inset-grouped: flat, hairline,
+   tighter radius, no lift. */
+body.sm .card,body.sm .starters,body.sm .connect,body.sm .hero-card,body.sm .big-ask{
+  box-shadow:none;border-radius:16px
+}
+body.sm .card,body.sm .starters,body.sm .big-ask{
+  border:1px solid var(--line-soft);padding:15px 16px
+}
+body.sm .wl-card{box-shadow:none;border:1px solid var(--line-soft);border-radius:14px}
+body.sm .kidpick{box-shadow:none;border:1px solid var(--line-soft)}
+body.sm .q-hero{box-shadow:inset 0 0 0 1.5px rgba(7,93,250,.2)}
+body.sm .starters::before{border-radius:16px 0 0 16px}
+body.sm .dash{gap:11px}
+body.sm .main{padding:calc(12px + env(safe-area-inset-top)) 16px 96px}
+body.sm .btn.primary,body.sm .btn.gold{box-shadow:none}
+
+/* ── 4 · rows behave like rows ───────────────────────────────────── */
+body.sm .wl-head .small,body.sm .rail .link{
+  display:inline-flex;align-items:center;gap:4px;font-size:13px
+}
+body.sm .fold > summary,body.sm .fold-sec > summary{padding:13px 15px;font-size:12px}
+body.sm .fold{border-radius:14px}
+body.sm .btn{border-radius:11px}
+body.sm .btn.sm{padding:10px 13px}
+
+/* the prototype view toggle is a dev control — on a phone it moves into the
+   More sheet rather than floating over the tab bar */
+body.sm:not(.appview) .viewtoggle{display:none}
+body.appview .viewtoggle{position:fixed;top:14px;right:18px;bottom:auto}
+
+/* sheet works on mobile web too, not only inside the phone frame */
+body.sm .sheet,body.sm .sheet-bd{display:block}
+body.sm:not(.appview) .sheet,body.sm:not(.appview) .sheet-bd{position:fixed}
+body.sm:not(.appview) .sheet{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
+/* the sheet's inline toggles read on white */
+.sheet .tier button.on{background:#fff;color:var(--ink) !important;box-shadow:0 1px 3px rgba(6,24,70,.18)}
+.sheet #sheetTier{background:#eef3fb;box-shadow:inset 0 0 0 1px var(--line)}
+.sheet #sheetTier button{color:var(--muted)}
+/* the sheet must sit above the tab bar, and clear it */
+body.sm .sheet-bd{z-index:65}
+body.sm .sheet{z-index:70}
+body.sm:not(.appview) .sheet{padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+body.appview .sheet{z-index:70}
+body.appview .sheet-bd{z-index:65}
+
+/* sourced evidence: a left label column costs half the line width on a
+   phone, so the label sits above the text instead */
+body.sm .src{display:block;padding:11px 0}
+body.sm .src-key{width:auto;margin-bottom:4px;font-size:10.5px}
+body.sm .src-body{font-size:14px}
+body.sm .conference .src-key,body.sm #conference .src-key{width:auto}

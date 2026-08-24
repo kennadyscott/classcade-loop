@@ -187,6 +187,26 @@ horizontally-scrolling nav strip, a `nowrap` reference table, or a 6-card carous
 the whole page instead of scrolling inside itself. `min-width:0` on grid/flex children is load-bearing;
 all nine surfaces are verified at `scrollWidth == clientWidth` on a 375px viewport.
 
+**Third pass — a mobile design, not a narrow desktop one.** Passes 1 and 2 made the desktop layout
+fit a phone; they did not make it feel like a phone app. Three structural changes did:
+
+1. **Navigation moved to the thumb.** The top scrolling nav strip became a fixed bottom tab bar —
+   Home · Growth · Ask · School · Settings, with Settings opening the More sheet (My Kids, Messages,
+   plan, prototype jumps). Mobile web and the App frame now share one tab bar.
+2. **Cards stopped floating.** Drop shadows, 20px radii and generous padding on white cards over a
+   tinted page is a desktop-dashboard idiom. On a phone they're flat, hairline-bordered, 16px radius —
+   iOS inset-grouped.
+3. **The title behaves like a title bar.** A large title in the content, and a translucent blurred
+   compact bar (page name · child · avatar) that fades in once you scroll past it.
+
+Plus: evidence labels stack above their text instead of taking a left column that costs half the line
+width, and the Web/App toggle moved off the screen edge into the More sheet, since a dev control should
+not float over a tab bar.
+
+**One mode flag, not three.** `syncMode()` sets `body.sm` when the viewport is ≤900px **or** the App
+frame is on, so every phone rule is written once against `body.sm` instead of being duplicated between
+a media query and `body.appview`. Earlier passes duplicated; this is the pattern to extend.
+
 **Chrome gets out of the way.** The sidebar becomes a sticky compact bar with a horizontally
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.

@@ -114,17 +114,57 @@ function mountApp(active){
   const closeSheet = ()=>{ bd.classList.remove('open'); sheet.classList.remove('open') };
   bd.onclick = closeSheet;
   sheet.querySelector('[data-close]').onclick = closeSheet;
+  sheet.querySelectorAll('#sheetTier button').forEach(b=>{
+    b.onclick = ()=>{ LOOP.store.setTier(b.dataset.t); location.reload() };
+  });
+  sheet.querySelectorAll('#sheetView button').forEach(b=>{
+    b.onclick = ()=>{ LOOP.store.setView(b.dataset.v); location.reload() };
+  });
   /* in app view the Settings tab is a "More" sheet, so nothing is stranded */
   side.querySelector('.mainnav a[href="settings.html"]').addEventListener('click', e=>{
-    if (!document.body.classList.contains('appview')) return;
+    if (!document.body.classList.contains('sm')) return;
     e.preventDefault();
     bd.classList.add('open'); sheet.classList.add('open');
   });
   body.appendChild(app);
   mountViewToggle();
+  mountMobileBar(active);
+  syncMode();
+  window.addEventListener('resize', syncMode);
   side.querySelectorAll('#tierToggle button').forEach(b=>{
     b.onclick = ()=>{ LOOP.store.setTier(b.dataset.t); location.reload() };
   });
+}
+
+/* Is this a phone? True in the App frame and on a small viewport, so every
+   phone rule can be written once against body.sm instead of duplicated
+   between a media query and body.appview. */
+function syncMode(){
+  const small = window.innerWidth <= 900 || document.body.classList.contains('appview');
+  document.body.classList.toggle('sm', small);
+}
+/* iOS-style large title: it lives in the content and a compact bar takes over
+   once you scroll past it. */
+function mountMobileBar(active){
+  const bar = el('header','mobilebar');
+  const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  const page = (NAV.find(n=>n.id===active) || {label:'Loop'});
+  bar.innerHTML = `
+    <div class="mb-in">
+      <span class="mb-title">${esc(page.label==='Home' ? 'Hi, '+PARENT.name : page.label)}</span>
+      <span class="spacer"></span>
+      <span class="mb-kid">${esc(kid.label.split(' ')[0])}</span>
+      <div class="av g1" style="width:26px;height:26px;border-radius:8px;font-size:11px">${esc(kid.label[0])}</div>
+    </div>`;
+  document.body.appendChild(bar);
+  const onScroll = () => {
+    const y = (document.querySelector('.main')||document).scrollTop || window.scrollY || 0;
+    document.body.classList.toggle('scrolled', y > 56);
+  };
+  window.addEventListener('scroll', onScroll, {passive:true});
+  const main = document.querySelector('.main');
+  if (main) main.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
 }
 
 /* Web ⇄ App preview. Same markup, same data — the phone frame is CSS only,
@@ -145,6 +185,7 @@ function mountViewToggle(){
 }
 function applyView(mode){
   document.body.classList.toggle('appview', mode==='app');
+  syncMode();
   /* the tab bar wants shorter labels than the sidebar does */
   $$('.mainnav .nlabel').forEach(n=>{ n.textContent = mode==='app' ? n.dataset.app : n.dataset.web });
   window.scrollTo(0,0);
@@ -158,9 +199,22 @@ function moreSheet(active){
     ${NAV.filter(n=>!n.tab || n.id==='set').map(n=>
       `<a href="${n.href}" class="${n.id===active?'on':''}"><span class="ic">${n.ic}</span>${esc(n.label)}</a>`).join('')}
     <div class="sec">Plan</div>
+    <div class="srow" style="padding-bottom:4px">
+      <div class="tier" id="sheetTier" style="margin:0">
+        <button data-t="family"    class="${LOOP.store.tier()==='family'?'on':''}">Family</button>
+        <button data-t="connected" class="${LOOP.store.tier()==='connected'?'on':''}">Connected</button>
+      </div>
+    </div>
     <div class="srow"><span class="ic">${tier==='connected'?'🔗':'🏠'}</span>
       Loop ${esc(TIER_COPY[tier].name)}<span class="spacer"></span>
       <span class="chip ${tier==='connected'?'school':'plain'}">${tier==='connected'?'Included':esc(TIER_COPY.family.price)}</span></div>
+    <div class="sec">View</div>
+    <div class="srow" style="padding-bottom:4px">
+      <div class="tier" id="sheetView" style="margin:0;background:#eef3fb;box-shadow:inset 0 0 0 1px var(--line)">
+        <button data-v="web" class="${LOOP.store.view()==='web'?'on':''}" style="color:var(--muted)">🖥 Web</button>
+        <button data-v="app" class="${LOOP.store.view()==='app'?'on':''}" style="color:var(--muted)">📱 App</button>
+      </div>
+    </div>
     <div class="sec">Prototype surfaces</div>
     ${PROTO.map(n=>`<a href="${n.href}"><span class="ic">${n.ic}</span>${esc(n.label)}</a>`).join('')}
     <button class="btn block" style="margin-top:12px" data-close>Close</button>`;
