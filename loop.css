@@ -914,12 +914,19 @@ body.sm .side nav a{
   color:rgba(255,255,255,.5);text-align:center;background:none;box-shadow:none
 }
 body.sm .side nav a.notab{display:none}
+/* emoji don't survive being greyed out — they just look muddy. Keep every
+   icon at full colour and signal the active tab with the label and a dot. */
 body.sm .side nav a .ic{
-  width:auto;height:20px;line-height:20px;font-size:17px;
-  filter:grayscale(1) opacity(.62);transition:filter .14s,transform .14s
+  width:auto;height:20px;line-height:20px;font-size:18px;
+  filter:none;opacity:.85;transition:opacity .14s,transform .14s
 }
+body.sm .side nav a{position:relative}
 body.sm .side nav a.on{color:#fff;background:none;box-shadow:none}
-body.sm .side nav a.on .ic{filter:none;transform:translateY(-1px)}
+body.sm .side nav a.on .ic{opacity:1;transform:translateY(-1px)}
+body.sm .side nav a.on::after{
+  content:"";position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);
+  width:16px;height:3px;border-radius:999px;background:var(--gold)
+}
 
 /* ── 2 · a real title bar, not a headline ────────────────────────── */
 .mobilebar{
@@ -1080,16 +1087,21 @@ body.sm .m-row.tall{align-items:flex-start}
 body.sm .m-row.tall .ric{margin-top:1px}
 
 /* growth carousel */
-body.sm .m-growth{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
-body.sm .m-gcard{
-  background:#fff;border:1px solid var(--line-soft);border-radius:11px;padding:8px 5px 9px;
-  min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center
+/* wide enough to read, in a carousel that shows three and a bit — the peek
+   is what tells you the rest are there */
+body.sm .m-growth{
+  display:flex;gap:9px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;-webkit-overflow-scrolling:touch
 }
-body.sm .m-gcard .tile{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;margin-bottom:6px}
-body.sm .m-gcard .nm{font-size:8.5px;font-weight:900;letter-spacing:-.02em;line-height:1.15;
-  min-height:2.3em;display:flex;align-items:center;text-align:center}
-body.sm .m-gcard .st{font-size:8px;font-weight:900;margin-top:1px;line-height:1.2;white-space:nowrap}
-body.sm .m-gcard .bar{height:3px;border-radius:999px;background:#eaf0fa;margin-top:6px;overflow:hidden;width:100%}
+body.sm .m-growth::-webkit-scrollbar{display:none}
+body.sm .m-gcard{
+  flex:0 0 auto;width:108px;scroll-snap-align:start;
+  background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:12px 11px 13px
+}
+body.sm .m-gcard .tile{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;font-size:16px;margin-bottom:9px}
+body.sm .m-gcard .nm{font-size:12.5px;font-weight:900;letter-spacing:-.028em;line-height:1.2}
+body.sm .m-gcard .st{font-size:11.5px;font-weight:900;margin-top:3px;line-height:1.2}
+body.sm .m-gcard .bar{height:4px;border-radius:999px;background:#eaf0fa;margin-top:9px;overflow:hidden;width:100%}
 body.sm .m-gcard .bar i{display:block;height:100%;border-radius:999px}
 
 /* chips */
@@ -1208,11 +1220,24 @@ body.sm .m-tile{
   background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:13px 12px;min-width:0;
   position:relative;overflow:hidden
 }
+/* emoji washed out to 16% reads as a smudge rather than an illustration —
+   keep it small, keep its colour, and let it sit clear of the text */
 body.sm .m-tile .art{
-  position:absolute;right:-6px;bottom:-8px;font-size:44px;line-height:1;opacity:.16;
-  transform:rotate(-8deg);pointer-events:none
+  position:absolute;right:7px;bottom:7px;font-size:27px;line-height:1;opacity:.72;
+  transform:rotate(-6deg);pointer-events:none
 }
-body.sm .m-tile.moment{background:linear-gradient(180deg,#f4fbf6,#fff)}
+/* the two feature tiles carry a tint — it breaks up a page of white cards
+   and colour-codes the two halves of the daily ritual */
+body.sm .m-tile.convo{
+  background:linear-gradient(170deg,#f6f3ff,#fdfcff);
+  border-color:rgba(124,92,252,.22)
+}
+body.sm .m-tile.convo .tl{color:#6b4bd8}
+body.sm .m-tile.coins,body.sm .m-tile.moment{
+  background:linear-gradient(170deg,#eefaf1,#fbfefc);
+  border-color:rgba(16,139,47,.2)
+}
+body.sm .m-tile.coins .tl,body.sm .m-tile.moment .tl{color:#12803a}
 body.sm .m-tile .th{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 body.sm .m-tile .ti{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:none}
 body.sm .m-tile .tl{font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.2}

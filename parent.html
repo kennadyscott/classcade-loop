@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=48">
+<link rel="stylesheet" href="loop.css?v=52">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=48"></script>
-<script src="loop.engine.js?v=48"></script>
-<script src="loop.shell.js?v=48"></script>
+<script src="loop.data.js?v=52"></script>
+<script src="loop.engine.js?v=52"></script>
+<script src="loop.shell.js?v=52"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -118,8 +118,8 @@ function renderPhone(){
       </div>
 
       <div class="m-duo" style="margin-top:18px">
-        <div class="m-tile">
-          <div class="th"><div class="ti" style="background:#f0ecff">💬</div>
+        <div class="m-tile convo">
+          <div class="th"><div class="ti" style="background:#e9e2ff">💬</div>
             <div class="tl">Tonight's conversation</div></div>
           <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
           <div class="tp">“${esc(q.q)}”</div>
@@ -127,8 +127,8 @@ function renderPhone(){
           <span class="art">💬</span>
         </div>
         ${tier==='connected' && cn.total ? `
-        <div class="m-tile">
-          <div class="th"><div class="ti" style="background:#fff6d9">⭐</div>
+        <div class="m-tile coins">
+          <div class="th"><div class="ti" style="background:#d8f3e0">⭐</div>
             <div class="tl">ClassCade moment</div></div>
           <div class="tq">${esc(d.first)} earned ${cn.total} coins</div>
           <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
