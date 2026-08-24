@@ -38,7 +38,7 @@ function brandMark(cls){
     </span>
     <span class="brand-loop">
       <span class="ltr">L</span>
-      <svg class="inf" viewBox="0 0 92 52" aria-hidden="true">
+      <svg class="inf" viewBox="0 0 100 58" aria-hidden="true">
         <defs>
           <linearGradient id="lpBlue" x1="0" x2="1">
             <stop offset="0" stop-color="#1172ff"/><stop offset="1" stop-color="#3d8bff"/>
@@ -47,13 +47,13 @@ function brandMark(cls){
             <stop offset="0" stop-color="#ffc425"/><stop offset="1" stop-color="#ffd547"/>
           </linearGradient>
           <mask id="lpCross">
-            <rect width="92" height="52" fill="black"/>
-            <circle cx="58" cy="26" r="16" fill="none" stroke="white" stroke-width="11"/>
+            <rect width="100" height="58" fill="black"/>
+            <circle cx="63" cy="29" r="20" fill="none" stroke="white" stroke-width="13.5"/>
           </mask>
         </defs>
-        <circle cx="34" cy="26" r="16" fill="none" stroke="url(#lpBlue)" stroke-width="11"/>
-        <circle cx="58" cy="26" r="16" fill="none" stroke="url(#lpGold)" stroke-width="11"/>
-        <circle cx="34" cy="26" r="16" fill="none" stroke="#182a56" stroke-width="11" mask="url(#lpCross)"/>
+        <circle cx="37" cy="29" r="20" fill="none" stroke="url(#lpBlue)" stroke-width="13.5"/>
+        <circle cx="63" cy="29" r="20" fill="none" stroke="url(#lpGold)" stroke-width="13.5"/>
+        <circle cx="37" cy="29" r="20" fill="none" stroke="#182a56" stroke-width="13.5" mask="url(#lpCross)"/>
       </svg>
       <span class="ltr">p</span>
     </span>

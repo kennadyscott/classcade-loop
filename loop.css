@@ -440,12 +440,12 @@ textarea.note:focus{outline:2px solid rgba(7,93,250,.35);outline-offset:1px}
   letter-spacing:-.035em;line-height:1;color:#fff
 }
 .brand-top .tm{font-size:8px;font-weight:800;color:rgba(255,255,255,.5);align-self:flex-start;margin-top:1px}
-.brand-loop{display:flex;align-items:center;gap:1px;margin-top:2px;line-height:1}
+.brand-loop{display:flex;align-items:center;gap:0;margin-top:1px;line-height:1}
 .brand-loop .ltr{
   font-family:'Baloo 2',Inter,sans-serif;font-weight:800;font-size:34px;
   letter-spacing:-.05em;color:#fff;line-height:.9
 }
-.brand-loop .inf{height:25px;width:44px;flex:none;margin:0 -1px}
+.brand-loop .inf{height:31px;width:53px;flex:none;margin:0 -4px}
 /* light-surface variant */
 .brand.on-light .brand-top .cc,.brand.on-light .brand-loop .ltr{color:var(--ink)}
 .brand.on-light .brand-top .tm{color:var(--muted-2)}
@@ -698,7 +698,7 @@ body.appview .dash > div > *{min-width:0;max-width:100%}
   .side .brand-top .cc{font-size:14px}
   .side .brand-top .spark{width:15px;height:15px}
   .side .brand-loop .ltr{font-size:22px}
-  .side .brand-loop .inf{height:17px;width:30px}
+  .side .brand-loop .inf{height:21px;width:36px;margin:0 -3px}
   .side-promo{display:none}
   .side-label{display:none}
   .side nav{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:2px;flex:1;scrollbar-width:none}
