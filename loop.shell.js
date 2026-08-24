@@ -131,7 +131,7 @@ function mountApp(active){
   mountViewToggle();
   mountMobileBar(active);
   syncMode();
-  window.addEventListener('resize', syncMode);
+  window.addEventListener('resize', ()=>{ applyView(CURRENT_VIEW); });
   side.querySelectorAll('#tierToggle button').forEach(b=>{
     b.onclick = ()=>{ LOOP.store.setTier(b.dataset.t); location.reload() };
   });
@@ -201,7 +201,12 @@ function mountViewToggle(){
   });
 }
 function applyView(mode){
-  document.body.classList.toggle('appview', mode==='app');
+  /* Never draw a phone frame on an actual phone. If someone picked "Phone"
+     on a desktop and then opens the same link on their handset, the stored
+     preference would otherwise render a 392px frame inside a 375px screen —
+     cut off, with the toggle sitting on top of the header. */
+  const framed = mode === 'app' && window.innerWidth >= 900;
+  document.body.classList.toggle('appview', framed);
   syncMode();
   /* the tab bar wants shorter labels than the sidebar does */
   $$('.mainnav .nlabel').forEach(n=>{ n.textContent = mode==='app' ? n.dataset.app : n.dataset.web });

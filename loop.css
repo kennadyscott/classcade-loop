@@ -1080,19 +1080,16 @@ body.sm .m-row.tall{align-items:flex-start}
 body.sm .m-row.tall .ric{margin-top:1px}
 
 /* growth carousel */
-body.sm .m-growth{
-  display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;
-  margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none
-}
-body.sm .m-growth::-webkit-scrollbar{display:none}
+body.sm .m-growth{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
 body.sm .m-gcard{
-  min-width:126px;scroll-snap-align:start;background:#fff;border:1px solid var(--line-soft);
-  border-radius:16px;padding:14px 13px
+  background:#fff;border:1px solid var(--line-soft);border-radius:11px;padding:8px 5px 9px;
+  min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center
 }
-body.sm .m-gcard .tile{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:17px;margin-bottom:10px}
-body.sm .m-gcard .nm{font-size:13.5px;font-weight:900;letter-spacing:-.025em}
-body.sm .m-gcard .st{font-size:12.5px;font-weight:800;margin-top:2px}
-body.sm .m-gcard .bar{height:4px;border-radius:999px;background:#eaf0fa;margin-top:10px;overflow:hidden}
+body.sm .m-gcard .tile{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;margin-bottom:6px}
+body.sm .m-gcard .nm{font-size:8.5px;font-weight:900;letter-spacing:-.02em;line-height:1.15;
+  min-height:2.3em;display:flex;align-items:center;text-align:center}
+body.sm .m-gcard .st{font-size:8px;font-weight:900;margin-top:1px;line-height:1.2;white-space:nowrap}
+body.sm .m-gcard .bar{height:3px;border-radius:999px;background:#eaf0fa;margin-top:6px;overflow:hidden;width:100%}
 body.sm .m-gcard .bar i{display:block;height:100%;border-radius:999px}
 
 /* chips */
@@ -1115,7 +1112,7 @@ body.sm .m-row .rtitle{font-weight:800}
    is a navy zone that bleeds to the edges, and the light content starts
    underneath it. That single move is most of the "app" feeling. */
 body.sm .m-dark{
-  margin:0 -16px 0;padding:calc(10px + env(safe-area-inset-top)) 16px 17px;
+  margin:0 -16px 0;padding:calc(9px + env(safe-area-inset-top)) 16px 14px;
   background:linear-gradient(168deg,#0b2360 0%,#061846 62%);
   border-radius:0 0 26px 26px;position:relative;overflow:hidden
 }
@@ -1127,7 +1124,7 @@ body.sm .m-dark > *{position:relative;z-index:1}
 body.appview.sm .m-dark{padding-top:46px}
 
 /* brand + utilities row */
-body.sm .m-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+body.sm .m-brand{display:flex;align-items:center;gap:10px;margin-bottom:13px}
 body.sm .m-brand .lock{display:flex;flex-direction:column;line-height:1}
 body.sm .m-brand .cc{font-family:'Baloo 2',Inter,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:-.03em;color:#fff}
 body.sm .m-brand .lp{
@@ -1149,44 +1146,53 @@ body.sm .m-me{width:34px;height:34px;border-radius:999px;display:grid;place-item
   font-weight:900;font-size:13px;color:#fff;background:linear-gradient(#7c5cfc,#5b21e8)}
 
 /* greeting on dark */
-body.sm .m-greet{font-size:21px;font-weight:900;letter-spacing:-.045em;line-height:1.16;color:#fff}
-body.sm .m-greet-sub{font-size:13.5px;color:rgba(255,255,255,.62);margin-top:4px}
+body.sm .m-greetrow{display:flex;align-items:center;gap:10px}
+body.sm .m-greetrow > div:first-child{min-width:0;flex:1}
+body.sm .m-greet{font-size:19px;font-weight:900;letter-spacing:-.042em;line-height:1.18;color:#fff;white-space:nowrap}
+body.sm .m-greet-sub{font-size:12px;color:rgba(255,255,255,.6);margin-top:2px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
 body.sm .m-kidpill{
-  display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;
-  padding:8px 12px;margin-top:14px;cursor:pointer
+  display:flex;align-items:center;gap:8px;background:#fff;border-radius:13px;
+  padding:6px 9px;cursor:pointer;flex:none;max-width:52%
 }
-body.sm .m-kidpill .nm{font-size:14px;font-weight:900;letter-spacing:-.025em;line-height:1.2}
-body.sm .m-kidpill .mt{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px}
+body.sm .m-kidpill .nm{font-size:12.5px;font-weight:900;letter-spacing:-.025em;line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.sm .m-kidpill .mt{font-size:10px;color:var(--muted);font-weight:700;margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 body.sm .m-kidpill .cv{margin-left:auto;color:var(--muted-2);font-weight:900}
 
 /* hero card sits inside the dark zone, one step lighter */
 body.sm .m-hero{
-  background:rgba(255,255,255,.055);border-radius:18px;padding:15px;margin-top:14px;
+  background:rgba(255,255,255,.055);border-radius:18px;padding:13px;margin-top:12px;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);position:relative;overflow:hidden
 }
 body.sm .m-hero .eyebrow2{
   font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.45)
 }
-body.sm .m-hero h2{font-size:18px;line-height:1.25;letter-spacing:-.035em;color:#fff;margin:8px 0 6px}
-body.sm .m-hero .sub{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,.62)}
-body.sm .m-hero .bog{position:absolute;right:-14px;top:34px;width:76px;height:76px;opacity:.95}
-body.sm .m-hero .headrow{display:flex;gap:11px;align-items:flex-start;padding-right:56px}
+body.sm .m-hero h2{font-size:17px;line-height:1.21;letter-spacing:-.038em;color:#fff;margin:7px 0 5px}
+body.sm .m-hero .sub{font-size:12px;line-height:1.4;color:rgba(255,255,255,.6);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+body.sm .m-hero .bog{position:absolute;right:-12px;top:26px;width:70px;height:70px;opacity:.95}
+body.sm .m-hero .headrow{display:flex;gap:10px;align-items:flex-start;padding-right:52px}
 body.sm .m-hero .shield{
   width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:17px
 }
-body.sm .m-hero .btn{margin-top:13px;width:100%;padding:11px;font-size:13.5px}
-body.sm .m-src2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;
-  padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
-body.sm .m-src2 .hd{font-size:9.5px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
+body.sm .m-hero .btn{width:100%;padding:10px 6px;font-size:12.5px;white-space:nowrap;align-self:start}
+body.sm .m-bottom{
+  display:grid;grid-template-columns:82px 1fr 1fr;gap:9px;margin-top:12px;
+  padding-top:11px;border-top:1px solid rgba(255,255,255,.1)
+}
+body.sm .m-src2{display:contents}
+body.sm .m-src2 .hd{font-size:9px;font-weight:900;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px}
 body.sm .m-src2 .s .hd{color:#7fb0ff}
 body.sm .m-src2 .h .hd{color:#5ee0cd}
-body.sm .m-src2 .stat{font-size:12.5px;font-weight:800;color:#fff;line-height:1.35}
+body.sm .m-src2 .stat{font-size:11.5px;font-weight:800;color:#fff;line-height:1.32}
 body.sm .m-src2 .qt{
-  margin-top:8px;background:rgba(255,255,255,.07);border-radius:10px;padding:8px 9px;
-  font-size:11.5px;line-height:1.4;color:rgba(255,255,255,.86);
+  margin-top:6px;background:rgba(255,255,255,.07);border-radius:9px;padding:6px 8px;
+  font-size:10.5px;line-height:1.35;color:rgba(255,255,255,.84);
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)
 }
-body.sm .m-src2 .qt .by{display:block;margin-top:4px;font-size:10.5px;color:rgba(255,255,255,.48);font-weight:800}
+body.sm .m-src2 .qt .by{display:block;margin-top:3px;font-size:9.5px;color:rgba(255,255,255,.46);font-weight:800}
 
 /* light content below the fold of the dark zone */
 body.sm .m-light{padding-top:4px}
@@ -1199,8 +1205,14 @@ body.sm .m-secrow a{margin-left:auto;font-size:12.5px;font-weight:800;text-trans
 /* two-up feature cards */
 body.sm .m-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 body.sm .m-tile{
-  background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:13px 12px;min-width:0
+  background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:13px 12px;min-width:0;
+  position:relative;overflow:hidden
 }
+body.sm .m-tile .art{
+  position:absolute;right:-6px;bottom:-8px;font-size:44px;line-height:1;opacity:.16;
+  transform:rotate(-8deg);pointer-events:none
+}
+body.sm .m-tile.moment{background:linear-gradient(180deg,#f4fbf6,#fff)}
 body.sm .m-tile .th{display:flex;align-items:center;gap:7px;margin-bottom:9px}
 body.sm .m-tile .ti{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:none}
 body.sm .m-tile .tl{font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.2}
@@ -1219,6 +1231,10 @@ body.sm .m-frow .ft b{display:block;font-size:13px;font-weight:900;letter-spacin
 body.sm .m-frow .ft span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px}
 body.sm .m-frow .fc{font-size:10.5px;font-weight:900;padding:3px 7px;border-radius:999px;flex:none;
   background:#fff6d9;color:#7a5a00;box-shadow:inset 0 0 0 1px rgba(255,196,37,.4)}
+body.sm .m-frow .fw{
+  width:22px;height:22px;border-radius:999px;flex:none;display:grid;place-items:center;
+  font-size:9px;font-weight:900;color:#fff;background:linear-gradient(#7c5cfc,#5b21e8)
+}
 
 /* status + title bars go transparent over a dark header */
 body.darktop .statusbar{background:transparent;color:#fff}

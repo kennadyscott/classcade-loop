@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=44">
+<link rel="stylesheet" href="loop.css?v=48">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=44"></script>
-<script src="loop.engine.js?v=44"></script>
-<script src="loop.shell.js?v=44"></script>
+<script src="loop.data.js?v=48"></script>
+<script src="loop.engine.js?v=48"></script>
+<script src="loop.shell.js?v=48"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -60,14 +60,17 @@ function renderPhone(){
         </span>
       </div>
 
-      <div class="m-greet">${esc(PARENT.greeting)}, ${esc(PARENT.name)}! 👋</div>
-      <div class="m-greet-sub">Here's what's happening with ${esc(d.first)}.</div>
-
-      <div class="m-kidpill" id="kidmenu">
-        <div class="av g1" style="width:32px;height:32px;border-radius:10px;font-size:13px">${esc(kid.label[0])}</div>
-        <div><div class="nm">${esc(kid.label)}</div>
-        <div class="mt">${esc(kid.grade)}${kid.teacher?' · '+esc(kid.teacher):''}</div></div>
-        <span class="cv">⌄</span>
+      <div class="m-greetrow">
+        <div>
+          <div class="m-greet">Hi, ${esc(PARENT.name)}! 👋</div>
+          <div class="m-greet-sub">Here's ${esc(d.poss)} week.</div>
+        </div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div>
+          <div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
       </div>
 
       ${ins && !ins.cold ? `
@@ -79,8 +82,9 @@ function renderPhone(){
           <div><h2>${esc(ins.head)}</h2>
           <div class="sub">${esc(ins.why)}</div></div>
         </div>
-        <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</button>
-        <div class="m-src2">
+        <div class="m-bottom">
+          <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See week →</button>
+          <div class="m-src2">
           ${tier==='connected'?`<div class="s">
             <div class="hd">🏫 At school</div>
             <div class="stat">${esc(ins.schoolStat||'Nothing flagged')}</div>
@@ -89,7 +93,8 @@ function renderPhone(){
           <div class="h" ${tier==='connected'?'':'style="grid-column:1/-1"'}>
             <div class="hd">🏠 At home</div>
             <div class="stat">${esc(ins.homeStat||'Nothing logged yet')}</div>
-            ${ins.voice?`<div class="qt">"${esc(ins.voice)}"<span class="by">— ${esc(d.first)}, told to you</span></div>`:''}
+            ${ins.voice?`<div class="qt">"${esc(ins.voice)}"<span class="by">— ${esc(d.first)}</span></div>`:''}
+          </div>
           </div>
         </div>
       </div>` : `
@@ -119,6 +124,7 @@ function renderPhone(){
           <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
           <div class="tp">“${esc(q.q)}”</div>
           <a class="tlink" href="#" data-open-q>See why this matters →</a>
+          <span class="art">💬</span>
         </div>
         ${tier==='connected' && cn.total ? `
         <div class="m-tile">
@@ -132,12 +138,14 @@ function renderPhone(){
             </div>
             <div class="tp" style="margin:0">From ${esc(cn.top?cn.top.label:'—')}</div>
           </div>
+          <span class="art">🪙</span>
         </div>` : `
-        <div class="m-tile">
+        <div class="m-tile moment">
           <div class="th"><div class="ti" style="background:${fdim.tint}">${fdim.ico}</div>
             <div class="tl">Today's moment</div></div>
           <div class="tq">${esc(mom.title)}</div>
           <div class="tp">${esc(mom.prompt)}</div>
+          <span class="art">🌱</span>
         </div>`}
       </div>
 
@@ -148,6 +156,7 @@ function renderPhone(){
           <span class="fd">${fmtShort(x.d)}</span>
           <span class="fi" style="background:var(--tint)">${x.sig.emoji}</span>
           <span class="ft"><b style="${x.v<0?'color:var(--watch)':''}">${esc(x.sig.label)}</b><span>${esc(x.detail)}</span></span>
+          <span class="fw" title="Ms. Alvarez">MA</span>
           ${x.coins?`<span class="fc">⊙ +${x.coins}</span>`:''}
         </div>`).join('')}
       </div>` : `
