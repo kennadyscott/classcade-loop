@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=39">
+<link rel="stylesheet" href="loop.css?v=41">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=39"></script>
-<script src="loop.engine.js?v=39"></script>
-<script src="loop.shell.js?v=39"></script>
+<script src="loop.data.js?v=41"></script>
+<script src="loop.engine.js?v=41"></script>
+<script src="loop.shell.js?v=41"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -18,6 +18,139 @@ const wide = () => window.matchMedia('(min-width:901px)').matches
                  && !document.body.classList.contains('appview');
 
 function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+/* ── PHONE ────────────────────────────────────────────────
+   One panel carries the week. Everything else is a section header
+   in the page flow followed by rows. No uppercase micro-labels,
+   no cards inside cards. */
+function renderPhone(){
+  const tier = LOOP.store.tier();
+  const r    = LOOP.read(ME, tier);
+  const ins  = LOOP.headlines(ME, tier, 1)[0];
+  const mom  = LOOP.moment(ME);
+  const cn   = LOOP.coins(ME);
+  const q    = LOOP.starters(ME, 1, LOOP.store.starterSeed())[0];
+  const qkey = q.q.slice(0,40);
+  const qdone = !!LOOP.store.talked()[qkey];
+  const kid  = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  const msg  = TEACHER_MESSAGES.find(x=>x.s===ME);
+  const evt  = EVENTS_UPCOMING.find(x=>x.s===ME);
+  const fid  = LOOP.store.focus(ME) || (ins ? ins.dim.id : 'confidence');
+  const fdim = DIMENSIONS.find(x=>x.id===fid);
+  const fn   = NARRATIVE[fid][r[fid].cold?'flat':r[fid].dir];
+
+  $('#app').innerHTML = `
+    <div class="m-wrap">
+      <div class="m-top">
+        <div class="m-hi">Hi, ${esc(PARENT.name)}</div>
+        <div class="m-kid" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:999px;font-size:12px">${esc(kid.label[0])}</div>
+          <span class="nm">${esc(kid.label.split(' ')[0])}</span>
+          <span style="color:var(--muted-2);font-weight:900">⌄</span>
+        </div>
+      </div>
+
+      ${ins && !ins.cold ? `
+      <section class="m-week">
+        <div class="lead">This week</div>
+        <h2>${esc(ins.head)}</h2>
+        ${ins.schoolStat && tier==='connected' ? `<div class="m-ev"><span class="ico">🏫</span>
+          <span class="tx">At school · <b>${esc(ins.schoolStat)}</b></span></div>` : ''}
+        ${ins.homeStat ? `<div class="m-ev"><span class="ico">🏠</span>
+          <span class="tx">At home · <b>${esc(ins.homeStat)}</b></span></div>` : ''}
+        ${ins.voice ? `<div class="m-ev quote"><span class="ico">💬</span>
+          <span class="tx">&ldquo;${esc(ins.voice)}&rdquo;</span></div>` : ''}
+        <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week</button>
+      </section>` : `
+      <section class="m-week">
+        <div class="lead">This week</div>
+        <h2>Still getting to know ${esc(d.first)}.</h2>
+        <div class="m-ev"><span class="ico">🌱</span><span class="tx">Loop waits for a pattern rather than guessing from one moment.</span></div>
+      </section>`}
+
+      <div class="m-sec">Tonight <span class="sub">instead of “How was school?”</span></div>
+      <div class="m-q">
+        <div class="prov ${q.src==='home'?'home':''}">
+          ${q.grounded ? (q.src==='school'?'🏫 Because at school: ':'🏠 Because at home: ')+esc(q.because) : '💬 Always works'}
+        </div>
+        <div class="qq" style="${qdone?'opacity:.5;text-decoration:line-through':''}">&ldquo;${esc(q.q)}&rdquo;</div>
+        <div class="then">Then: &ldquo;${esc(q.follow)}&rdquo;</div>
+        <div class="acts">
+          <button class="btn sm ${qdone?'sel':''}" data-talked="${esc(qkey)}">${qdone?'✓ Talked':'We talked'}</button>
+          <button class="btn sm ghost" id="shuffleQ">↻ Another</button>
+        </div>
+      </div>
+
+      <div class="m-sec">${esc(d.first)}'s growth <a href="growth.html">See all ›</a></div>
+      <div class="m-growth">
+        ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
+          <div class="m-gcard" data-go="growth.html?d=${dim.id}">
+            <div class="tile" style="background:${dim.tint}">${dim.ico}</div>
+            <div class="nm">${esc(dim.name)}</div>
+            <div class="st" style="color:${x.cold?'var(--muted-2)':dim.color}">${LOOP.LEVEL_LABEL[x.level]}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
+            <div class="bar"><i style="width:${x.cold?10:x.pct}%;background:${x.cold?'#c9d6ec':dim.color}"></i></div>
+          </div>`}).join('')}
+      </div>
+
+      <div class="m-sec">Today</div>
+      <div class="m-row tall" data-go="growth.html?d=${fid}">
+        <div class="ric" style="background:${fdim.tint}">${fdim.ico}</div>
+        <div class="rtx"><div class="rtitle">${esc(mom.title)}</div>
+          <div class="rsub">${esc(mom.prompt)}</div></div>
+        <span class="chev">›</span>
+      </div>
+
+      <div class="m-sec">Add what you noticed</div>
+      <div class="m-chips">
+        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+      </div>
+      <a class="m-row" href="ask.html" style="margin-top:9px">
+        <div class="ric" style="background:var(--home-bg)">💬</div>
+        <div class="rtx"><div class="rtitle">Something worrying you?</div>
+          <div class="rsub">Always here, never behind the paywall</div></div>
+        <span class="chev">›</span>
+      </a>
+
+      ${tier==='connected' ? `
+      <div class="m-sec">From school</div>
+      <a class="m-row" href="school.html">
+        <div class="ric" style="background:var(--school-bg)">🏫</div>
+        <div class="rtx"><div class="rtitle">What happened at school</div>
+          <div class="rsub">${LOOP.activity(ME,40).length} signals · ${cn.total} coins this week</div></div>
+        <span class="chev">›</span>
+      </a>
+      ${msg?`<div class="m-row tall">
+        <div class="ric" style="background:var(--school-bg)">🧑‍🏫</div>
+        <div class="rtx"><div class="rtitle">${esc(msg.from)}</div>
+          <div class="rsub">${esc(msg.body)}</div></div>
+      </div>`:''}
+      ${evt?`<a class="m-row" href="ask.html#conference">
+        <div class="ric" style="background:#fff6d9">📅</div>
+        <div class="rtx"><div class="rtitle">${esc(evt.kind)}</div>
+          <div class="rsub">${esc(evt.when)} · get questions to ask</div></div>
+        <span class="chev">›</span>
+      </a>`:''}` : `
+      <div class="m-sec">Not connected</div>
+      <div class="m-row tall" id="connectRow">
+        <div class="ric" style="background:var(--school-bg)">🔗</div>
+        <div class="rtx"><div class="rtitle">Connect ${esc(d.first)}'s classroom</div>
+          <div class="rsub">Bring what ${esc(d.subj)} already does in Showdown into Loop — no extra work for the teacher.</div></div>
+        <span class="chev">›</span>
+      </div>`}
+
+      <p class="m-note">Loop shows status words, never scores. It waits for a pattern before it says anything.</p>
+    </div>`;
+
+  wire();
+  $$('[data-go]').forEach(el2=>el2.onclick=()=>location.href=el2.dataset.go);
+  const cr=$('#connectRow'); if(cr) cr.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
+  const km=$('#kidmenu'); if(km) km.onclick=()=>toast('Only Maya is seeded in this prototype.');
+}
+
+function renderDesktop(){
   const tier = LOOP.store.tier();
   const r    = LOOP.read(ME, tier);
   const ins  = LOOP.headlines(ME, tier, 1)[0];
