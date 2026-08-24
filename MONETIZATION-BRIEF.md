@@ -177,6 +177,67 @@ product to paid. Decide once.
 
 ---
 
+## So what, if anything, does a parent pay for?
+
+Three candidate answers. One of them is a trap.
+
+### ✗ Parents do not pay for the school connection
+
+Tempting — it's the most obviously valuable thing — and it should be ruled out on principle, not on
+pricing.
+
+- **It makes school signal a luxury good.** Two children in the same class, one family sees the
+  classroom picture and one doesn't. Teachers will hate it, and a district procurement officer will
+  spot the equity problem in the first meeting.
+- **You'd be charging a parent for information about their own child that the school already
+  generated.** Even where that's legally clean, it is a headline waiting to happen — parents have
+  statutory rights to their children's educational records, and monetising access to teacher
+  observations sits far too close to that line.
+- **It kills the loop.** The free parent who asks their school about ClassCade is the cheapest lead in
+  the business. Charge them for the thing they're asking for and they churn instead of advocating.
+
+**Principle to state out loud: a family never pays for school data. The school pays for the seam.**
+
+### ✗ Do not paywall "AI features"
+
+This is the trap, and it fails on three separate grounds.
+
+**It guts the free tier.** The generation *is* the product. The weekly noticing, the grounded question,
+the interpretation of a signal into a sentence — take those away and free Loop is six dimension labels
+with no read on them. That's not a free tier, it's a teaser, and a teaser doesn't produce advocates.
+
+**It's a depreciating paywall.** "It's AI" was a premium in 2023. By the time Loop is at scale it will
+be table stakes, and you'll have priced on the implementation instead of on the outcome. Price on what
+the parent gets, never on how it was made.
+
+**The cost argument doesn't even support it.** The weekly insight is the *cheap* part — one bounded,
+batchable generation per child per week. The expensive part is Ask, which is on-demand and unbounded —
+and Ask is the one thing that must stay free permanently for safety reasons. Paywalling "AI" would
+charge for the cheap half and give away the expensive half.
+
+### ✓ What a parent might legitimately pay for
+
+The test for any candidate: **if this were free, would it make more parents advocate to their school?**
+If yes, it's free. What survives that test is anything that only matters to a *specific, motivated
+minority* and that no school will ever buy on their behalf.
+
+| Candidate | Verdict |
+|---|---|
+| **Time depth** — free keeps a rolling window (the engine already runs 21 days); paid keeps years. *"Confidence, September to June." "The third-grade dip, and when it resolved."* | **Strongest.** Costs storage, compounds with tenure, and takes nothing away from this week's insight. |
+| **Portability** — a conference packet, a summary for a tutor, therapist, or the next teacher; a real export. | **Good.** A moment of willingness-to-pay rather than a subscription grind, aimed at families already in a support process. |
+| **Ask as a coach, not a safety net** — the single four-part answer stays free forever; an ongoing, multi-turn conversation that remembers the child's history is a different product. | **Careful but viable.** The line must be legible: *worry is free, coaching is paid.* |
+| **More children** | **No.** Charging per child punishes large families and reads badly in a parenting product. |
+| **The daily ritual** — conversation starters, the 5-minute moment | **No.** That's the retention loop. Paywalling the habit kills the thing that makes free worth having. |
+| **Anything safety-adjacent** | **Never.** |
+
+### The recommendation: don't ship a parent paid tier in v1
+
+Free is a one-way door; *adding* a paid tier later is easy, provided you never promise "everything, free,
+forever." Ship free + school-paid, instrument what motivated parents actually ask for, and build the
+paid tier from evidence rather than from this table. Depth and portability are the leading hypotheses,
+not decisions — and if they land, ~$4–6/mo or ~$40/yr is the right neighbourhood, below the original
+$7.99, because it is deliberately *less* than the whole product.
+
 ## The segment this model abandons
 
 Families whose school will *never* buy ClassCade — private, parochial, homeschool, and small rural
