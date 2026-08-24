@@ -10,6 +10,9 @@ const ICON = {
   growth:'<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21a1 1 0 0 1-1-1v-5.1C6.9 14.4 4 11.6 4 8.2V6a1 1 0 0 1 1-1h1.4c3.3 0 5.8 2.2 6.3 5.3.9-2.2 3-3.8 5.5-3.8H20a1 1 0 0 1 1 1v1.3c0 3.4-2.8 6.1-6.3 6.1H13v5.1a1 1 0 0 1-1 1z"/></svg>',
   ask:   '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c5 0 9 3.4 9 7.6s-4 7.6-9 7.6c-.9 0-1.7-.1-2.5-.3l-4 2.1a.7.7 0 0 1-1-.8l.8-3.1C3.2 14.7 3 12.7 3 10.6 3 6.4 7 3 12 3z"/></svg>',
   more:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  school:'<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2 21.4 7a1 1 0 0 1 .6.9V10a1 1 0 0 1-1 1h-1v8h1a1 1 0 1 1 0 2H3a1 1 0 1 1 0-2h1v-8H3a1 1 0 0 1-1-1V7.9c0-.4.2-.7.6-.9zM8 13v6h3v-6zm5 0v6h3v-6z"/></svg>',
+  kids:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M8.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M8.5 12.5c-3.2 0-6 1.7-6 3.9V19a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2.6c0-2.2-2.8-3.9-6-3.9M17 11.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6m0 1.5c-.7 0-1.4.1-2 .3 1.3 1 2 2.2 2 3.6V20h4a1 1 0 0 0 1-1v-2.2c0-1.9-2.2-3.3-5-3.3"/></svg>',
+  mail:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6.6A2.6 2.6 0 0 1 5.6 4h12.8A2.6 2.6 0 0 1 21 6.6v.2l-9 5.2-9-5.2zm0 2.5V17a2.6 2.6 0 0 0 2.6 2.6h12.8A2.6 2.6 0 0 0 21 17V9.1l-8.5 4.9a1 1 0 0 1-1 0z"/></svg>',
   plus:  '<svg style="width:22px;height:22px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
 };
 
@@ -17,9 +20,9 @@ const NAV = [
   { id:'home',   href:'parent.html',   ic:'🏠', glyph:'home',   label:'Home',     tab:true },
   { id:'growth', href:'growth.html',   ic:'🌱', glyph:'growth', label:'Growth',   tab:true },
   { id:'ask',    href:'ask.html',      ic:'💬', glyph:'ask',    label:'Ask',      tab:true },
-  { id:'school', href:'school.html',   ic:'🏫', label:'School' },
-  { id:'kids',   href:'kids.html',     ic:'👥', label:'My Kids' },
-  { id:'msgs',   href:'messages.html', ic:'✉️', label:'Messages' },
+  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'School' },
+  { id:'kids',   href:'kids.html',     ic:'👥', glyph:'kids',   label:'My Kids' },
+  { id:'msgs',   href:'messages.html', ic:'✉️', glyph:'mail',   label:'Messages', tab:true },
   { id:'set',    href:'settings.html', ic:'⚙️', glyph:'more', label:'Settings', tab:true, tabLabel:'More' },
 ];
 const PROTO = [
@@ -206,7 +209,7 @@ function mountMobileBar(active){
    everywhere. */
 function defaultViewFor(active){
   if (window.innerWidth < 900) return 'web';   // already a phone; no frame needed
-  if (active === 'index.html' || active === 'teacher.html') return 'web';
+  if (active === 'teacher.html') return 'web';   /* a classroom surface */
   return 'app';
 }
 let CURRENT_VIEW = 'web';
@@ -273,6 +276,19 @@ function moreSheet(active){
     <button class="btn block" style="margin-top:12px" data-close>Close</button>`;
 }
 
+/* Header tab strip — sits in the dark zone under the greeting and carries
+   every surface, so the bottom bar can stay short. */
+function headerTabs(active){
+  return `
+  <nav class="h-tabs">
+    ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}">
+      <span class="ht-ic">${n.glyph?ICON[n.glyph]:n.ic}</span>
+      <span class="ht-lb">${esc(n.tabLabel||n.label)}</span>
+      ${n.id==='msgs'?'<i class="ht-dot"></i>':''}
+    </a>`).join('')}
+  </nav>`;
+}
+
 /* greeting + child switcher */
 function topline(sub){
   const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
@@ -303,7 +319,12 @@ function topline(sub){
 }
 function wireTopline(){
   const m = $('#kidmenu'); if(!m) return;
-  m.querySelector('.kidpick').onclick = ()=>m.classList.toggle('open');
+  const trigger = m.querySelector('.kidpick');
+  if (!trigger){                       /* phone composition: pill IS the trigger */
+    m.onclick = ()=>toast('Only Maya is seeded in this prototype.');
+    return;
+  }
+  trigger.onclick = ()=>m.classList.toggle('open');
   m.querySelectorAll('[data-kid]').forEach(b=>b.onclick=()=>{
     m.classList.remove('open');
     if (b.dataset.kid!==ME) toast('Only Maya is seeded in this prototype.');

@@ -620,3 +620,16 @@ const DEFAULT_PREFS = {
   shareWithSchool:true,
   language:'English',
 };
+
+/* ── CLASSROOM UPDATES ─────────────────────────────────────────────
+   Whole-class posts from the teacher, threaded into the School log
+   alongside the per-child Showdown signals. Photos are a designed
+   affordance — nothing uploads yet, so `photo` renders a placeholder. */
+const CLASS_UPDATES = [
+  { d:'2026-08-22', from:'Ms. Alvarez', kind:'update', photo:true,
+    body:'Showdown finals today — every team made it to the last round. Ask your kids who they picked for their team name.' },
+  { d:'2026-08-20', from:'Ms. Alvarez', kind:'update',
+    body:'We start our unit on multiplication strategies Monday. No supplies needed — just a good night\'s sleep.' },
+  { d:'2026-08-18', from:'ClassCade', kind:'system',
+    body:'New Boggies unlocked for the class this week.' },
+];
