@@ -426,8 +426,22 @@ textarea.note:focus{outline:2px solid rgba(7,93,250,.35);outline-offset:1px}
 .q-card .whyq{font-size:12.5px;color:var(--muted);line-height:1.5}
 .q-card .followq{font-size:12.5px;font-weight:800;color:var(--ink)}
 .q-card .acts{display:flex;gap:7px;margin-top:2px}
-.q-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
-@media(max-width:1180px){.q-grid{grid-template-columns:1fr}}
+.q-hero{
+  border-radius:18px;padding:20px 22px;background:var(--tint);
+  box-shadow:inset 0 0 0 1.5px rgba(7,93,250,.22);display:flex;flex-direction:column;gap:11px
+}
+.q-hero .qq{font-size:22px;font-weight:900;letter-spacing:-.035em;line-height:1.28}
+.q-hero .because{align-self:flex-start}
+.q-hero .because.plain{color:var(--muted);background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.q-hero .followq{font-size:13.5px}
+.q-hero .acts{margin-top:3px}
+.q-hero.done .qq{opacity:.5;text-decoration:line-through;text-decoration-color:var(--muted-2)}
+@media(max-width:900px){
+  .q-hero{padding:16px}
+  .q-hero .qq{font-size:19px}
+  .q-hero .acts{flex-direction:column}
+  .q-hero .acts .btn{width:100%}
+}
 .q-card.done{opacity:.55}
 .q-card.done .qq{text-decoration:line-through;text-decoration-color:var(--muted-2)}
 

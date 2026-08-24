@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=20">
+<link rel="stylesheet" href="loop.css?v=22">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=20"></script>
-<script src="loop.engine.js?v=20"></script>
-<script src="loop.shell.js?v=20"></script>
+<script src="loop.data.js?v=22"></script>
+<script src="loop.engine.js?v=22"></script>
+<script src="loop.shell.js?v=22"></script>
 <script>
 const d = LOOP.child(ME);
 
@@ -103,57 +103,42 @@ function messageQuote(){
   return `<div class="hero-quote">“${esc(m.body.split('.')[0])}.”<span class="by">— ${esc(m.from)}</span></div>`;
 }
 
-/* ── instead of "how was school today?" ───────────────── */
+/* ── instead of "how was school today?" ─────────────────
+   One question. Not three. A parent standing in a kitchen at 5pm can hold
+   exactly one thing — give them the best one and a button to reroll. */
 function startersCard(){
   const seed = LOOP.store.starterSeed();
-  const list = LOOP.starters(ME, 3, seed);
-  const done = LOOP.store.talked();
+  const x = LOOP.starters(ME, 1, seed)[0];
+  const key = x.q.slice(0,40);
+  const done = !!LOOP.store.talked()[key];
   return `
   <div class="starters">
-    <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
-      <div>
-        <div class="mini-lbl">Tonight's conversation</div>
-        <h3 style="font-size:22px;margin-top:5px">
-          Instead of <span class="strike">“How was school today?”</span></h3>
-        <p class="muted small" style="margin-top:7px;max-width:64ch">
-          That question asks a child to summarize seven hours and deliver a verdict, so they say
-          <strong>“fine”</strong>. These don't — and the first ones are built from things that actually
-          happened${LOOP.store.tier()==='connected'?' in '+esc(d.poss)+' classroom this week':' at home this week'}.
-        </p>
-      </div>
-      <span class="spacer"></span>
-      <button class="btn sm ghost" id="shuffleQ">↻ Different questions</button>
-    </div>
+    <div class="mini-lbl">Tonight's conversation</div>
+    <h3 style="font-size:20px;margin:5px 0 16px">
+      Instead of <span class="strike">&ldquo;How was school today?&rdquo;</span></h3>
 
-    <div class="q-grid">
-      ${list.map((x,i)=>{
-        const key = x.q.slice(0,40);
-        const isDone = !!done[key];
-        return `
-        <div class="q-card ${x.grounded?'grounded':''} ${isDone?'done':''}">
-          ${x.grounded
-            ? `<div class="because ${x.src==='home'?'home':''}">
-                 ${x.src==='school'?'🏫 Because at school:':'🏠 Because at home:'} ${esc(x.because)}</div>`
-            : `<div class="mini-lbl">Always works</div>`}
-          <div class="qq">“${esc(x.q)}”</div>
-          <details class="qfold" ${window.matchMedia('(min-width:901px)').matches?'open':''}>
-            <summary>Why this works · what to ask next</summary>
-            <div class="qb">
-              <div class="whyq">${esc(x.why)}</div>
-              <div class="followq">Then: “${esc(x.follow)}”</div>
-            </div>
-          </details>
-          <div class="acts">
-            <button class="btn sm ${isDone?'sel':''}" data-talked="${esc(key)}">${isDone?'✓ We talked':'We talked about this'}</button>
-          </div>
-        </div>`}).join('')}
+    <div class="q-hero ${done?'done':''}">
+      ${x.grounded
+        ? `<div class="because ${x.src==='home'?'home':''}">
+             ${x.src==='school'?'🏫 Because at school:':'🏠 Because at home:'} ${esc(x.because)}</div>`
+        : `<div class="because plain">Always works</div>`}
+      <div class="qq">&ldquo;${esc(x.q)}&rdquo;</div>
+      <div class="followq">Then: &ldquo;${esc(x.follow)}&rdquo;</div>
+      <div class="acts">
+        <button class="btn sm ${done?'sel':''}" data-talked="${esc(key)}">
+          ${done?'✓ We talked':'We talked about this'}</button>
+        <button class="btn sm ghost" id="shuffleQ">↻ Another question</button>
+      </div>
     </div>
 
     <details class="fold">
-      <summary>Why these work</summary>
-      <div class="foldbody"><ul class="small muted">
-        ${STARTER_WHY_THIS_WORKS.map(w=>`<li>${esc(w)}</li>`).join('')}
-      </ul></div>
+      <summary>Why this one</summary>
+      <div class="foldbody">
+        <p class="small muted" style="margin-bottom:10px">${esc(x.why)}</p>
+        <ul class="small muted">
+          ${STARTER_WHY_THIS_WORKS.map(w=>`<li>${esc(w)}</li>`).join('')}
+        </ul>
+      </div>
     </details>
   </div>`;
 }

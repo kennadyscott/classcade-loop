@@ -356,10 +356,12 @@ const LOOP = (() => {
     const a = rot(STARTERS_ALWAYS.map(x=>Object.assign({ grounded:false, src:null }, x)),
                   (seed + dayOff) % STARTERS_ALWAYS.length);
 
-    /* Always keep one always-works question in the mix: a parent should never
-       be left with three questions that only work because Loop had data. */
-    const keepGeneric = g.length >= n ? 1 : 0;
-    return g.slice(0, n - keepGeneric).concat(a).slice(0, n);
+    /* Grounded first, always — a question built from something that actually
+       happened is the only thing here a parent couldn't have thought of alone.
+       Rerolling walks the grounded pool; the generic bank is the safety net for
+       a quiet week, a school holiday, or a lapsed Connected plan, and it only
+       appears once there is nothing grounded left to say. */
+    return g.concat(a).slice(0, n);
   }
 
   function topDimFor(e){
