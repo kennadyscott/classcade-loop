@@ -47,6 +47,9 @@ const LOOP = (() => {
                  wr(K.talked,t); return !!t[key] },
     starterSeed:()=> rd(K.seed,0),
     bumpStarterSeed:()=>{ wr(K.seed, (rd(K.seed,0)+1) % 97) },
+    /* null until the visitor actually picks one — the page then chooses a
+       sensible default, so a first-time viewer lands in the right frame. */
+    viewPref:  ()=> rd(K.view,null),
     view:      ()=> rd(K.view,'web'),
     setView:   v => wr(K.view,v),
     /* each child's Boggie follows them from Showdown into Loop */

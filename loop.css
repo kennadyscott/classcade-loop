@@ -1109,3 +1109,120 @@ body.sm .m-note{font-size:12.5px;color:var(--muted-2);line-height:1.5;margin:12p
 body.sm .m-row{font-weight:500}
 body.sm .m-row .rsub{font-weight:500}
 body.sm .m-row .rtitle{font-weight:800}
+
+/* ══ PHONE · dark header zone ══════════════════════════════════════
+   The hero doesn't float on a light page — the whole top of the screen
+   is a navy zone that bleeds to the edges, and the light content starts
+   underneath it. That single move is most of the "app" feeling. */
+body.sm .m-dark{
+  margin:0 -16px 0;padding:calc(10px + env(safe-area-inset-top)) 16px 17px;
+  background:linear-gradient(168deg,#0b2360 0%,#061846 62%);
+  border-radius:0 0 26px 26px;position:relative;overflow:hidden
+}
+body.sm .m-dark::after{
+  content:"";position:absolute;right:-70px;top:-40px;width:230px;height:230px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,92,252,.26),transparent 70%)
+}
+body.sm .m-dark > *{position:relative;z-index:1}
+body.appview.sm .m-dark{padding-top:46px}
+
+/* brand + utilities row */
+body.sm .m-brand{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+body.sm .m-brand .lock{display:flex;flex-direction:column;line-height:1}
+body.sm .m-brand .cc{font-family:'Baloo 2',Inter,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:-.03em;color:#fff}
+body.sm .m-brand .lp{
+  font-family:'Baloo 2',Inter,sans-serif;font-weight:800;font-size:19px;letter-spacing:-.05em;
+  background:linear-gradient(92deg,#4d9bff,#1172ff 48%,#7c5cfc);
+  -webkit-background-clip:text;background-clip:text;color:transparent;margin-top:-1px
+}
+body.sm .m-brand .util{margin-left:auto;display:flex;align-items:center;gap:11px}
+body.sm .m-bell{
+  position:relative;width:34px;height:34px;border-radius:999px;display:grid;place-items:center;
+  background:rgba(255,255,255,.09);box-shadow:inset 0 0 0 1px rgba(255,255,255,.13);
+  font-size:15px;text-decoration:none
+}
+body.sm .m-bell .dot{
+  position:absolute;top:5px;right:5px;width:9px;height:9px;border-radius:999px;
+  background:#ff4d4f;box-shadow:0 0 0 2px #0b2360
+}
+body.sm .m-me{width:34px;height:34px;border-radius:999px;display:grid;place-items:center;
+  font-weight:900;font-size:13px;color:#fff;background:linear-gradient(#7c5cfc,#5b21e8)}
+
+/* greeting on dark */
+body.sm .m-greet{font-size:21px;font-weight:900;letter-spacing:-.045em;line-height:1.16;color:#fff}
+body.sm .m-greet-sub{font-size:13.5px;color:rgba(255,255,255,.62);margin-top:4px}
+body.sm .m-kidpill{
+  display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;
+  padding:8px 12px;margin-top:14px;cursor:pointer
+}
+body.sm .m-kidpill .nm{font-size:14px;font-weight:900;letter-spacing:-.025em;line-height:1.2}
+body.sm .m-kidpill .mt{font-size:11.5px;color:var(--muted);font-weight:700;margin-top:1px}
+body.sm .m-kidpill .cv{margin-left:auto;color:var(--muted-2);font-weight:900}
+
+/* hero card sits inside the dark zone, one step lighter */
+body.sm .m-hero{
+  background:rgba(255,255,255,.055);border-radius:18px;padding:15px;margin-top:14px;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.09);position:relative;overflow:hidden
+}
+body.sm .m-hero .eyebrow2{
+  font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.45)
+}
+body.sm .m-hero h2{font-size:18px;line-height:1.25;letter-spacing:-.035em;color:#fff;margin:8px 0 6px}
+body.sm .m-hero .sub{font-size:12.5px;line-height:1.45;color:rgba(255,255,255,.62)}
+body.sm .m-hero .bog{position:absolute;right:-14px;top:34px;width:76px;height:76px;opacity:.95}
+body.sm .m-hero .headrow{display:flex;gap:11px;align-items:flex-start;padding-right:56px}
+body.sm .m-hero .shield{
+  width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:17px
+}
+body.sm .m-hero .btn{margin-top:13px;width:100%;padding:11px;font-size:13.5px}
+body.sm .m-src2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px;
+  padding-top:14px;border-top:1px solid rgba(255,255,255,.1)}
+body.sm .m-src2 .hd{font-size:9.5px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;margin-bottom:5px}
+body.sm .m-src2 .s .hd{color:#7fb0ff}
+body.sm .m-src2 .h .hd{color:#5ee0cd}
+body.sm .m-src2 .stat{font-size:12.5px;font-weight:800;color:#fff;line-height:1.35}
+body.sm .m-src2 .qt{
+  margin-top:8px;background:rgba(255,255,255,.07);border-radius:10px;padding:8px 9px;
+  font-size:11.5px;line-height:1.4;color:rgba(255,255,255,.86);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)
+}
+body.sm .m-src2 .qt .by{display:block;margin-top:4px;font-size:10.5px;color:rgba(255,255,255,.48);font-weight:800}
+
+/* light content below the fold of the dark zone */
+body.sm .m-light{padding-top:4px}
+body.sm .m-secrow{
+  display:flex;align-items:center;gap:8px;margin:22px 3px 10px;
+  font-size:11px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)
+}
+body.sm .m-secrow a{margin-left:auto;font-size:12.5px;font-weight:800;text-transform:none;letter-spacing:-.01em}
+
+/* two-up feature cards */
+body.sm .m-duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+body.sm .m-tile{
+  background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:13px 12px;min-width:0
+}
+body.sm .m-tile .th{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+body.sm .m-tile .ti{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px;flex:none}
+body.sm .m-tile .tl{font-size:9.5px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);line-height:1.2}
+body.sm .m-tile .tq{font-size:14.5px;font-weight:900;letter-spacing:-.03em;line-height:1.28}
+body.sm .m-tile .tp{font-size:12px;color:var(--muted);line-height:1.45;margin-top:6px}
+body.sm .m-tile .tlink{display:inline-block;margin-top:9px;font-size:12px;font-weight:800}
+
+/* activity feed rows */
+body.sm .m-feed{background:#fff;border:1px solid var(--line-soft);border-radius:16px;overflow:hidden}
+body.sm .m-frow{display:flex;align-items:center;gap:10px;padding:12px 13px;border-top:1px solid var(--line-soft)}
+body.sm .m-frow:first-child{border-top:0}
+body.sm .m-frow .fd{font-size:9.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2);width:40px;flex:none;line-height:1.25}
+body.sm .m-frow .fi{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;font-size:14px;flex:none}
+body.sm .m-frow .ft{flex:1;min-width:0}
+body.sm .m-frow .ft b{display:block;font-size:13px;font-weight:900;letter-spacing:-.02em}
+body.sm .m-frow .ft span{display:block;font-size:11.5px;color:var(--muted);line-height:1.35;margin-top:1px}
+body.sm .m-frow .fc{font-size:10.5px;font-weight:900;padding:3px 7px;border-radius:999px;flex:none;
+  background:#fff6d9;color:#7a5a00;box-shadow:inset 0 0 0 1px rgba(255,196,37,.4)}
+
+/* status + title bars go transparent over a dark header */
+body.darktop .statusbar{background:transparent;color:#fff}
+body.darktop .statusbar .notch{background:#0a1226}
+body.darktop.sm .mobilebar{background:rgba(9,30,80,.9)}
+body.darktop.sm .mb-title{color:#fff}
+body.darktop.sm .mb-kid{color:rgba(255,255,255,.6)}

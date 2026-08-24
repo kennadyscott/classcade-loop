@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=41">
+<link rel="stylesheet" href="loop.css?v=44">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=41"></script>
-<script src="loop.engine.js?v=41"></script>
-<script src="loop.shell.js?v=41"></script>
+<script src="loop.data.js?v=44"></script>
+<script src="loop.engine.js?v=44"></script>
+<script src="loop.shell.js?v=44"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -27,6 +27,7 @@ function render(){
    in the page flow followed by rows. No uppercase micro-labels,
    no cards inside cards. */
 function renderPhone(){
+  document.body.classList.add('darktop');
   const tier = LOOP.store.tier();
   const r    = LOOP.read(ME, tier);
   const ins  = LOOP.headlines(ME, tier, 1)[0];
@@ -40,51 +41,67 @@ function renderPhone(){
   const evt  = EVENTS_UPCOMING.find(x=>x.s===ME);
   const fid  = LOOP.store.focus(ME) || (ins ? ins.dim.id : 'confidence');
   const fdim = DIMENSIONS.find(x=>x.id===fid);
-  const fn   = NARRATIVE[fid][r[fid].cold?'flat':r[fid].dir];
+  const pct  = cn.top ? cn.top.pct : 0;
+  const feed = LOOP.activity(ME, 4);
 
   $('#app').innerHTML = `
-    <div class="m-wrap">
-      <div class="m-top">
-        <div class="m-hi">Hi, ${esc(PARENT.name)}</div>
-        <div class="m-kid" id="kidmenu">
-          <div class="av g1" style="width:28px;height:28px;border-radius:999px;font-size:12px">${esc(kid.label[0])}</div>
-          <span class="nm">${esc(kid.label.split(' ')[0])}</span>
-          <span style="color:var(--muted-2);font-weight:900">⌄</span>
-        </div>
+    <div class="m-dark">
+      <div class="m-brand">
+        <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true">
+          <g stroke-linecap="round" fill="none">
+            <path d="M8 8.5 L18.5 4.2"   stroke="#ffc425" stroke-width="4.2"/>
+            <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+            <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/>
+          </g></svg>
+        <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+        <span class="util">
+          <a class="m-bell" href="messages.html">✉️<span class="dot"></span></a>
+          <span class="m-me">${esc(PARENT.name[0])}</span>
+        </span>
+      </div>
+
+      <div class="m-greet">${esc(PARENT.greeting)}, ${esc(PARENT.name)}! 👋</div>
+      <div class="m-greet-sub">Here's what's happening with ${esc(d.first)}.</div>
+
+      <div class="m-kidpill" id="kidmenu">
+        <div class="av g1" style="width:32px;height:32px;border-radius:10px;font-size:13px">${esc(kid.label[0])}</div>
+        <div><div class="nm">${esc(kid.label)}</div>
+        <div class="mt">${esc(kid.grade)}${kid.teacher?' · '+esc(kid.teacher):''}</div></div>
+        <span class="cv">⌄</span>
       </div>
 
       ${ins && !ins.cold ? `
-      <section class="m-week">
-        <div class="lead">This week</div>
-        <h2>${esc(ins.head)}</h2>
-        ${ins.schoolStat && tier==='connected' ? `<div class="m-ev"><span class="ico">🏫</span>
-          <span class="tx">At school · <b>${esc(ins.schoolStat)}</b></span></div>` : ''}
-        ${ins.homeStat ? `<div class="m-ev"><span class="ico">🏠</span>
-          <span class="tx">At home · <b>${esc(ins.homeStat)}</b></span></div>` : ''}
-        ${ins.voice ? `<div class="m-ev quote"><span class="ico">💬</span>
-          <span class="tx">&ldquo;${esc(ins.voice)}&rdquo;</span></div>` : ''}
-        <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week</button>
-      </section>` : `
-      <section class="m-week">
-        <div class="lead">This week</div>
+      <div class="m-hero">
+        ${bog(LOOP.store.boggie(ME),'lg')}
+        <div class="eyebrow2">${esc(d.first)}'s week at a glance</div>
+        <div class="headrow">
+          <div class="shield" style="background:${ins.dim.tint}">${ins.dim.ico}</div>
+          <div><h2>${esc(ins.head)}</h2>
+          <div class="sub">${esc(ins.why)}</div></div>
+        </div>
+        <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</button>
+        <div class="m-src2">
+          ${tier==='connected'?`<div class="s">
+            <div class="hd">🏫 At school</div>
+            <div class="stat">${esc(ins.schoolStat||'Nothing flagged')}</div>
+            ${msg?`<div class="qt">"${esc(msg.body.split('.')[0])}."<span class="by">— ${esc(msg.from)}</span></div>`:''}
+          </div>`:''}
+          <div class="h" ${tier==='connected'?'':'style="grid-column:1/-1"'}>
+            <div class="hd">🏠 At home</div>
+            <div class="stat">${esc(ins.homeStat||'Nothing logged yet')}</div>
+            ${ins.voice?`<div class="qt">"${esc(ins.voice)}"<span class="by">— ${esc(d.first)}, told to you</span></div>`:''}
+          </div>
+        </div>
+      </div>` : `
+      <div class="m-hero">
+        <div class="eyebrow2">${esc(d.first)}'s week at a glance</div>
         <h2>Still getting to know ${esc(d.first)}.</h2>
-        <div class="m-ev"><span class="ico">🌱</span><span class="tx">Loop waits for a pattern rather than guessing from one moment.</span></div>
-      </section>`}
+        <div class="sub">Loop waits for a pattern rather than guessing from one moment.</div>
+      </div>`}
+    </div>
 
-      <div class="m-sec">Tonight <span class="sub">instead of “How was school?”</span></div>
-      <div class="m-q">
-        <div class="prov ${q.src==='home'?'home':''}">
-          ${q.grounded ? (q.src==='school'?'🏫 Because at school: ':'🏠 Because at home: ')+esc(q.because) : '💬 Always works'}
-        </div>
-        <div class="qq" style="${qdone?'opacity:.5;text-decoration:line-through':''}">&ldquo;${esc(q.q)}&rdquo;</div>
-        <div class="then">Then: &ldquo;${esc(q.follow)}&rdquo;</div>
-        <div class="acts">
-          <button class="btn sm ${qdone?'sel':''}" data-talked="${esc(qkey)}">${qdone?'✓ Talked':'We talked'}</button>
-          <button class="btn sm ghost" id="shuffleQ">↻ Another</button>
-        </div>
-      </div>
-
-      <div class="m-sec">${esc(d.first)}'s growth <a href="growth.html">See all ›</a></div>
+    <div class="m-light">
+      <div class="m-secrow">The Whole Learner <a href="growth.html">View all growth →</a></div>
       <div class="m-growth">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
           <div class="m-gcard" data-go="growth.html?d=${dim.id}">
@@ -95,51 +112,69 @@ function renderPhone(){
           </div>`}).join('')}
       </div>
 
-      <div class="m-sec">Today</div>
-      <div class="m-row tall" data-go="growth.html?d=${fid}">
-        <div class="ric" style="background:${fdim.tint}">${fdim.ico}</div>
-        <div class="rtx"><div class="rtitle">${esc(mom.title)}</div>
-          <div class="rsub">${esc(mom.prompt)}</div></div>
-        <span class="chev">›</span>
+      <div class="m-duo" style="margin-top:18px">
+        <div class="m-tile">
+          <div class="th"><div class="ti" style="background:#f0ecff">💬</div>
+            <div class="tl">Tonight's conversation</div></div>
+          <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
+          <div class="tp">“${esc(q.q)}”</div>
+          <a class="tlink" href="#" data-open-q>See why this matters →</a>
+        </div>
+        ${tier==='connected' && cn.total ? `
+        <div class="m-tile">
+          <div class="th"><div class="ti" style="background:#fff6d9">⭐</div>
+            <div class="tl">ClassCade moment</div></div>
+          <div class="tq">${esc(d.first)} earned ${cn.total} coins</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
+            <div class="donut" style="width:44px;height:44px;background:conic-gradient(#108b2f ${pct*3.6}deg,#e9f0fb 0)">
+              <div style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center">
+                <span style="font-size:11px">${pct}%</span></div>
+            </div>
+            <div class="tp" style="margin:0">From ${esc(cn.top?cn.top.label:'—')}</div>
+          </div>
+        </div>` : `
+        <div class="m-tile">
+          <div class="th"><div class="ti" style="background:${fdim.tint}">${fdim.ico}</div>
+            <div class="tl">Today's moment</div></div>
+          <div class="tq">${esc(mom.title)}</div>
+          <div class="tp">${esc(mom.prompt)}</div>
+        </div>`}
       </div>
-
-      <div class="m-sec">Add what you noticed</div>
-      <div class="m-chips">
-        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
-      </div>
-      <a class="m-row" href="ask.html" style="margin-top:9px">
-        <div class="ric" style="background:var(--home-bg)">💬</div>
-        <div class="rtx"><div class="rtitle">Something worrying you?</div>
-          <div class="rsub">Always here, never behind the paywall</div></div>
-        <span class="chev">›</span>
-      </a>
 
       ${tier==='connected' ? `
-      <div class="m-sec">From school</div>
-      <a class="m-row" href="school.html">
-        <div class="ric" style="background:var(--school-bg)">🏫</div>
-        <div class="rtx"><div class="rtitle">What happened at school</div>
-          <div class="rsub">${LOOP.activity(ME,40).length} signals · ${cn.total} coins this week</div></div>
-        <span class="chev">›</span>
-      </a>
-      ${msg?`<div class="m-row tall">
-        <div class="ric" style="background:var(--school-bg)">🧑‍🏫</div>
-        <div class="rtx"><div class="rtitle">${esc(msg.from)}</div>
-          <div class="rsub">${esc(msg.body)}</div></div>
-      </div>`:''}
-      ${evt?`<a class="m-row" href="ask.html#conference">
-        <div class="ric" style="background:#fff6d9">📅</div>
-        <div class="rtx"><div class="rtitle">${esc(evt.kind)}</div>
-          <div class="rsub">${esc(evt.when)} · get questions to ask</div></div>
-        <span class="chev">›</span>
-      </a>`:''}` : `
-      <div class="m-sec">Not connected</div>
+      <div class="m-secrow">What happened at school <a href="school.html">View all activity →</a></div>
+      <div class="m-feed">
+        ${feed.map(x=>`<div class="m-frow">
+          <span class="fd">${fmtShort(x.d)}</span>
+          <span class="fi" style="background:var(--tint)">${x.sig.emoji}</span>
+          <span class="ft"><b style="${x.v<0?'color:var(--watch)':''}">${esc(x.sig.label)}</b><span>${esc(x.detail)}</span></span>
+          ${x.coins?`<span class="fc">⊙ +${x.coins}</span>`:''}
+        </div>`).join('')}
+      </div>` : `
+      <div class="m-secrow">Not connected</div>
       <div class="m-row tall" id="connectRow">
         <div class="ric" style="background:var(--school-bg)">🔗</div>
         <div class="rtx"><div class="rtitle">Connect ${esc(d.first)}'s classroom</div>
           <div class="rsub">Bring what ${esc(d.subj)} already does in Showdown into Loop — no extra work for the teacher.</div></div>
         <span class="chev">›</span>
       </div>`}
+
+      <div class="m-secrow">Add what you noticed</div>
+      <div class="m-chips">
+        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+      </div>
+      <a class="m-row" href="ask.html" style="margin-top:10px">
+        <div class="ric" style="background:var(--home-bg)">💬</div>
+        <div class="rtx"><div class="rtitle">Something worrying you?</div>
+          <div class="rsub">Always here, never behind the paywall</div></div>
+        <span class="chev">›</span>
+      </a>
+      ${evt?`<a class="m-row" href="ask.html#conference">
+        <div class="ric" style="background:#fff6d9">📅</div>
+        <div class="rtx"><div class="rtitle">${esc(evt.kind)}</div>
+          <div class="rsub">${esc(evt.when)} · get questions to ask</div></div>
+        <span class="chev">›</span>
+      </a>`:''}
 
       <p class="m-note">Loop shows status words, never scores. It waits for a pattern before it says anything.</p>
     </div>`;
@@ -148,9 +183,14 @@ function renderPhone(){
   $$('[data-go]').forEach(el2=>el2.onclick=()=>location.href=el2.dataset.go);
   const cr=$('#connectRow'); if(cr) cr.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
   const km=$('#kidmenu'); if(km) km.onclick=()=>toast('Only Maya is seeded in this prototype.');
+  const oq=$('[data-open-q]'); if(oq) oq.onclick=e=>{ e.preventDefault(); toast(q.why) };
 }
 
+function fmtShort(s){ const m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const p=s.split('-'); return m[+p[1]-1]+' '+(+p[2]) }
+
 function renderDesktop(){
+  document.body.classList.remove('darktop');   /* phone-only header treatment */
   const tier = LOOP.store.tier();
   const r    = LOOP.read(ME, tier);
   const ins  = LOOP.headlines(ME, tier, 1)[0];

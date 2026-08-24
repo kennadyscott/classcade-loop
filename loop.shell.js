@@ -75,6 +75,7 @@ function bog(slug, size, cls){
 
 /* Wraps whatever the page already put in <body> into the app shell. */
 function mountApp(active){
+  CURRENT_VIEW = LOOP.store.viewPref() || defaultViewFor(active);
   const tier = LOOP.store.tier();
   const body = document.body;
   const existing = [...body.children];
@@ -167,10 +168,22 @@ function mountMobileBar(active){
   onScroll();
 }
 
+/* First-time default. A parent product should be seen on a phone first, so
+   the family surfaces open in the phone frame — but the concept page is a
+   strategy document and the teacher view is a classroom surface, and both
+   belong on a desktop. Once the visitor picks a side, their choice wins
+   everywhere. */
+function defaultViewFor(active){
+  if (window.innerWidth < 900) return 'web';   // already a phone; no frame needed
+  if (active === 'index.html' || active === 'teacher.html') return 'web';
+  return 'app';
+}
+let CURRENT_VIEW = 'web';
+
 /* Web ⇄ App preview. Same markup, same data — the phone frame is CSS only,
    so anything that breaks in app view is genuinely broken. */
 function mountViewToggle(){
-  const mode = LOOP.store.view();
+  const mode = CURRENT_VIEW;
   applyView(mode);
   const t = el('div','viewtoggle');
   t.innerHTML = `
@@ -182,6 +195,7 @@ function mountViewToggle(){
   document.body.appendChild(t);
   t.querySelectorAll('.vt-group button').forEach(b=>b.onclick=()=>{
     LOOP.store.setView(b.dataset.v);
+    CURRENT_VIEW = b.dataset.v;
     applyView(b.dataset.v);
     t.querySelectorAll('.vt-group button').forEach(x=>x.classList.toggle('on', x===b));
   });
@@ -214,8 +228,8 @@ function moreSheet(active){
     <div class="sec">Preview as</div>
     <div class="srow" style="padding-bottom:4px">
       <div class="tier" id="sheetView" style="margin:0;background:#eef3fb;box-shadow:inset 0 0 0 1px var(--line)">
-        <button data-v="web" class="${LOOP.store.view()==='web'?'on':''}" style="color:var(--muted)">🖥 Desktop</button>
-        <button data-v="app" class="${LOOP.store.view()==='app'?'on':''}" style="color:var(--muted)">📱 Phone</button>
+        <button data-v="web" class="${CURRENT_VIEW==='web'?'on':''}" style="color:var(--muted)">🖥 Desktop</button>
+        <button data-v="app" class="${CURRENT_VIEW==='app'?'on':''}" style="color:var(--muted)">📱 Phone</button>
       </div>
     </div>
     <div class="sec">Prototype surfaces</div>
