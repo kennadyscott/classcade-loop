@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=52">
+<link rel="stylesheet" href="loop.css?v=60">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=52"></script>
-<script src="loop.engine.js?v=52"></script>
-<script src="loop.shell.js?v=52"></script>
+<script src="loop.data.js?v=60"></script>
+<script src="loop.engine.js?v=60"></script>
+<script src="loop.shell.js?v=60"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -75,7 +75,7 @@ function renderPhone(){
 
       ${ins && !ins.cold ? `
       <div class="m-hero">
-        ${bog(LOOP.store.boggie(ME),'lg')}
+        <img class="m-mascot" src="art/loop-monster-sm.png" alt="" width="300" height="331">
         <div class="eyebrow2">${esc(d.first)}'s week at a glance</div>
         <div class="headrow">
           <div class="shield" style="background:${ins.dim.tint}">${ins.dim.ico}</div>
@@ -124,7 +124,7 @@ function renderPhone(){
           <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
           <div class="tp">“${esc(q.q)}”</div>
           <a class="tlink" href="#" data-open-q>See why this matters →</a>
-          <span class="art">💬</span>
+          <img class="art-img" src="art/bubbles-sm.png" alt="" width="200" height="124">
         </div>
         ${tier==='connected' && cn.total ? `
         <div class="m-tile coins">
@@ -138,14 +138,12 @@ function renderPhone(){
             </div>
             <div class="tp" style="margin:0">From ${esc(cn.top?cn.top.label:'—')}</div>
           </div>
-          <span class="art">🪙</span>
         </div>` : `
         <div class="m-tile moment">
           <div class="th"><div class="ti" style="background:${fdim.tint}">${fdim.ico}</div>
             <div class="tl">Today's moment</div></div>
           <div class="tq">${esc(mom.title)}</div>
           <div class="tp">${esc(mom.prompt)}</div>
-          <span class="art">🌱</span>
         </div>`}
       </div>
 

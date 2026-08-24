@@ -5,14 +5,22 @@ const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&
 const $  = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
+const ICON = {
+  home:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M11.3 2.4a1 1 0 0 1 1.4 0l8 7.4c.2.2.3.5.3.8V20a2 2 0 0 1-2 2h-4.2a1 1 0 0 1-1-1v-4.6a1.8 1.8 0 0 0-3.6 0V21a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2v-9.4c0-.3.1-.6.3-.8z"/></svg>',
+  growth:'<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21a1 1 0 0 1-1-1v-5.1C6.9 14.4 4 11.6 4 8.2V6a1 1 0 0 1 1-1h1.4c3.3 0 5.8 2.2 6.3 5.3.9-2.2 3-3.8 5.5-3.8H20a1 1 0 0 1 1 1v1.3c0 3.4-2.8 6.1-6.3 6.1H13v5.1a1 1 0 0 1-1 1z"/></svg>',
+  ask:   '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c5 0 9 3.4 9 7.6s-4 7.6-9 7.6c-.9 0-1.7-.1-2.5-.3l-4 2.1a.7.7 0 0 1-1-.8l.8-3.1C3.2 14.7 3 12.7 3 10.6 3 6.4 7 3 12 3z"/></svg>',
+  more:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  plus:  '<svg style="width:22px;height:22px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+};
+
 const NAV = [
-  { id:'home',   href:'parent.html',   ic:'🏠', label:'Home',     tab:true },
-  { id:'growth', href:'growth.html',   ic:'🌱', label:'Growth',   tab:true },
-  { id:'ask',    href:'ask.html',      ic:'💬', label:'Ask',      tab:true },
-  { id:'school', href:'school.html',   ic:'🏫', label:'School',   tab:true },
+  { id:'home',   href:'parent.html',   ic:'🏠', glyph:'home',   label:'Home',     tab:true },
+  { id:'growth', href:'growth.html',   ic:'🌱', glyph:'growth', label:'Growth',   tab:true },
+  { id:'ask',    href:'ask.html',      ic:'💬', glyph:'ask',    label:'Ask',      tab:true },
+  { id:'school', href:'school.html',   ic:'🏫', label:'School' },
   { id:'kids',   href:'kids.html',     ic:'👥', label:'My Kids' },
   { id:'msgs',   href:'messages.html', ic:'✉️', label:'Messages' },
-  { id:'set',    href:'settings.html', ic:'⚙️', label:'Settings', tab:true, tabLabel:'More', tabIc:'⚙️' },
+  { id:'set',    href:'settings.html', ic:'⚙️', glyph:'more', label:'Settings', tab:true, tabLabel:'More' },
 ];
 const PROTO = [
   { href:'index.html',   ic:'🔗', label:'Concept' },
@@ -86,8 +94,13 @@ function mountApp(active){
     <nav class="mainnav">
       ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}">
           <span class="ic">${n.ic}</span>
+          <span class="gl">${n.glyph?ICON[n.glyph]:''}</span>
           <span class="nlabel" data-web="${esc(n.label)}" data-app="${esc(n.tabLabel||n.label)}">${esc(n.label)}</span>
         </a>`).join('')}
+      <button class="tab-fab" id="addFab" aria-label="Add from home">
+        <span class="fab">${ICON.plus}</span>
+        <span class="flabel">Add from home</span>
+      </button>
     </nav>
     <div class="side-label">Prototype surfaces</div>
     <nav>
@@ -112,7 +125,17 @@ function mountApp(active){
   const sheet = el('div','sheet', moreSheet(active));
   app.appendChild(status); app.appendChild(side); app.appendChild(main);
   app.appendChild(bd); app.appendChild(sheet);
-  const closeSheet = ()=>{ bd.classList.remove('open'); sheet.classList.remove('open') };
+  const addSheet = el('div','sheet addsheet', `
+    <div class="grab"></div>
+    <div class="sec">Add from home</div>
+    <p class="small muted" style="padding:0 12px 10px">One tap. It counts as a signal the same way the classroom's do.</p>
+    <div class="m-chips" style="padding:0 12px">
+      ${HOME_OBS.map(o=>`<button data-obs2="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+    </div>
+    <a class="btn block ghost" style="margin:14px 12px 0" href="ask.html">Or tell us what's worrying you →</a>
+    <button class="btn block" style="margin:9px 12px 0" data-close2>Close</button>`);
+  app.appendChild(addSheet);
+  const closeSheet = ()=>{ bd.classList.remove('open'); sheet.classList.remove('open'); addSheet.classList.remove('open') };
   bd.onclick = closeSheet;
   sheet.querySelector('[data-close]').onclick = closeSheet;
   sheet.querySelectorAll('#sheetTier button').forEach(b=>{
@@ -121,6 +144,14 @@ function mountApp(active){
   sheet.querySelectorAll('#sheetView button').forEach(b=>{
     b.onclick = ()=>{ LOOP.store.setView(b.dataset.v); location.reload() };
   });
+  addSheet.querySelector('[data-close2]').onclick = closeSheet;
+  addSheet.querySelectorAll('[data-obs2]').forEach(b=>b.onclick=()=>{
+    LOOP.store.addHome(ME, b.dataset.obs2);
+    closeSheet();
+    toast('Logged: ' + HOME_OBS.find(x=>x.id===b.dataset.obs2).label);
+    setTimeout(()=>location.reload(), 500);
+  });
+  side.querySelector('#addFab').onclick = ()=>{ bd.classList.add('open'); addSheet.classList.add('open') };
   /* in app view the Settings tab is a "More" sheet, so nothing is stranded */
   side.querySelector('.mainnav a[href="settings.html"]').addEventListener('click', e=>{
     if (!document.body.classList.contains('sm')) return;
