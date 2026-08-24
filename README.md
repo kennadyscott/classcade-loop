@@ -1,7 +1,10 @@
 # ClassCade Loop — prototype
 
-**http://localhost:4216** · served permanently by launchd agent `com.kennadyscott.classcade-loop`
-(python http.server, `~/.claude-apps/classcade-loop`). Logs: `/tmp/classcade-loop.log`.
+### ▶ **Live: https://kennadyscott.github.io/classcade-loop/**
+
+Local dev: **http://localhost:4216** · served permanently by launchd agent
+`com.kennadyscott.classcade-loop` (python http.server, `~/.claude-apps/classcade-loop`).
+Logs: `/tmp/classcade-loop.log`. Push to `main` and Pages redeploys in ~30s.
 
 > ClassCade Loop turns the little things teachers, parents, and kids notice
 > into a bigger picture of how a child is doing.
@@ -141,6 +144,34 @@ In production, `NARRATIVE` is where the model generates instead of templating. T
 identical: headline → sourced evidence → why it matters → one question → one thing to try.
 
 ---
+
+## Mobile
+
+The phone is the real surface for a parent product, so mobile is not a shrink of the desktop layout.
+
+**Priority, not just stacking.** The desktop right rail holds the two most actionable things on the
+page — *Today's Focus* and *Add something from home*. Stacking them naively buries both under ~2,000px
+of reading. So under 900px (and in app view) the two columns dissolve with `display:contents` and every
+block re-orders by usefulness via `.mo-1`…`.mo-10`: hero → today's focus → tonight's conversation →
+the six areas → log something → moment → feed → the rest. **This mattered far more than collapsing
+anything.**
+
+**Swipe, don't stack.** The Whole Learner row is a 6-up grid on desktop and a horizontal snap-scroll
+carousel on mobile. A 2-wide grid costs three rows of scroll; one swipe costs none, and it's a pattern
+a phone user already knows.
+
+**Tables become cards.** A six-column feed table has never worked at 375px, so `.feed` restructures
+into a grid per row and drops the teacher column.
+
+**Folds, used narrowly.** `<details class="fold">` for genuinely supporting material only — *Why these
+work*, and *Everything feeding this* (the signal audit trail). Inside each conversation-starter card a
+`.qfold` hides the reasoning and the follow-up, leaving the question itself always visible: that's the
+part a parent came for. **Nothing a parent came to the page to read is ever behind a fold** — the
+insight, the evidence, the thing to try at home and the question to ask are always open.
+
+**Chrome gets out of the way.** The sidebar becomes a sticky compact bar with a horizontally
+scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
+belongs to the app and not to a dev control.
 
 ## Open questions
 
