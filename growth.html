@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Growth · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+<style>
+  .facet{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;margin:0 5px 5px 0}
+</style>
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+let sel = new URLSearchParams(location.search).get('d') || null;
+
+function render(){
+  const tier = LOOP.store.tier();
+  const r = LOOP.read(ME, tier);
+  if (!sel) sel = (LOOP.headlines(ME,tier,1)[0]||{}).dim?.id || 'confidence';
+  const dim = DIMENSIONS.find(x=>x.id===sel);
+  const x = r[sel];
+  const ins = LOOP.insight(ME, sel, tier);
+
+  $('#app').innerHTML = `
+    ${topline(`${esc(d.first)}'s growth, in six areas.`)}
+    <div class="wl-row" style="margin-bottom:18px">${DIMENSIONS.map(dm=>wlCard(r[dm.id])).join('')}</div>
+    <div class="dash">
+      <div class="stack"><div class="mo-1">${detail(dim, x, ins, tier)}</div></div>
+      <div class="rail">
+        <div class="mo-2">${aboutCard(dim)}</div>
+        <div class="mo-3">${normalCard(dim)}</div>
+        <div class="mo-4">${historyCard(x)}</div>
+      </div>
+    </div>`;
+  wireTopline();
+  $$('[data-dim]').forEach(c=>c.onclick=()=>{ sel=c.dataset.dim; history.replaceState(null,'','growth.html?d='+sel); render() });
+  wireDetail(ins);
+}
+
+function detail(dim, x, ins, tier){
+  if (ins.cold) return `
+    <div class="card">
+      <div class="card-head"><div class="dim-ico lg" style="background:${dim.tint};box-shadow:none">${dim.ico}</div>
+      <div><div class="sec-label" style="margin:0">${esc(dim.name)}</div><h3>${esc(ins.head)}</h3></div></div>
+      <div style="display:flex;gap:16px;align-items:center">
+        ${bog('coco','lg','ring')}
+        <p class="muted">${esc(ins.body)}</p>
+      </div>
+      <div class="callout" style="margin-top:14px"><div class="lbl">Why we're not guessing</div>
+        Loop needs at least three signals before it says anything about an area, and won't move on a single event. ${esc(LANGUAGE.rule)}</div>
+    </div>`;
+
+  const resp = ins.response;
+  return `
+  <div class="card">
+    <div class="eyebrow" style="margin-bottom:13px;box-shadow:inset 0 0 0 1px ${dim.color}44;color:${dim.color}">Something we're noticing</div>
+    <div class="card-head" style="align-items:flex-start">
+      <div class="dim-ico lg" style="background:${dim.tint};box-shadow:none">${dim.ico}</div>
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <span class="sec-label" style="margin:0;color:${dim.color}">${esc(dim.name)}</span>
+          <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
+          <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
+        </div>
+        <h3 style="font-size:21px;line-height:1.25">${esc(ins.head)}</h3>
+      </div>
+    </div>
+    <div style="margin-top:4px">
+      ${ins.school ? sourcedLine('school','At school', esc(ins.school)) : ''}
+      ${ins.home   ? sourcedLine('home','At home', esc(ins.home)) : ''}
+      ${ins.voice  ? sourcedLine('home', d.first+' told you', '<span class="quote">&ldquo;'+esc(ins.voice)+'&rdquo;</span>') : ''}
+    </div>
+    <div class="hairline"></div>
+    <div class="stack" style="gap:11px">
+      <div class="callout why"><div class="lbl">Why it matters</div>${esc(ins.why)}</div>
+      <div class="grid-2" style="gap:11px">
+        <div class="callout talk"><div class="lbl">Talk about it</div>${esc(ins.talk)}</div>
+        <div class="callout try"><div class="lbl">Try at home</div>${esc(ins.tryAt)}</div>
+      </div>
+    </div>
+    <div class="hairline"></div>
+    ${tier==='connected'
+      ? (resp ? sent(ins,resp) : respond(ins))
+      : `<div class="callout"><div class="lbl">The other direction</div>
+         <p class="small muted">When ${esc(d.poss)} classroom is connected, you can send this back to ${esc(d.poss)} teacher in one tap — so what you see at home becomes context they actually have.</p></div>`}
+  </div>`;
+}
+
+function respond(ins){
+  return `
+  <div data-respond="${ins.id}">
+    <div class="sec-label">Send Ms. Alvarez a quick read from home</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${RESPONSES.map(x=>`<button class="btn sm" data-r="${x.id}">${x.emoji} ${esc(x.label)}</button>`).join('')}
+    </div>
+    <div class="note-wrap" style="display:none;margin-top:12px">
+      <textarea class="note" maxlength="${NOTE_CAP}" placeholder="Optional — one or two lines of context."></textarea>
+      <div class="counter"><span class="cnt">0</span>/${NOTE_CAP}</div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button class="btn primary sm" data-send="${ins.id}">Send to Ms. Alvarez</button>
+        <button class="btn sm" data-cancel>Cancel</button>
+      </div>
+    </div>
+  </div>`;
+}
+function sent(ins, resp){
+  const meta = RESPONSES.find(x=>x.id===resp.type);
+  return `<div class="callout try">
+    <div class="lbl">Sent to Ms. Alvarez</div>
+    <div style="font-weight:800">${meta.emoji} ${esc(meta.label)}</div>
+    ${resp.note?`<p class="small" style="margin-top:6px">"${esc(resp.note)}"</p>`:''}
+    <button class="btn sm ghost" style="margin-top:10px" data-undo="${ins.id}">Undo</button>
+  </div>`;
+}
+
+function aboutCard(dim){
+  return `
+  <div class="card">
+    <div class="mini-head"><div class="mini-ico" style="background:${dim.tint}">${dim.ico}</div>
+      <div class="lbl" style="color:${dim.color}">What we're understanding</div></div>
+    <h4>${esc(dim.q)}</h4>
+    <div style="margin-top:11px">
+      ${dim.facets.map(f=>`<span class="facet" style="background:${dim.tint};color:${dim.color}">${esc(f)}</span>`).join('')}
+    </div>
+  </div>`;
+}
+function normalCard(dim){
+  const exp = LOOP.expectations(dim.id, 3);
+  if (!exp) return '';
+  return `<div class="card tinted">
+    <div class="lbl" style="color:var(--muted);font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">Is this normal? · 3rd grade</div>
+    <p style="font-size:13.5px">${esc(exp)}</p></div>`;
+}
+function historyCard(x){
+  if (x.cold) return '';
+  const rows = x.events.slice(0,8);
+  return `<details class="fold card" style="background:#fff;box-shadow:var(--shadow)">
+    <summary>Everything feeding this · ${x.count}</summary>
+    <div class="foldbody">
+    ${rows.map(e=>`<div class="src" style="padding:8px 0">
+      <div class="src-key ${e.src}">${e.src==='school'?'School':'Home'}</div>
+      <div class="src-body small" style="color:${e.raw<0?'var(--watch)':'var(--ink)'}">${esc(e.detail)}</div>
+    </div>`).join('')}
+    <p class="tiny muted" style="margin-top:10px">${x.count} signal${x.count===1?'':'s'} in the last 21 days, recency-weighted.</p>
+    </div>
+  </details>`;
+}
+
+function wireDetail(ins){
+  $$('[data-r]').forEach(b=>b.onclick=()=>{
+    const box=b.closest('[data-respond]');
+    box.querySelectorAll('[data-r]').forEach(z=>z.classList.remove('sel'));
+    b.classList.add('sel'); box.dataset.type=b.dataset.r;
+    box.querySelector('.note-wrap').style.display='block';
+    box.querySelector('textarea').focus();
+  });
+  $$('textarea.note').forEach(t=>t.oninput=()=>{ const c=t.closest('.note-wrap').querySelector('.cnt'); if(c)c.textContent=t.value.length });
+  $$('[data-cancel]').forEach(b=>b.onclick=()=>{
+    const box=b.closest('[data-respond]');
+    box.querySelector('.note-wrap').style.display='none';
+    box.querySelectorAll('[data-r]').forEach(z=>z.classList.remove('sel'));
+  });
+  $$('[data-send]').forEach(b=>b.onclick=()=>{
+    const box=b.closest('[data-respond]'); if(!box.dataset.type) return;
+    LOOP.store.respond(b.dataset.send, box.dataset.type, box.querySelector('textarea').value);
+    toast('Sent to Ms. Alvarez — she’ll see it on her class view.');
+    render();
+  });
+  $$('[data-undo]').forEach(b=>b.onclick=()=>{ LOOP.store.unrespond(b.dataset.undo); render() });
+}
+
+mountApp('growth');
+render();
+</script>
+</body></html>

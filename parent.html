@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+</head><body>
+<div id="app"></div>
+
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+
+function render(){
+  const tier = LOOP.store.tier();
+  const r    = LOOP.read(ME, tier);
+  const ins  = LOOP.headlines(ME, tier, 1)[0];
+  const mom  = LOOP.moment(ME);
+  const cn   = LOOP.coins(ME);
+
+  $('#app').innerHTML = `
+    ${topline(`Here's what's happening with ${esc(d.first)}.`)}
+    <div class="dash">
+      <div>
+        <div class="mo-1">${hero(ins, tier)}</div>
+        <div class="mo-3">${startersCard()}</div>
+
+        <div class="mo-4">
+        <div class="wl-head">
+          <h3>The Whole Learner</h3>
+          <span class="chip plain tiny" title="${esc(LANGUAGE.rule)}">?</span>
+          <span class="spacer"></span>
+          <a href="growth.html" class="small">View all growth →</a>
+        </div>
+        <div class="wl-row">${DIMENSIONS.map(dim=>wlCard(r[dim.id])).join('')}</div>
+        </div>
+
+        <div class="duo mo-6">
+          ${momentCard(mom)}
+          ${tier==='connected' ? coinCard(cn) : normalCard(r)}
+        </div>
+
+        <div class="mo-7">${tier==='connected' ? feedCard() : ''}</div>
+      </div>
+
+      <div class="rail">
+        <div class="mo-2">${focusCard(r)}</div>
+        <div class="mo-5">${addFromHome()}</div>
+        <div class="mo-8">${tier==='connected' ? eventCard() : ''}</div>
+        <div class="mo-9">${tier==='connected' ? messageCard() : ''}</div>
+        <div class="mo-10">${tier==='family' ? connectCard() : ''}</div>
+      </div>
+    </div>`;
+
+  wireTopline();
+  wire();
+}
+
+/* ── hero: the week at a glance ───────────────────────── */
+function hero(ins, tier){
+  if (!ins || ins.cold) return `
+    <div class="hero-card"><div class="hero-grid"><div>
+      <div class="hero-eyebrow">${esc(d.first)}'s week at a glance</div>
+      <h2>Still getting to know ${esc(d.first)}.</h2>
+      <p>Loop waits for a pattern rather than guessing from one moment. Log what you notice and it fills in quickly.</p>
+    </div></div></div>`;
+
+  return `
+  <div class="hero-card">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">${esc(d.first)}'s week at a glance</div>
+        <div style="display:flex;align-items:flex-start;gap:13px">
+          <div class="dim-ico lg" style="background:${ins.dim.tint};box-shadow:none">${ins.dim.ico}</div>
+          <div>
+            <h2>${esc(ins.head)}</h2>
+            <p>${esc(ins.why)}</p>
+          </div>
+        </div>
+        <a class="btn gold sm" style="margin-top:16px" href="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</a>
+      </div>
+      <div class="hero-side" style="${tier==='family'?'grid-template-columns:1fr':''}">
+        ${tier==='family' ? '' : `<div class="hero-src s">
+          <div class="hd">🏫 At school</div>
+          <div class="stat">${ins.schoolStat ? esc(ins.schoolStat) : 'Nothing flagged this week.'}</div>
+          ${messageQuote()}
+        </div>`}
+        <div class="hero-src h">
+          <div class="hd">🏠 At home</div>
+          <div class="stat">${ins.homeStat ? esc(ins.homeStat) : 'Nothing logged yet this week.'}</div>
+          ${ins.voice?`<div class="hero-quote">“${esc(ins.voice)}”<span class="by">— ${esc(d.first)}, told to you</span></div>`:''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function messageQuote(){
+  const m = TEACHER_MESSAGES.find(x=>x.s===ME);
+  if (!m || LOOP.store.tier()!=='connected') return '';
+  return `<div class="hero-quote">“${esc(m.body.split('.')[0])}.”<span class="by">— ${esc(m.from)}</span></div>`;
+}
+
+/* ── instead of "how was school today?" ───────────────── */
+function startersCard(){
+  const seed = LOOP.store.starterSeed();
+  const list = LOOP.starters(ME, 3, seed);
+  const done = LOOP.store.talked();
+  return `
+  <div class="starters">
+    <div style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap">
+      <div>
+        <div class="mini-lbl">Tonight's conversation</div>
+        <h3 style="font-size:22px;margin-top:5px">
+          Instead of <span class="strike">“How was school today?”</span></h3>
+        <p class="muted small" style="margin-top:7px;max-width:64ch">
+          That question asks a child to summarize seven hours and deliver a verdict, so they say
+          <strong>“fine”</strong>. These don't — and the first ones are built from things that actually
+          happened${LOOP.store.tier()==='connected'?' in '+esc(d.poss)+' classroom this week':' at home this week'}.
+        </p>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn sm ghost" id="shuffleQ">↻ Different questions</button>
+    </div>
+
+    <div class="q-grid">
+      ${list.map((x,i)=>{
+        const key = x.q.slice(0,40);
+        const isDone = !!done[key];
+        return `
+        <div class="q-card ${x.grounded?'grounded':''} ${isDone?'done':''}">
+          ${x.grounded
+            ? `<div class="because ${x.src==='home'?'home':''}">
+                 ${x.src==='school'?'🏫 Because at school:':'🏠 Because at home:'} ${esc(x.because)}</div>`
+            : `<div class="mini-lbl">Always works</div>`}
+          <div class="qq">“${esc(x.q)}”</div>
+          <details class="qfold" ${window.matchMedia('(min-width:901px)').matches?'open':''}>
+            <summary>Why this works · what to ask next</summary>
+            <div class="qb">
+              <div class="whyq">${esc(x.why)}</div>
+              <div class="followq">Then: “${esc(x.follow)}”</div>
+            </div>
+          </details>
+          <div class="acts">
+            <button class="btn sm ${isDone?'sel':''}" data-talked="${esc(key)}">${isDone?'✓ We talked':'We talked about this'}</button>
+          </div>
+        </div>`}).join('')}
+    </div>
+
+    <details class="fold">
+      <summary>Why these work</summary>
+      <div class="foldbody"><ul class="small muted">
+        ${STARTER_WHY_THIS_WORKS.map(w=>`<li>${esc(w)}</li>`).join('')}
+      </ul></div>
+    </details>
+  </div>`;
+}
+
+/* ── today's 5-minute moment ──────────────────────────── */
+function momentCard(m){
+  return `
+  <div class="card">
+    <div class="mini-head">
+      <div class="mini-ico" style="background:${m.dim.tint}">💬</div>
+      <div><div class="mini-lbl">Today's 5-minute moment</div>
+      <h4 style="margin-top:1px">${esc(m.title)}</h4></div>
+    </div>
+    <p style="font-size:14.5px;font-weight:700">${esc(m.prompt)}</p>
+    <div class="callout why" style="margin-top:11px"><div class="lbl">Why it matters</div>${esc(m.why)}</div>
+    <p class="small muted" style="margin-top:10px">If it lands, follow with: <strong>${esc(m.follow)}</strong></p>
+    <button class="btn sm ghost" style="margin-top:12px" id="momentDone">✓ We did this</button>
+  </div>`;
+}
+
+/* ── Showdown economy ─────────────────────────────────── */
+function coinCard(cn){
+  if (!cn.total) return `<div class="card tinted"><div class="mini-lbl">ClassCade moment</div>
+    <p class="small muted" style="margin-top:8px">No coins yet this week.</p></div>`;
+  const pct = cn.top ? cn.top.pct : 0;
+  return `
+  <div class="card">
+    <div class="mini-head">
+      ${bog(LOOP.store.boggie(ME),'sm','ring')}
+      <div><div class="mini-lbl">ClassCade moment</div>
+      <h4 style="margin-top:1px">${esc(d.first)} earned ${cn.total} coins this week</h4></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px;margin-top:6px">
+      <div class="donut" style="background:conic-gradient(#108b2f ${pct*3.6}deg, #e9f0fb 0)">
+        <div style="width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center">
+          <span>${pct}%</span></div>
+      </div>
+      <div>
+        <div style="font-weight:800">From ${esc(cn.top?cn.top.label:'—')}</div>
+        <p class="small muted" style="margin-top:4px">Coins are Showdown's currency, not Loop's read. They're here because ${esc(d.subj)}'ll mention them at dinner.</p>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* "Is this normal?" — answered without ranking anyone. */
+function normalCard(r){
+  const fid = LOOP.store.focus(ME) || (LOOP.headlines(ME,null,1)[0]||{}).dim?.id || 'confidence';
+  const dim = DIMENSIONS.find(x=>x.id===fid);
+  const exp = LOOP.expectations(fid, 3);
+  return `
+  <div class="card">
+    <div class="mini-head">
+      <div class="mini-ico" style="background:${dim.tint}">${dim.ico}</div>
+      <div><div class="mini-lbl">Is this normal?</div>
+      <h4 style="margin-top:1px">${esc(dim.name)} in 3rd grade</h4></div>
+    </div>
+    <p style="font-size:14.5px">${esc(exp||'')}</p>
+    <a class="link" href="ask.html">See what else is typical at this age →</a>
+  </div>`;
+}
+
+function familyCard(){
+  return `
+  <div class="card">
+    <div class="mini-head">
+      <div class="mini-ico" style="background:var(--home-bg)">🏠</div>
+      <div><div class="mini-lbl">Add what you noticed</div>
+      <h4 style="margin-top:1px">One tap. That's the whole ask.</h4></div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">
+      ${HOME_OBS.slice(0,6).map(o=>`<button class="btn sm" data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ── what happened at school ──────────────────────────── */
+function feedCard(){
+  const small = !window.matchMedia('(min-width:901px)').matches || document.body.classList.contains('appview');
+  const total = LOOP.activity(ME, 40).length;
+  const rows = LOOP.activity(ME, small ? 4 : 6);
+  return `
+  <div class="card" style="margin-top:14px">
+    <div class="wl-head" style="margin:0 0 6px">
+      <h3 style="font-size:17px">What happened at school</h3>
+      <span class="spacer"></span>
+      <a href="growth.html" class="small">View all activity →</a>
+    </div>
+    <table class="feed">
+      ${rows.map(x=>`<tr>
+        <td class="dt">${fmt(x.d)}</td>
+        <td style="width:32px"><span style="font-size:15px">${x.sig.emoji}</span></td>
+        <td class="sg" style="color:${x.v<0?'var(--watch)':'var(--ink)'}">${esc(x.sig.label)}</td>
+        <td class="muted">${esc(x.detail)}</td>
+        <td class="who">Ms. Alvarez</td>
+        <td style="text-align:right">${x.coins?`<span class="coin">⊙ +${x.coins}</span>`:'<span class="tiny muted">—</span>'}</td>
+      </tr>`).join('')}
+    </table>
+    <p class="tiny muted" style="margin-top:12px">
+      Showing ${rows.length} of ${total}. Captured while ${esc(d.first)}'s teacher ran Showdown normally — nobody filled anything out.</p>
+  </div>`;
+}
+function fmt(s){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p=s.split('-'); return m[+p[1]-1]+' '+(+p[2]) }
+
+/* ── right rail ───────────────────────────────────────── */
+function focusCard(r){
+  const fid = LOOP.store.focus(ME) || (LOOP.headlines(ME,null,1)[0]||{}).dim?.id || 'confidence';
+  const dim = DIMENSIONS.find(x=>x.id===fid);
+  const n = NARRATIVE[fid][r[fid].cold?'flat':r[fid].dir];
+  return `
+  <div class="card" style="border-color:${dim.color}33">
+    <div class="mini-head">
+      <div class="mini-ico" style="background:${dim.tint}">${dim.ico}</div>
+      <div class="lbl" style="color:${dim.color}">Today's focus</div>
+    </div>
+    <h4>${esc(dim.name)}</h4>
+    <p>${esc(n.tryAt(d))}</p>
+    <a class="link" href="growth.html?d=${fid}">See ideas to try today →</a>
+  </div>`;
+}
+function eventCard(){
+  const e = EVENTS_UPCOMING.find(x=>x.s===ME); if(!e) return '';
+  return `
+  <div class="card" style="background:#fffdf4;border-color:rgba(255,196,37,.4)">
+    <div class="mini-head"><div class="mini-ico" style="background:#fff6d9">📅</div>
+      <div class="lbl" style="color:#8a6400">Upcoming</div></div>
+    <h4>${esc(e.kind)}</h4>
+    <p>${esc(e.when)}</p>
+    <a class="link" href="ask.html#conference">Get questions to ask →</a>
+  </div>`;
+}
+function messageCard(){
+  const m = TEACHER_MESSAGES.find(x=>x.s===ME); if(!m) return '';
+  return `
+  <div class="card">
+    <div class="mini-head"><div class="mini-ico" style="background:var(--school-bg)">🧑‍🏫</div>
+      <div class="lbl" style="color:var(--school)">Message from ${esc(m.from)}</div></div>
+    <p style="color:var(--ink)">${esc(m.body)}</p>
+    <a class="link" href="#" data-reply>Reply to ${esc(m.from)} →</a>
+  </div>`;
+}
+function addFromHome(){
+  const logged = LOOP.store.homeObs().filter(o=>o.s===ME && o.user).length;
+  return `
+  <div class="card" style="background:var(--home-bg);border-color:rgba(14,147,132,.25)">
+    <div class="mini-head"><div class="mini-ico" style="background:#fff">➕</div>
+      <div class="lbl" style="color:var(--home)">Add something from home</div></div>
+    <h4>Notice something we should know?</h4>
+    <p>Your insight helps us give a more complete picture of ${esc(d.poss)} growth.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:11px">
+      ${HOME_OBS.slice(0,4).map(o=>`<button class="btn sm" data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+    </div>
+    <a class="link" href="ask.html">Or tell us what's worrying you →</a>
+    ${logged?`<div class="tiny muted" style="margin-top:9px">${logged} logged this week</div>`:''}
+  </div>`;
+}
+function connectCard(){
+  return `
+  <div class="connect">
+    <div class="hero-eyebrow">Want a fuller picture?</div>
+    <h3 style="font-size:18px;margin-bottom:8px;color:#fff">Connect ${esc(d.first)}'s classroom.</h3>
+    <p style="font-size:13.5px;margin-bottom:13px">If ${esc(d.poss)} teacher uses ClassCade, everything ${esc(d.subj)} already does in Showdown starts feeding in — with no extra work for the teacher.</p>
+    <button class="btn gold sm" id="connectBtn">🔗 Connect classroom</button>
+  </div>`;
+}
+
+/* ── interaction ──────────────────────────────────────── */
+function wire(){
+  $$('[data-obs]').forEach(b=>b.onclick=()=>{
+    LOOP.store.addHome(ME, b.dataset.obs);
+    toast('Logged: '+HOME_OBS.find(x=>x.id===b.dataset.obs).label);
+    render();
+  });
+  $$('[data-dim]').forEach(c=>c.onclick=()=>location.href='growth.html?d='+c.dataset.dim);
+  const md = $('#momentDone'); if(md) md.onclick=()=>toast('Nice. That’s the whole habit.');
+  const sq = $('#shuffleQ'); if(sq) sq.onclick=()=>{ LOOP.store.bumpStarterSeed(); render() };
+  $$('[data-talked]').forEach(b=>b.onclick=()=>{
+    const on = LOOP.store.toggleTalked(b.dataset.talked);
+    if (on) toast('Logged. That’s the ritual — one question, then listen.');
+    render();
+  });
+  const rp = $('[data-reply]'); if(rp) rp.onclick=e=>{e.preventDefault();location.href='growth.html'};
+  const c = $('#connectBtn'); if(c) c.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
+}
+
+mountApp('home');
+render();
+</script>
+</body></html>

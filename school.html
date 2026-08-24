@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>School · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+let filter = 'all';
+
+function render(){
+  const tier = LOOP.store.tier();
+  if (tier==='family'){ $('#app').innerHTML = topline('Nothing here until a classroom is connected.') + notConnected(); wireTopline(); wireC(); return }
+
+  const all = LOOP.activity(ME, 40);
+  const rows = filter==='all' ? all : filter==='up' ? all.filter(x=>x.v>0) : all.filter(x=>x.v<0);
+  const cn = LOOP.coins(ME);
+  const wk = all.filter(x=>LOOP.thisWeek(x.d));
+
+  $('#app').innerHTML = `
+    ${topline(`Everything ${esc(d.poss)} classroom has seen — raw, before Loop interprets it.`)}
+    <div class="dash">
+      <div class="stack">
+        <div class="card mo-1">
+          <div class="wl-head" style="margin:0 0 10px">
+            <h3 style="font-size:17px">What happened at school</h3>
+            <span class="spacer"></span>
+            <div style="display:flex;gap:6px">
+              ${[['all','Everything'],['up','Went well'],['down','Worth knowing']].map(([k,l])=>
+                `<button class="btn sm ${filter===k?'sel':''}" data-f="${k}">${l}</button>`).join('')}
+            </div>
+          </div>
+          <table class="feed">
+            ${rows.length ? rows.map(x=>`<tr>
+              <td class="dt">${fmt(x.d)}</td>
+              <td style="width:30px;font-size:15px">${x.sig.emoji}</td>
+              <td class="sg" style="color:${x.v<0?'var(--watch)':'var(--ink)'}">${esc(x.sig.label)}</td>
+              <td class="muted">${esc(x.detail)}</td>
+              <td class="who">Ms. Alvarez</td>
+              <td style="text-align:right">${x.coins?`<span class="coin">⊙ +${x.coins}</span>`:'<span class="tiny muted">—</span>'}</td>
+            </tr>`).join('') : '<tr><td class="muted small" style="padding:18px 0">Nothing in this filter.</td></tr>'}
+          </table>
+          <p class="tiny muted" style="margin-top:13px">
+            Captured while Showdown ran normally. <strong>Ms. Alvarez filled out nothing.</strong>
+            Loop shows you the raw feed so the interpretation on the other pages is auditable — you can always see what it was built from.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="mini-head">
+            <div class="mini-ico" style="background:var(--school-bg)">🧑‍🏫</div>
+            <div><div class="mini-lbl">From Ms. Alvarez</div>
+            <h4 style="margin-top:1px">Notes home</h4></div>
+          </div>
+          ${TEACHER_MESSAGES.filter(m=>m.s===ME).map(m=>`
+            <div class="src"><div class="src-key school">${fmt(m.d)}</div>
+            <div class="src-body">${esc(m.body)}</div></div>`).join('')
+            || '<p class="small muted">Nothing this week.</p>'}
+          <p class="tiny muted" style="margin-top:12px">Teacher notes are rare by design. If this list ever fills up, Loop has quietly become a messaging app.</p>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="card">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">The classroom</div>
+          <h4>Ms. Alvarez · 3rd Grade</h4>
+          <p class="small muted" style="margin-top:5px">${ROSTER.length} students · using ClassCade Showdown</p>
+          <div class="hairline" style="margin:14px -18px"></div>
+          <div style="display:flex;align-items:center;gap:12px">
+            ${bog(LOOP.store.boggie(ME),'md','ring')}
+            <div><div class="tiny muted">${esc(d.first)}’s Boggie</div>
+            <div style="font-weight:900">${esc(BOGGIES[LOOP.store.boggie(ME)])}</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">This week</div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div><div style="font-size:27px;font-weight:900;letter-spacing:-.04em">${wk.length}</div>
+              <div class="tiny muted">signals</div></div>
+            <div><div style="font-size:27px;font-weight:900;letter-spacing:-.04em;color:#7a5a00">${cn.total}</div>
+              <div class="tiny muted">coins</div></div>
+          </div>
+          <p class="tiny muted" style="margin-top:11px">Coins are Showdown's currency. They never feed a Whole Learner read.</p>
+        </div>
+        ${eventRail()}
+      </div>
+    </div>`;
+  wireTopline();
+  $$('[data-f]').forEach(b=>b.onclick=()=>{ filter=b.dataset.f; render() });
+}
+
+function eventRail(){
+  const e = EVENTS_UPCOMING.find(x=>x.s===ME); if(!e) return '';
+  return `<div class="card" style="background:#fffdf4;border-color:rgba(255,196,37,.4)">
+    <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8a6400;margin-bottom:6px">Upcoming</div>
+    <h4>${esc(e.kind)}</h4><p class="small muted">${esc(e.when)}</p>
+    <a class="link" href="ask.html#conference">Get questions to ask →</a></div>`;
+}
+function notConnected(){
+  return `<div class="card" style="text-align:center;max-width:560px;margin:20px auto">
+    ${bog('sharky','xl','ring')}
+    <h3 style="margin:14px 0 8px">${esc(d.poss.charAt(0).toUpperCase()+d.poss.slice(1))} classroom isn’t connected.</h3>
+    <p class="muted" style="max-width:46ch;margin:0 auto">Loop Family works entirely on what you notice and what ${esc(d.first)} tells you. Connect the classroom and everything ${esc(d.subj)} already does in Showdown starts appearing here — with no extra work for the teacher.</p>
+    <button class="btn primary" style="margin-top:16px" id="conn">🔗 Connect ${esc(d.first)}’s classroom</button>
+  </div>`;
+}
+function wireC(){ const c=$('#conn'); if(c) c.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() } }
+function fmt(s){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p=s.split('-'); return m[+p[1]-1]+' '+(+p[2]) }
+
+mountApp('school');
+render();
+</script>
+</body></html>

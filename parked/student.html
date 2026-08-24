@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Growth · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=15">
+<style>
+  .kid h1,.kid h2,.kid h3{font-family:'Baloo 2',Inter,sans-serif;letter-spacing:-.02em}
+  .kid{max-width:620px;margin:0 auto}
+  .focus-card{
+    border-radius:24px;padding:26px;color:#fff;position:relative;overflow:hidden;
+    background:linear-gradient(125deg,#1172ff,#0b2a72 78%);box-shadow:var(--shadow-lg)
+  }
+  .focus-card::after{content:"";position:absolute;right:-50px;bottom:-60px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,196,37,.3),transparent 70%)}
+  .star{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+    border:0;font:inherit;font-weight:800;font-size:16px;padding:14px 16px;border-radius:16px;
+    background:rgba(255,255,255,.1);color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);
+    transition:transform .1s ease
+  }
+  .star + .star{margin-top:9px}
+  .star:active{transform:scale(.985)}
+  .star .s{font-size:22px;filter:grayscale(1);opacity:.5}
+  .star.on{background:rgba(255,196,37,.22);box-shadow:inset 0 0 0 2px var(--gold)}
+  .star.on .s{filter:none;opacity:1}
+  .pick{display:flex;gap:9px;flex-wrap:wrap}
+  .pick button{
+    border:0;cursor:pointer;font:inherit;font-family:'Baloo 2',Inter,sans-serif;font-weight:700;font-size:15px;
+    padding:12px 15px;border-radius:16px;background:#fff;color:var(--ink);
+    box-shadow:inset 0 0 0 1px var(--line),var(--shadow)
+  }
+  .pick button.on{box-shadow:inset 0 0 0 2.5px var(--blue),var(--shadow);color:var(--blue)}
+  .ans{display:flex;gap:9px;flex-wrap:wrap;margin-top:9px}
+  .ans button{border:0;cursor:pointer;font:inherit;font-weight:800;font-size:14.5px;padding:11px 15px;border-radius:14px;
+    background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+  .ans button.on{background:var(--child-bg);color:var(--child);box-shadow:inset 0 0 0 2px var(--child)}
+</style>
+</head><body>
+<div class="wrap"><div class="kid" id="app"></div></div>
+
+<script src="loop.data.js?v=15"></script>
+<script src="loop.engine.js?v=15"></script>
+<script src="loop.shell.js?v=15"></script>
+<script>
+mountApp('student.html');
+const me = LOOP.child(ME);
+
+function currentFocus(){
+  const saved = LOOP.store.focus(ME);
+  if (saved) return saved;
+  const top = LOOP.headlines(ME, LOOP.store.tier(), 1)[0];
+  return top ? top.dim.id : 'confidence';
+}
+
+function render(){
+  const fid = currentFocus();
+  const dim = DIMENSIONS.find(d=>d.id===fid);
+  const k = KID_COPY[fid];
+  const stars = LOOP.store.stars(ME);
+  const done = LOOP.store.todayCheckins(ME);
+
+  $('#app').innerHTML = `
+    <div style="text-align:center;margin-bottom:22px">
+      <div class="eyebrow" style="margin-bottom:14px">My Growth</div>
+      ${bog(LOOP.store.boggie(ME),'xl','ring')}
+      <h1 style="font-family:'Baloo 2',Inter,sans-serif;letter-spacing:-.02em;margin-top:12px">Hi, ${esc(me.first)} 👋</h1>
+      <p class="muted" style="margin-top:6px">${esc(BOGGIES[LOOP.store.boggie(ME)])} is working on this with you.</p>
+    </div>
+
+    <div class="focus-card">
+      <div style="position:relative;z-index:1">
+        <div class="tiny" style="font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.6)">My Focus</div>
+        <h2 style="font-size:30px;margin:8px 0 4px">${dim.emoji} ${esc(dim.name)}</h2>
+        <p style="color:rgba(255,255,255,.72);font-size:14.5px">${esc(dim.kidQ)}</p>
+
+        <div style="margin:20px 0 10px;padding:16px;border-radius:18px;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.16)">
+          <div class="tiny" style="font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-bottom:5px">This week I'm practicing</div>
+          <div style="font-size:18px;font-weight:800;line-height:1.35;font-family:'Baloo 2',Inter,sans-serif">${esc(k.practice)}</div>
+        </div>
+
+        <div style="margin-top:16px">
+          ${k.stars.map((s,i)=>`<button class="star ${stars.includes(i)?'on':''}" data-star="${i}">
+              <span class="s">⭐</span><span>${esc(s)}</span>
+              <span class="spacer"></span>
+              ${stars.includes(i)?'<span style="font-size:13px;opacity:.8">Nice!</span>':''}
+            </button>`).join('')}
+        </div>
+        <p style="margin-top:14px;font-size:13px;color:rgba(255,255,255,.6)">
+          ${stars.length===0?'Tap one when you do it today.':stars.length===3?'You got all three today. That\'s a big deal. 🎉':`${stars.length} of 3 today.`}
+        </p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-bottom:4px">How was today?</h3>
+      <p class="small muted" style="margin-bottom:14px">Three taps. Your grown-up sees what you say — your teacher doesn't.</p>
+      ${CHILD_PROMPTS.map(p=>{
+        const c = done.find(x=>x.p===p.id);
+        return `<div style="margin-bottom:16px">
+          <div style="font-weight:800;font-size:15px">${esc(p.q)}</div>
+          <div class="ans">${p.a.map((a,i)=>`<button data-p="${p.id}" data-a="${i}" class="${c&&c.a===i?'on':''}">${esc(a.t)}</button>`).join('')}</div>
+        </div>`}).join('')}
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="sec-label">Switch my focus</div>
+      <div class="pick">
+        ${DIMENSIONS.map(d=>`<button data-f="${d.id}" class="${d.id===fid?'on':''}">${d.emoji} ${esc(d.name)}</button>`).join('')}
+      </div>
+      <p class="tiny muted" style="margin-top:12px">You never see a score here. Loop shows you what you're practicing, and what you did — that's it.</p>
+    </div>`;
+
+  $$('[data-star]').forEach(b=>b.onclick=()=>{ LOOP.store.toggleStar(ME, +b.dataset.star); render() });
+  $$('[data-p]').forEach(b=>b.onclick=()=>{
+    LOOP.store.addCheckin(ME, b.dataset.p, +b.dataset.a);
+    toast('Got it. Thanks for telling us.');
+    render();
+  });
+  $$('[data-f]').forEach(b=>b.onclick=()=>{ LOOP.store.setFocus(ME, b.dataset.f); render() });
+}
+render();
+</script>
+</body></html>

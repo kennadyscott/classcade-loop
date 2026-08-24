@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+
+function render(){
+  const p = LOOP.store.prefs();
+  const tier = LOOP.store.tier();
+  $('#app').innerHTML = `
+    ${topline('Your plan, your rhythm, and the rules Loop will not let you turn off.')}
+    <div class="dash">
+      <div class="stack">
+
+        <div class="card">
+          <div class="sec-label">Plan</div>
+          <div style="display:flex;align-items:center;gap:15px;flex-wrap:wrap">
+            <div class="dim-ico lg" style="background:${tier==='connected'?'var(--school-bg)':'var(--home-bg)'};box-shadow:none">
+              ${tier==='connected'?'🔗':'🏠'}</div>
+            <div style="flex:1;min-width:180px">
+              <h3>Loop ${esc(TIER_COPY[tier].name)}</h3>
+              <p class="small muted" style="margin-top:3px">${esc(TIER_COPY[tier].price)} · ${esc(TIER_COPY[tier].blurb)}</p>
+            </div>
+            <button class="btn ${tier==='family'?'primary':'ghost'} sm" id="flip">
+              ${tier==='family'?'🔗 Connect a classroom':'Switch to Family'}</button>
+          </div>
+          <p class="tiny muted" style="margin-top:12px">Priced per family, not per child. Connecting a classroom never changes the price — the school's ClassCade license covers it.</p>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">The weekly ritual</div>
+          <div class="setrow">
+            <div class="txt"><h5>Weekly read</h5>
+              <p>One noticing, one thing to try, one question to ask. The anchor of the whole product.</p></div>
+            <select class="pick" data-pref="weeklyDay">
+              ${['Sunday','Saturday','Monday','Friday'].map(x=>`<option ${p.weeklyDay===x?'selected':''}>${x}</option>`).join('')}
+            </select>
+            <select class="pick" data-pref="weeklyTime">
+              ${['7:00 AM','8:00 AM','9:00 AM','7:00 PM'].map(x=>`<option ${p.weeklyTime===x?'selected':''}>${x}</option>`).join('')}
+            </select>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>Daily 5-minute moment</h5>
+              <p>One small idea, six days a week. Turn it off and the weekly read still works.</p></div>
+            <select class="pick" data-pref="dailyTime" ${p.dailyMoment?'':'disabled'}>
+              ${['3:30 PM','4:30 PM','5:30 PM','7:30 PM'].map(x=>`<option ${p.dailyTime===x?'selected':''}>${x}</option>`).join('')}
+            </select>
+            <button class="sw ${p.dailyMoment?'on':''}" data-toggle="dailyMoment"></button>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>Never notify me about a single bad day</h5>
+              <p>Loop waits for a pattern — 3+ signals, 2+ pointing the same way — before it tells you anything. Turning this off would let one rough Tuesday become a notification.</p></div>
+            <button class="sw ${p.quietUntilPattern?'on':''}" data-toggle="quietUntilPattern"></button>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>When Ms. Alvarez acknowledges something</h5>
+              <p>A quiet confirmation that she saw what you sent. No badge, no count.</p></div>
+            <button class="sw ${p.teacherAlerts?'on':''}" data-toggle="teacherAlerts"></button>
+          </div>
+        </div>
+
+        <div class="card" style="border-color:rgba(124,92,252,.35)">
+          <div class="sec-label" style="color:var(--child)">Child privacy · not configurable</div>
+          <h4 style="margin-bottom:5px">Two rules Loop enforces for you.</h4>
+          <p class="small muted" style="margin-bottom:6px">These aren't preferences. They're the reason a child will keep telling the truth in the app.</p>
+          <div class="setrow">
+            <div class="txt"><h5>🔒 Loop collects nothing from ${esc(d.first)} directly</h5>
+              <p>There is no child login and no child-facing screen. Everything Loop knows comes from ${esc(d.poss)} classroom or from you — including anything ${esc(d.subj)} said, which you relay. There's no setting because there's no data path.</p></div>
+            <button class="sw locked on" title="Enforced — cannot be changed" disabled></button>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>🔒 ${esc(d.first)} never sees a level, trend, or score</h5>
+              <p>Not hidden behind a toggle — never computed for a child at all. If a child-facing surface is ever built, this is the rule it gets built under.</p></div>
+            <button class="sw locked on" title="Enforced — cannot be changed" disabled></button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Sharing</div>
+          <div class="setrow">
+            <div class="txt"><h5>Send my observations to ${esc(d.poss)} teacher</h5>
+              <p>Only what you explicitly send — one tap plus up to ${NOTE_CAP} characters, always tagged to an area. Turning this off makes Loop read-only from school.</p></div>
+            <button class="sw ${p.shareWithSchool?'on':''}" data-toggle="shareWithSchool"></button>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>Language</h5><p>Insights, prompts and the Ask library.</p></div>
+            <select class="pick" data-pref="language">
+              ${['English','Español','Tiếng Việt','中文','العربية'].map(x=>`<option ${p.language===x?'selected':''}>${x}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="sec-label">Your data</div>
+          <div class="setrow">
+            <div class="txt"><h5>Export everything</h5>
+              <p>Every signal, every observation, every insight — as JSON. No dark patterns on the way out.</p></div>
+            <button class="btn sm ghost" id="exp">Download</button>
+          </div>
+          <div class="setrow">
+            <div class="txt"><h5>Reset this prototype</h5>
+              <p>Clears responses, observations, Boggie picks and preferences. Seeded data returns.</p></div>
+            <button class="btn sm" id="rst">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="card" style="text-align:center">
+          ${bog(LOOP.store.boggie(ME),'xl','ring')}
+          <h4 style="margin-top:13px">${esc(BOGGIES[LOOP.store.boggie(ME)])}</h4>
+          <p class="small muted" style="margin-top:4px">${esc(d.first)}’s Boggie from Showdown. Change it on My Kids.</p>
+          <a class="link" href="kids.html">My Kids →</a>
+        </div>
+        <div class="card tinted">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">Account</div>
+          <p class="small"><strong>${esc(PARENT.name)}</strong><br>${FAMILY.length} children · ${esc(TIER_COPY[tier].name)} plan</p>
+          <p class="tiny muted" style="margin-top:10px">Prototype — no account, no server, nothing leaves this browser.</p>
+        </div>
+      </div>
+    </div>`;
+  wireTopline(); wire();
+}
+
+function wire(){
+  $$('[data-toggle]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.toggle, p=LOOP.store.prefs();
+    LOOP.store.setPref(k, !p[k]);
+    if (k==='quietUntilPattern' && p[k]) toast('Careful — that’s the guardrail that stops one bad day becoming an alert.');
+    render();
+  });
+  $$('[data-pref]').forEach(s=>s.onchange=()=>{ LOOP.store.setPref(s.dataset.pref, s.value); toast('Saved.') });
+  $('#flip').onclick = ()=>{ LOOP.store.setTier(LOOP.store.tier()==='family'?'connected':'family'); location.reload() };
+  $('#exp').onclick = ()=>{
+    const data = { child:ME, tier:LOOP.store.tier(), read:LOOP.read(ME), events:LOOP.events(ME),
+                   responses:LOOP.store.responses(), prefs:LOOP.store.prefs() };
+    const b = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = 'loop-export.json'; a.click();
+    toast('Exported.');
+  };
+  $('#rst').onclick = ()=>{ LOOP.store.reset(); toast('Prototype reset.'); setTimeout(()=>location.reload(),700) };
+}
+
+mountApp('set');
+render();
+</script>
+</body></html>

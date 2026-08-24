@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Class view · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+<style>
+  .t-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+  @media (max-width:900px){.t-layout{grid-template-columns:1fr}}
+  .mini{display:flex;gap:3px}
+  .mini span{font-size:12px;font-weight:900}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--home);flex:none;box-shadow:0 0 0 3px var(--home-bg)}
+</style>
+</head><body>
+<div class="wrap"><div id="app"></div></div>
+
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+mountApp('teacher.html');
+let sel = ME;
+
+function render(){
+  const tier = LOOP.store.tier();
+  const app = $('#app');
+
+  if (tier==='family'){
+    app.innerHTML = `
+      <div class="card" style="max-width:640px;margin:40px auto;text-align:center">
+        <div style="font-size:34px">🏫</div>
+        <h2 style="margin:10px 0 8px">There's no teacher surface on the Family plan.</h2>
+        <p class="muted">Loop Family runs entirely on what a parent notices and what their child says. The teacher view only exists once a classroom is connected — which is the point: <strong>Loop never requires a school, and never creates work for one.</strong></p>
+        <button class="btn primary" style="margin-top:16px" onclick="LOOP.store.setTier('connected');location.reload()">Switch to Connected</button>
+      </div>`;
+    return;
+  }
+
+  const cls = LOOP.classView(tier);
+  const needs = cls.filter(c=>c.home.some(h=>!h.acked) || Object.values(c.read).some(x=>x.level==='watch'));
+
+  app.innerHTML = `
+    <div style="margin-bottom:20px">
+      <div class="eyebrow" style="margin-bottom:10px">Ms. Alvarez · 3rd grade · Week of Aug 17</div>
+      <h1>What should <span class="accent">I know?</span></h1>
+      <p class="muted" style="margin-top:8px;max-width:62ch">Everything here came from Showdown running normally, or from a family tapping three words. You have not filled anything out.</p>
+    </div>
+
+    ${needs.length?`<div class="card" style="margin-bottom:18px;background:var(--tint)">
+      <div class="sec-label">Worth a minute today</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${needs.map(c=>`<button class="btn sm" data-go="${c.student.id}">
+          ${c.home.some(h=>!h.acked)?'💬 ':'⚠️ '}${esc(c.student.first)}</button>`).join('')}
+      </div></div>`:''}
+
+    <div class="t-layout">
+      <div class="card flush">
+        <div style="padding:16px 22px 10px"><div class="sec-label" style="margin:0">Class · ${cls.length} students</div></div>
+        ${cls.map(rowFor).join('')}
+      </div>
+      <div id="detail"></div>
+    </div>`;
+
+  renderDetail();
+  $$('[data-pick]').forEach(b=>b.onclick=()=>{ sel=b.dataset.pick; render() });
+  $$('[data-go]').forEach(b=>b.onclick=()=>{ sel=b.dataset.go; render(); $('#detail').scrollIntoView({behavior:'smooth',block:'start'}) });
+}
+
+function rowFor(c){
+  const moved = c.moved.slice(0,3);
+  const unacked = c.home.filter(h=>!h.acked).length;
+  return `
+  <div class="list-row ${c.student.id===sel?'on':''}" data-pick="${c.student.id}">
+    <div class="av ${c.student.av}">${c.student.first[0]}</div>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:7px">
+        <strong style="letter-spacing:-.02em">${esc(c.student.first)} ${esc(c.student.last)}</strong>
+        ${unacked?'<span class="dot"></span>':''}
+      </div>
+      <div class="mini" style="margin-top:2px">
+        ${moved.length? moved.map(x=>`<span class="trend ${LOOP.ARROW_CLASS[x.dir]}">${x.dim.emoji}${LOOP.ARROW[x.dir]}</span>`).join('')
+          : '<span class="tiny muted">steady this week</span>'}
+      </div>
+    </div>
+    ${c.student.linked?'<span class="chip home tiny">Loop</span>':'<span class="chip plain tiny">School only</span>'}
+  </div>`;
+}
+
+function renderDetail(){
+  const tier = LOOP.store.tier();
+  const s = LOOP.child(sel);
+  const r = LOOP.read(sel, tier);
+  const home = s.linked ? LOOP.homeSignal(sel) : [];
+  const moved = DIMENSIONS.map(d=>r[d.id]).filter(x=>!x.cold);
+
+  $('#detail').innerHTML = `
+    <div class="stack">
+      <div class="card">
+        <div class="card-head" style="align-items:center">
+          <div class="av lg ${s.av}">${s.first[0]}</div>
+          <div>
+            <h2 style="margin:0">${esc(s.first)} ${esc(s.last)}</h2>
+            <div class="tiny muted">${s.linked?`Family on Loop · ${esc(s.parent)}`:'Family has not joined Loop'}</div>
+          </div>
+        </div>
+        <div style="margin-top:2px">${moved.map(x=>dimRow(x)).join('') || '<p class="muted small">Not enough signals yet this week.</p>'}</div>
+      </div>
+
+      ${s.linked ? homeCard(s, home) : `
+      <div class="card tinted">
+        <div class="sec-label">From home</div>
+        <p class="small muted">${esc(s.first)}'s family isn't on Loop yet. ${esc(s.Subj)} still generates Showdown signals — you just don't get the other half of the picture.</p>
+        <button class="btn sm ghost" style="margin-top:10px" data-invite="${s.id}">Send an invite home</button>
+      </div>`}
+
+      <div class="card">
+        <div class="sec-label">Add an observation</div>
+        <p class="small muted" style="margin-bottom:12px">Optional. Showdown already covers most of this — use it when you noticed something the game wouldn't catch.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          ${DIMENSIONS.map(d=>`<button class="btn sm" data-dim="${d.id}">${d.emoji} ${esc(d.name)}</button>`).join('')}
+        </div>
+        <div id="tObs" style="display:none">
+          <textarea class="note" maxlength="240" placeholder="One line. This goes home as context, not as a report."></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn primary sm" id="tSend">Send to ${esc(s.first)}'s family</button>
+            <button class="btn sm" id="tCancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  wireDetail(s);
+}
+
+function homeCard(s, home){
+  return `
+  <div class="card" style="border-color:rgba(14,147,132,.32)">
+    <div class="card-head">
+      <div class="dim-ico" style="background:var(--home-bg);box-shadow:inset 0 0 0 1px rgba(14,147,132,.2)">🏠</div>
+      <div><div class="sec-label" style="margin:0">Home insight</div>
+      <h3>What ${esc(s.poss)} family is seeing</h3></div>
+    </div>
+    ${home.length ? home.map(h=>`
+      <div class="src" style="align-items:flex-start">
+        <div class="src-key home">${h.dim?esc(h.dim.name):'Noticed'}</div>
+        <div class="src-body">
+          <div>${h.emoji} ${esc(h.line)}</div>
+          ${h.note?`<p class="small quote" style="margin-top:5px">&ldquo;${esc(h.note)}&rdquo;</p>`:''}
+          <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+            ${h.acked
+              ? '<span class="chip good">✓ Acknowledged</span>'
+              : `<button class="btn sm ghost" data-ack="${h.key}">Acknowledge</button>`}
+            ${h.type==='talk'?'<span class="chip watch">Wants to talk</span>':''}
+            ${h.type==='different'?'<span class="chip watch">Different at home</span>':''}
+          </div>
+        </div>
+      </div>`).join('')
+      : `<p class="small muted">Nothing from home this week. Open the parent surface, respond to an insight, and it lands here.</p>`}
+  </div>`;
+}
+
+function wireDetail(s){
+  $$('[data-ack]').forEach(b=>b.onclick=()=>{ LOOP.store.ack(b.dataset.ack); toast('Acknowledged — the family sees that you saw it.'); render() });
+  $$('[data-invite]').forEach(b=>b.onclick=()=>toast('Invite sent home. (Prototype — no email is actually sent.)'));
+  let dim=null;
+  $$('[data-dim]').forEach(b=>b.onclick=()=>{
+    $$('[data-dim]').forEach(x=>x.classList.remove('sel')); b.classList.add('sel');
+    dim=b.dataset.dim; $('#tObs').style.display='block'; $('#tObs textarea').focus();
+  });
+  const cancel=$('#tCancel'); if(cancel) cancel.onclick=()=>{ $('#tObs').style.display='none'; $$('[data-dim]').forEach(x=>x.classList.remove('sel')); dim=null };
+  const send=$('#tSend'); if(send) send.onclick=()=>{
+    const v=$('#tObs textarea').value.trim();
+    if(!dim||!v){ toast('Pick a dimension and write one line.'); return }
+    LOOP.store.addTeacher(s.id, dim, v);
+    toast('Sent home as context — not as a report.');
+    render();
+  };
+}
+
+render();
+</script>
+</body></html>

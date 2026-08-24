@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Messages · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+let pickDim = null, pickType = null;
+
+function render(){
+  const tier = LOOP.store.tier();
+  const thread = buildThread();
+  $('#app').innerHTML = `
+    ${topline('Structured context, in both directions. Deliberately not a chat.')}
+    <div class="dash">
+      <div class="stack">
+        <div class="card" style="background:var(--tint)">
+          <div class="mini-head">
+            <div class="mini-ico" style="background:#fff">🚫</div>
+            <div><div class="mini-lbl">Why this looks so limited</div>
+            <h4 style="margin-top:1px">Loop is not a messaging app, and this page is where that gets enforced.</h4></div>
+          </div>
+          <p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is
+          <strong>one tap plus at most ${NOTE_CAP} characters</strong>, always attached to a specific area of growth.
+          The cap is the feature — it's what stops this becoming email.</p>
+        </div>
+
+        <div class="card">
+          <div class="wl-head" style="margin:0 0 12px"><h3 style="font-size:17px">With Ms. Alvarez</h3>
+          <span class="spacer"></span><span class="chip plain tiny">${thread.length} exchange${thread.length===1?'':'s'}</span></div>
+          ${thread.length ? thread.map(bubble).join('') : empty()}
+        </div>
+
+        ${tier==='connected' ? composer() : `
+        <div class="card tinted"><p class="small muted">
+          There's no one to send to on the Family plan. Connect ${esc(d.poss)} classroom and this channel opens.</p></div>`}
+      </div>
+
+      <div class="rail">
+        <div class="card">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">What a teacher sees</div>
+          <p class="small">One line per family, tagged to a dimension, on their class view. They tap <strong>Acknowledge</strong> and you see that they saw it.</p>
+          <a class="link" href="teacher.html">Open the teacher view →</a>
+        </div>
+        <div class="card">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Not available here</div>
+          <ul class="small muted" style="margin:0;padding-left:17px;line-height:1.75">
+            <li>Free-form messaging</li><li>Attachments</li><li>Read receipts on your side</li>
+            <li>Anything that expects a reply within the day</li>
+          </ul>
+          <p class="tiny muted" style="margin-top:10px">Urgent things belong in a phone call, not in a product.</p>
+        </div>
+      </div>
+    </div>`;
+  wireTopline(); wire();
+}
+
+/* Every exchange, both directions, newest last. */
+function buildThread(){
+  const out = [];
+  TEACHER_MESSAGES.filter(m=>m.s===ME).forEach(m=>
+    out.push({ dir:'in', who:m.from, d:m.d, body:m.body, kind:'note' }));
+  LOOP.store.teacherObs().filter(o=>o.s===ME).forEach(o=>
+    out.push({ dir:'in', who:'Ms. Alvarez', d:o.d, body:o.note, dim:DIMENSIONS.find(x=>x.id===o.dim), kind:'obs' }));
+  const resp = LOOP.store.responses(), acks = LOOP.store.acks();
+  Object.keys(resp).forEach(k=>{
+    const [sid, dimId] = k.split('|'); if (sid!==ME) return;
+    const meta = RESPONSES.find(x=>x.id===resp[k].type);
+    out.push({ dir:'out', who:'You', d:resp[k].at, body:resp[k].note, label:meta.label, emoji:meta.emoji,
+               dim:DIMENSIONS.find(x=>x.id===dimId), acked:!!acks[k], kind:'resp' });
+  });
+  return out.sort((a,b)=>a.d.localeCompare(b.d));
+}
+
+function bubble(m){
+  const side = m.dir==='out';
+  return `
+  <div style="display:flex;justify-content:${side?'flex-end':'flex-start'};margin-bottom:13px">
+    <div style="max-width:min(84%,460px)">
+      <div class="tiny muted" style="margin-bottom:5px;text-align:${side?'right':'left'}">
+        ${esc(m.who)} · ${fmt(m.d)}${m.dim?` · <span style="color:${m.dim.color};font-weight:900">${esc(m.dim.name)}</span>`:''}
+      </div>
+      <div style="border-radius:16px;padding:12px 14px;
+        background:${side?'var(--home-bg)':'var(--school-bg)'};
+        box-shadow:inset 0 0 0 1px ${side?'rgba(14,147,132,.2)':'rgba(7,93,250,.16)'}">
+        ${m.label?`<div style="font-weight:900;margin-bottom:${m.body?'5px':'0'}">${m.emoji} ${esc(m.label)}</div>`:''}
+        ${m.body?`<div style="font-size:14px;line-height:1.5">${esc(m.body)}</div>`:''}
+      </div>
+      ${m.dir==='out'?`<div class="tiny" style="text-align:right;margin-top:5px;color:${m.acked?'var(--good)':'var(--muted-2)'}">
+        ${m.acked?'✓ Acknowledged by Ms. Alvarez':'Delivered'}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function empty(){
+  return `<div style="text-align:center;padding:14px 0">
+    ${bog('coco','lg','ring')}
+    <p class="small muted" style="margin-top:12px;max-width:38ch;margin-left:auto;margin-right:auto">
+      Nothing exchanged yet. Respond to an insight on Home or Growth and it lands here — and on Ms. Alvarez's class view.</p>
+  </div>`;
+}
+
+function composer(){
+  const dims = DIMENSIONS;
+  return `
+  <div class="card">
+    <div class="sec-label">Send something</div>
+    <p class="small muted" style="margin-bottom:12px">Pick the area, pick the read, add a line if it helps.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+      ${dims.map(x=>`<button class="btn sm ${pickDim===x.id?'sel':''}" data-dim="${x.id}">${x.ico} ${esc(x.name)}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      ${RESPONSES.map(x=>`<button class="btn sm ${pickType===x.id?'sel':''}" data-type="${x.id}">${x.emoji} ${esc(x.label)}</button>`).join('')}
+    </div>
+    <textarea class="note" id="note" maxlength="${NOTE_CAP}" placeholder="Optional — one or two lines of context."></textarea>
+    <div class="counter"><span id="cnt">0</span>/${NOTE_CAP}</div>
+    <button class="btn primary sm" id="send" ${(!pickDim||!pickType)?'disabled':''}>Send to Ms. Alvarez</button>
+  </div>`;
+}
+
+function wire(){
+  $$('[data-dim]').forEach(b=>b.onclick=()=>{ pickDim=b.dataset.dim; render() });
+  $$('[data-type]').forEach(b=>b.onclick=()=>{ pickType=b.dataset.type; render() });
+  const t=$('#note'); if(t) t.oninput=()=>{ $('#cnt').textContent=t.value.length };
+  const s=$('#send'); if(s) s.onclick=()=>{
+    if(!pickDim||!pickType) return;
+    LOOP.store.respond(`${ME}|${pickDim}|${WEEK_START}`, pickType, $('#note').value);
+    pickDim=null; pickType=null;
+    toast('Sent — one line, one area. That’s the whole channel.');
+    render();
+  };
+}
+function fmt(s){ const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p=s.split('-'); return m[+p[1]-1]+' '+(+p[2]) }
+
+mountApp('msgs');
+render();
+</script>
+</body></html>

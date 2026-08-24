@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ask · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+<style>
+  .big-ask{
+    border-radius:22px;padding:26px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-lg);
+  }
+  .big-ask input{
+    width:100%;border:0;font:inherit;font-size:17px;font-weight:700;padding:15px 17px;border-radius:15px;
+    background:var(--tint);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink)
+  }
+  .big-ask input:focus{outline:2px solid rgba(7,93,250,.32);outline-offset:1px}
+  .concern-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin-top:14px}
+  @media(max-width:1180px){.concern-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .concern{
+    text-align:left;border:0;cursor:pointer;font:inherit;font-weight:800;font-size:13.5px;letter-spacing:-.015em;
+    background:var(--tint);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line);
+    border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:7px
+  }
+  .concern:hover{background:#fff;box-shadow:inset 0 0 0 2px var(--blue);color:var(--blue)}
+  .concern .e{font-size:19px}
+  .ans-sec{padding:15px 0}
+  .ans-sec + .ans-sec{border-top:1px solid var(--line-soft)}
+  .ans-sec ul{margin:6px 0 0;padding-left:19px;line-height:1.7}
+  .safety{
+    border-radius:16px;padding:16px 18px;background:#fff6f2;box-shadow:inset 0 0 0 1px rgba(200,80,30,.18)
+  }
+  .safety a{color:#b4400a}
+</style>
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+const d = LOOP.child(ME);
+let open = null;
+
+function render(){
+  $('#app').innerHTML = `
+    ${topline(`Whatever you're wondering about ${esc(d.first)} — start here.`)}
+    <div class="dash">
+      <div class="stack">
+        <div class="big-ask">
+          <div class="eyebrow" style="margin-bottom:13px">Always here · never behind the paywall</div>
+          <h2 style="margin-bottom:6px">I'm noticing something…</h2>
+          <p class="muted" style="margin-bottom:16px;max-width:60ch">Tell us what you're seeing. You'll get what it might mean, what to watch for, one small next step, and when it's worth asking someone else.</p>
+          <input id="q" placeholder="e.g. “meltdowns after school”, “won't read anymore”" autocomplete="off">
+          <div class="concern-grid">
+            ${CONCERNS.map(c=>`<button class="concern ${open===c.id?'sel':''}" data-c="${c.id}">
+              <span class="e">${c.emoji}</span>${esc(c.label)}</button>`).join('')}
+          </div>
+        </div>
+        ${open ? answer(LOOP.concern(open)) : ''}
+        ${conferenceCard()}
+      </div>
+      <div class="rail">
+        <div class="safety">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#b4400a;margin-bottom:7px">If it's urgent</div>
+          <p class="small" style="color:var(--ink)">Some things shouldn't wait for a weekly pattern. These are free, 24/7, and you don't need an account.</p>
+          <div style="margin-top:11px">
+            ${CRISIS.map(c=>`<div style="margin-bottom:9px">
+              <div style="font-weight:900;font-size:13.5px">${esc(c.label)}</div>
+              <div class="small muted">${esc(c.detail)}</div></div>`).join('')}
+          </div>
+        </div>
+        <div class="card tinted">
+          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px">How Loop talks</div>
+          <p class="small">${esc(LANGUAGE.rule)}</p>
+          <div style="margin-top:10px">
+            ${LANGUAGE.use.slice(0,5).map(w=>`<span class="chip good tiny" style="margin:0 4px 4px 0">${esc(w)}</span>`).join('')}
+          </div>
+          <div style="margin-top:8px">
+            ${LANGUAGE.never.slice(0,5).map(w=>`<span class="chip plain tiny" style="margin:0 4px 4px 0;text-decoration:line-through;opacity:.6">${esc(w)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  wireTopline();
+  $$('[data-c]').forEach(b=>b.onclick=()=>{ open = open===b.dataset.c ? null : b.dataset.c; render();
+    const a=$('#answer'); if(a) a.scrollIntoView({behavior:'smooth',block:'center'}) });
+  const q=$('#q');
+  q.onkeydown=e=>{ if(e.key!=='Enter') return;
+    const t=q.value.toLowerCase();
+    const hit = CONCERNS.find(c=>c.label.toLowerCase().split(/\W+/).some(w=>w.length>3&&t.includes(w)))
+             || CONCERNS.find(c=>c.id.split('_').some(w=>t.includes(w)));
+    if (hit){ open=hit.id; render() } else toast('Nothing matched in the prototype library — pick one below.');
+  };
+}
+
+function answer(c){
+  const dims = c.dims.map(id=>DIMENSIONS.find(x=>x.id===id));
+  return `
+  <div class="card" id="answer">
+    <div class="card-head" style="align-items:flex-start">
+      <div class="dim-ico lg">${c.emoji}</div>
+      <div style="flex:1">
+        <div class="sec-label" style="margin:0">You said</div>
+        <h3 style="font-size:21px">${esc(c.label)}</h3>
+        <div style="margin-top:7px">${dims.map(x=>`<span class="chip" style="background:${x.tint};color:${x.color};margin-right:5px">${x.ico} ${esc(x.name)}</span>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="ans-sec">
+      <div class="mini-lbl">What this might mean</div>
+      <p style="margin-top:5px;font-size:14.5px">${esc(c.mean)}</p>
+    </div>
+    <div class="ans-sec">
+      <div class="mini-lbl">What to watch for</div>
+      <ul class="small">${c.watch.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>
+    </div>
+    <div class="ans-sec">
+      <div class="callout try"><div class="lbl">One small next step</div>${esc(c.step)}</div>
+    </div>
+    <div class="ans-sec">
+      <div class="callout" style="background:#fdf1e3;box-shadow:inset 0 0 0 1px rgba(180,83,10,.2)">
+        <div class="lbl" style="color:var(--watch)">When to ask for more help</div>${esc(c.seek)}
+      </div>
+      <p class="tiny muted" style="margin-top:9px">Loop is a parenting tool, not a clinical one. It never diagnoses, and it will always tell you when something is worth a real conversation with a pediatrician or school counselor.</p>
+    </div>
+
+    ${LOOP.store.tier()==='connected' ? `
+    <div class="hairline"></div>
+    <div class="sec-label">Want ${esc(d.poss)} teacher to know you're thinking about this?</div>
+    <button class="btn sm" data-tell="${c.id}">💬 Send “I'd like to talk about this”</button>` : ''}
+  </div>`;
+}
+
+function conferenceCard(){
+  const qs = LOOP.conference(ME, LOOP.store.tier());
+  const e = EVENTS_UPCOMING.find(x=>x.s===ME);
+  return `
+  <div class="card" id="conference">
+    <div class="mini-head">
+      <div class="mini-ico" style="background:#fff6d9">📅</div>
+      <div><div class="mini-lbl">Conference question generator</div>
+      <h4 style="margin-top:1px">Walk in with something better than “how's she doing?”</h4></div>
+    </div>
+    ${e?`<p class="small muted" style="margin-bottom:12px">${esc(e.kind)} · ${esc(e.when)}</p>`:''}
+    ${qs.length ? qs.map(q=>`
+      <div class="src" style="align-items:flex-start">
+        <div class="src-key" style="color:${q.dim.color};width:96px">${esc(q.dim.name)}</div>
+        <div class="src-body">${esc(q.q)}</div>
+      </div>`).join('')
+      : '<p class="small muted">Not enough signal yet to build questions worth asking.</p>'}
+    <button class="btn sm ghost" style="margin-top:13px" id="copyQ">Copy questions</button>
+  </div>`;
+}
+
+function wireExtra(){
+  const cq=$('#copyQ'); if(cq) cq.onclick=()=>{
+    const t = LOOP.conference(ME, LOOP.store.tier()).map(q=>`• ${q.dim.name}: ${q.q}`).join('\n');
+    navigator.clipboard?.writeText(t); toast('Questions copied.');
+  };
+  $$('[data-tell]').forEach(b=>b.onclick=()=>{
+    const c = LOOP.concern(b.dataset.tell);
+    LOOP.store.respond(`${ME}|${c.dims[0]}|${WEEK_START}`, 'talk', c.label);
+    toast('Sent. Ms. Alvarez sees it on her class view.');
+  });
+}
+
+const _r = render;
+render = function(){ _r(); wireExtra() };
+
+mountApp('ask');
+render();
+</script>
+</body></html>

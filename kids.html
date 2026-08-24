@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Kids · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=19">
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=19"></script>
+<script src="loop.engine.js?v=19"></script>
+<script src="loop.shell.js?v=19"></script>
+<script>
+function render(){
+  const kids = FAMILY.map(f=>{
+    const seeded = SEED_EVENTS.some(e=>e.s===f.id);
+    return Object.assign({}, f, { seeded, bog: LOOP.store.boggie(f.id) });
+  });
+  $('#app').innerHTML = `
+    ${topline('Everyone you\'re following, and how connected they are.')}
+    <div class="stack">
+      ${kids.map(kidCard).join('')}
+      <div class="card" style="border-style:dashed;text-align:center;background:transparent;box-shadow:none">
+        <div style="font-size:26px">➕</div>
+        <h4 style="margin:8px 0 4px">Add another child</h4>
+        <p class="small muted" style="margin-bottom:12px">Loop is priced per family, not per child.</p>
+        <button class="btn ghost sm" id="addKid">Add a child</button>
+      </div>
+    </div>`;
+  wireTopline();
+  $$('[data-open]').forEach(b=>b.onclick=()=>location.href='growth.html');
+  $$('[data-connect]').forEach(b=>b.onclick=()=>toast('In production this asks the school for a class code.'));
+  $$('[data-bogpick]').forEach(b=>b.onclick=()=>{
+    LOOP.store.setBoggie(b.dataset.kid, b.dataset.bogpick);
+    toast(BOGGIES[b.dataset.bogpick] + ' is now ' + b.dataset.name + '’s Boggie.');
+    render();
+  });
+  const a=$('#addKid'); if(a) a.onclick=()=>toast('Prototype — only Maya carries seeded data.');
+}
+
+function kidCard(k){
+  const kid = k.seeded ? LOOP.child(k.id) : null;
+  const r = k.seeded ? LOOP.read(k.id, k.connected ? LOOP.store.tier() : 'family') : null;
+  const lit = r ? DIMENSIONS.filter(d=>!r[d.id].cold).length : 0;
+  return `
+  <div class="card">
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+      ${bog(k.bog,'lg','ring')}
+      <div style="flex:1;min-width:200px">
+        <div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+          <h3>${esc(k.label)}</h3>
+          ${k.connected
+            ? '<span class="chip school">🔗 Classroom connected</span>'
+            : '<span class="chip plain">🏠 Family only</span>'}
+        </div>
+        <p class="small muted" style="margin-top:4px">
+          ${esc(k.grade)}${k.teacher?' · '+esc(k.teacher):''} · Boggie: <strong>${esc(BOGGIES[k.bog])}</strong>
+        </p>
+        <div class="tiny muted" style="margin-top:9px">
+          ${k.seeded
+            ? `${lit} of 6 areas have enough signal · ${LOOP.events(k.id).length} signals in the last 21 days`
+            : 'No signals yet — Loop is still getting to know them.'}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
+          <button class="btn sm ${k.seeded?'primary':''}" data-open="${k.id}">Open ${esc(k.label.split(' ')[0])}’s growth</button>
+          ${k.connected ? '' : `<button class="btn sm ghost" data-connect="${k.id}">🔗 Connect classroom</button>`}
+        </div>
+      </div>
+      ${r ? `<div style="min-width:210px;flex:1">
+        ${DIMENSIONS.map(d=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+          <span style="font-size:13px;width:15px">${d.ico}</span>
+          <span class="tiny" style="width:78px;font-weight:800">${esc(d.name)}</span>
+          <span class="meter" style="flex:1"><i style="width:${r[d.id].cold?10:r[d.id].pct}%;background:${r[d.id].cold?'#c9d6ec':d.color}"></i></span>
+        </div>`).join('')}
+      </div>` : ''}
+    </div>
+    <div class="hairline"></div>
+    <div class="sec-label">${esc(k.label.split(' ')[0])}’s Boggie</div>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      ${Object.keys(BOGGIES).slice(0,8).map(b=>`
+        <button style="border:0;background:none;padding:0;cursor:pointer;border-radius:50%;
+          box-shadow:${b===k.bog?'0 0 0 3px var(--blue)':'none'}"
+          data-bogpick="${b}" data-kid="${k.id}" data-name="${esc(k.label.split(' ')[0])}"
+          title="${esc(BOGGIES[b])}">${bog(b,'sm')}</button>`).join('')}
+    </div>
+  </div>`;
+}
+mountApp('kids');
+render();
+</script>
+</body></html>
