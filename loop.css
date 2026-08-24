@@ -478,21 +478,28 @@ textarea.note:focus{outline:2px solid rgba(7,93,250,.35);outline-offset:1px}
 
 /* ══ APP / WEB VIEW TOGGLE ═════════════════════════════════════════ */
 .viewtoggle{
-  position:fixed;top:14px;right:18px;z-index:120;display:flex;align-items:center;gap:0;
-  background:rgba(6,24,70,.9);border-radius:999px;padding:3px;
-  box-shadow:0 8px 22px rgba(6,24,70,.3),inset 0 0 0 1px rgba(255,255,255,.14);
-  backdrop-filter:blur(8px)
+  position:fixed;top:16px;right:20px;z-index:120;display:flex;align-items:center;gap:9px;
+  background:rgba(6,24,70,.94);border-radius:999px;padding:5px 5px 5px 15px;
+  box-shadow:0 10px 28px rgba(6,24,70,.34),inset 0 0 0 1px rgba(255,255,255,.16);
+  backdrop-filter:blur(10px)
 }
+.viewtoggle .vt-label{
+  font-size:10.5px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;
+  color:rgba(255,255,255,.5);white-space:nowrap
+}
+.viewtoggle .vt-group{display:flex;gap:2px;background:rgba(255,255,255,.09);border-radius:999px;padding:3px}
 .viewtoggle button{
-  border:0;background:transparent;cursor:pointer;color:rgba(255,255,255,.68);
-  font:inherit;font-size:12.5px;font-weight:800;padding:6px 14px;border-radius:999px;letter-spacing:-.01em
+  border:0;background:transparent;cursor:pointer;color:rgba(255,255,255,.72);
+  font:inherit;font-size:13px;font-weight:800;padding:7px 15px;border-radius:999px;letter-spacing:-.015em;
+  transition:background .14s,color .14s
 }
-.viewtoggle button.on{background:#fff;color:var(--ink)}
+.viewtoggle button:hover{color:#fff}
+.viewtoggle button.on{background:#fff;color:var(--ink);box-shadow:0 2px 6px rgba(6,24,70,.28)}
 
 /* phone frame */
 body.appview{background:#e6ecf8;padding:0}
 body.appview .app{
-  width:392px;height:830px;margin:46px auto;grid-template-columns:1fr;
+  width:392px;height:min(830px, calc(100vh - 76px));margin:38px auto;grid-template-columns:1fr;
   border-radius:46px;overflow:hidden;position:relative;background:var(--page);
   box-shadow:0 0 0 11px #0a1226,0 0 0 13px #26355c,0 34px 70px rgba(6,24,70,.4)
 }
@@ -984,3 +991,12 @@ body.sm .src{display:block;padding:11px 0}
 body.sm .src-key{width:auto;margin-bottom:4px;font-size:10.5px}
 body.sm .src-body{font-size:14px}
 body.sm .conference .src-key,body.sm #conference .src-key{width:auto}
+
+/* body.sm is true inside the App frame too, so its fixed tab bar would
+   escape the phone and span the browser window. Re-anchor it to the frame. */
+body.sm.appview .side{
+  position:absolute;left:0;right:0;bottom:0;top:auto;
+  padding:7px 6px 20px;border-radius:0 0 36px 36px
+}
+body.sm.appview .mobilebar{position:absolute;top:44px;left:0;right:0}
+body.sm.appview .main{padding:calc(52px + 8px) 16px 92px}

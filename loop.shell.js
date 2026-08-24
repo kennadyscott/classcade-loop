@@ -174,13 +174,16 @@ function mountViewToggle(){
   applyView(mode);
   const t = el('div','viewtoggle');
   t.innerHTML = `
-    <button data-v="web" class="${mode==='web'?'on':''}">🖥 Web</button>
-    <button data-v="app" class="${mode==='app'?'on':''}">📱 App</button>`;
+    <span class="vt-label">Preview as</span>
+    <div class="vt-group">
+      <button data-v="web" class="${mode==='web'?'on':''}">🖥 Desktop</button>
+      <button data-v="app" class="${mode==='app'?'on':''}">📱 Phone</button>
+    </div>`;
   document.body.appendChild(t);
-  t.querySelectorAll('button').forEach(b=>b.onclick=()=>{
+  t.querySelectorAll('.vt-group button').forEach(b=>b.onclick=()=>{
     LOOP.store.setView(b.dataset.v);
     applyView(b.dataset.v);
-    t.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+    t.querySelectorAll('.vt-group button').forEach(x=>x.classList.toggle('on', x===b));
   });
 }
 function applyView(mode){
@@ -208,11 +211,11 @@ function moreSheet(active){
     <div class="srow"><span class="ic">${tier==='connected'?'🔗':'🏠'}</span>
       Loop ${esc(TIER_COPY[tier].name)}<span class="spacer"></span>
       <span class="chip ${tier==='connected'?'school':'plain'}">${tier==='connected'?'Included':esc(TIER_COPY.family.price)}</span></div>
-    <div class="sec">View</div>
+    <div class="sec">Preview as</div>
     <div class="srow" style="padding-bottom:4px">
       <div class="tier" id="sheetView" style="margin:0;background:#eef3fb;box-shadow:inset 0 0 0 1px var(--line)">
-        <button data-v="web" class="${LOOP.store.view()==='web'?'on':''}" style="color:var(--muted)">🖥 Web</button>
-        <button data-v="app" class="${LOOP.store.view()==='app'?'on':''}" style="color:var(--muted)">📱 App</button>
+        <button data-v="web" class="${LOOP.store.view()==='web'?'on':''}" style="color:var(--muted)">🖥 Desktop</button>
+        <button data-v="app" class="${LOOP.store.view()==='app'?'on':''}" style="color:var(--muted)">📱 Phone</button>
       </div>
     </div>
     <div class="sec">Prototype surfaces</div>
