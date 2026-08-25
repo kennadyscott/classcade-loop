@@ -1321,7 +1321,10 @@ body.sm .addsheet .m-chips button{flex:1 1 calc(50% - 4px)}
 /* ══ PHONE · GROWTH ════════════════════════════════════════════════ */
 /* the carousel straddles the dark/light seam, as in the mockup */
 body.sm .g-straddle{margin-top:14px;position:relative;z-index:2}
-body.sm .g-dark{padding-bottom:60px}
+/* the header must reserve the space the carousel pulls up into. Written with
+   both classes so a later blanket .m-dark padding rule can't undercut it —
+   that collision is exactly what dropped the cards onto the greeting. */
+body.sm .m-dark.g-dark{padding-bottom:62px}
 body.sm .g-pull{margin-top:-58px;position:relative;z-index:3}
 body.sm .g-dots{display:flex;justify-content:center;gap:6px;margin:12px 0 4px}
 body.sm .g-dots i{width:6px;height:6px;border-radius:999px;background:#cbd8ee;display:block}
@@ -2095,3 +2098,57 @@ body.appview .dp-gate{position:absolute;border-radius:46px}
   body:not(.appview) .m-flag{max-width:760px}
   body:not(.appview) .m-secrow.flagrow{margin-top:4px}
 }
+
+/* ══ PHONE · HOME DENSITY ══════════════════════════════════════════ */
+/* Home ran 2.5 screens. The rule applied here: anything that is an ACTION
+   keeps its full card, anything that is a POINTER shrinks to an icon.
+   Nothing was removed — the flags fold, they don't disappear. */
+
+/* flags fold. The first one, and anything overdue, opens itself — a parent
+   should never have to tap to find out something is late. */
+body.sm details.m-flag > summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;gap:11px}
+body.sm details.m-flag > summary::-webkit-details-marker{display:none}
+body.sm details.m-flag .fl-cv{
+  margin-left:auto;flex:none;color:var(--muted-2);font-weight:900;font-size:17px;
+  transform:rotate(90deg);transition:transform .16s ease;line-height:1
+}
+body.sm details.m-flag[open] .fl-cv{transform:rotate(-90deg)}
+body.sm details.m-flag:not([open]){padding-bottom:13px}
+body.sm details.m-flag .fl-detail{margin-top:10px}
+
+/* the noticing chips ride one scrolling row rather than wrapping to three */
+/* NB: not ".rail" — a bare .rail already exists for the desktop column layout
+   and its flex-direction:column silently stacked these. */
+body.sm .m-chips.chiprail{
+  display:flex;flex-direction:row;flex-wrap:nowrap;gap:8px;overflow-x:auto;scrollbar-width:none;
+  margin:0 -16px;padding:1px 16px 3px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity
+}
+body.sm .m-chips.chiprail::-webkit-scrollbar{display:none}
+body.sm .m-chips.chiprail button{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap}
+
+/* pointers become icons */
+.m-quad{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:9px;margin-top:12px}
+.m-qt{
+  display:flex;flex-direction:column;align-items:flex-start;gap:0;
+  background:#fff;border:1px solid var(--line-soft);border-radius:15px;
+  padding:12px 11px 12px;text-decoration:none;color:var(--ink);min-width:0
+}
+.m-qt .qi{
+  width:34px;height:34px;border-radius:11px;display:grid;place-items:center;
+  font-size:17px;margin-bottom:9px;flex:none
+}
+.m-qt .ql{font-size:13px;font-weight:900;letter-spacing:-.028em;line-height:1.2}
+.m-qt .qs{
+  font-size:11px;color:var(--muted-2);font-weight:700;margin-top:3px;line-height:1.25;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%
+}
+.m-qt:active{background:var(--tint)}
+@media (min-width:901px){ body:not(.appview) .m-quad{max-width:560px} }
+
+/* The status bar sat at z-index 20 with a transparent background on dark
+   pages, so scrolled content painted straight through "9:41". It has to be
+   the top layer of the frame and opaque the moment the page moves. */
+body.appview .statusbar{z-index:60}
+body.appview.scrolled .statusbar{background:var(--page)}
+body.appview.darktop.scrolled .statusbar{background:#0b2360;color:#fff}
+body.appview.darktop.scrolled .statusbar .notch{background:#0a1226}

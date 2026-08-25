@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=126">
+<link rel="stylesheet" href="loop.css?v=131">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=126"></script>
-<script src="loop.engine.js?v=126"></script>
-<script src="loop.shell.js?v=126"></script>
+<script src="loop.data.js?v=131"></script>
+<script src="loop.engine.js?v=131"></script>
+<script src="loop.shell.js?v=131"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -34,9 +34,9 @@ function flagSection(){
   return `
   <div class="m-secrow flagrow">Needs you
     <span class="flagcount ${late?'late':''}">${open.length}${late?` · ${late} overdue`:''}</span></div>
-  ${open.map(f=>`
-    <div class="m-flag ${f.overdue?'late':''}">
-      <div class="fl-top">
+  ${open.map((f,i)=>`
+    <details class="m-flag ${f.overdue?'late':''}" ${(i===0||f.overdue)?'open':''}>
+      <summary class="fl-top">
         <span class="fl-ic">${f.meta.emoji}</span>
         <span class="fl-tx">
           <span class="fl-lb">${esc(f.label)}</span>
@@ -46,13 +46,14 @@ function flagSection(){
             : f.daysLeft===1 ? '<b>due tomorrow</b>'
             : `due ${fmtLong(f.due)}`}</span>
         </span>
-      </div>
+        <span class="fl-cv">›</span>
+      </summary>
       <div class="fl-detail">${esc(f.detail)}</div>
       <div class="fl-acts">
         <button class="btn primary sm" data-flagdo="${f.id}">${esc(f.meta.cta)}</button>
         <button class="btn sm" data-flagdone="${f.id}">Already done</button>
       </div>
-    </div>`).join('')}`;
+    </details>`).join('')}`;
 }
 
 /* The week has a date, a new/seen state, and a way to be finished —
@@ -207,16 +208,10 @@ function renderPhone(){
 
       <div class="m-secrow">Add what you noticed</div>
       ${pending ? confirmPanel() : `
-      <div class="m-chips">
-        ${HOME_OBS.slice(0,6).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+      <div class="m-chips chiprail">
+        ${HOME_OBS.map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
       </div>`}
       ${loggedList()}
-      <a class="m-row" href="ask.html" style="margin-top:10px">
-        <div class="ric" style="background:var(--home-bg)">💬</div>
-        <div class="rtx"><div class="rtitle">Something worrying you?</div>
-          <div class="rsub">Always here, never behind the paywall</div></div>
-        <span class="chev">›</span>
-      </a>
 
       ${(()=>{const g=LOOP.store.goals(ME); if(!g) return '';
         const gd = g.dim ? DIMENSIONS.find(x=>x.id===g.dim) : null;
@@ -226,21 +221,26 @@ function renderPhone(){
           <div class="gt">${esc(g.text)}</div>
         </div>`})()}
 
-      ${(()=>{const n=LOOP.activity(ME,40).length;const tier2=LOOP.store.tier();
-        if(tier2!=='connected') return '';
-        return `<a class="m-row" href="school.html">
-        <div class="ric" style="background:var(--school-bg)">${ico('school',18)}</div>
-        <div class="rtx"><div class="rtitle">Daily feed</div>
-          <div class="rsub">${n} things tagged for ${esc(d.first)} in the last three weeks</div></div>
-        <span class="chev">›</span></a>`})()}
-
-      ${(()=>{const b=LOOP.choreBoard(ME),hc=LOOP.homeCoins(ME);return `
-      <a class="m-row" href="chores.html">
-        <div class="ric" style="background:#fff6d9">${ico('coins',18)}</div>
-        <div class="rtx"><div class="rtitle">At home · ${b.doneToday} of ${b.total} done today</div>
-          <div class="rsub">${hc.balance} coins${b.earnedToday?` · +${b.earnedToday} earned today`:''}</div></div>
-        <span class="chev">›</span>
-      </a>`})()}
+      ${(()=>{
+        /* three destinations that used to be three full-width rows. As tiles they
+           cost a third of the height and read faster — the number under each label
+           is the reason to tap. Ask keeps a tile of its own because the crisis
+           path can never be more than one tap from Home. */
+        const b=LOOP.choreBoard(ME), hc=LOOP.homeCoins(ME);
+        const n=LOOP.activity(ME,40).length, conn=LOOP.store.tier()==='connected';
+        const t=[];
+        if (conn) t.push({href:'school.html', bg:'var(--school-bg)', ic:ico('school',20),
+                          lb:'Daily feed',  st:`${n} tagged`});
+        t.push({href:'chores.html', bg:'#fff6d9', ic:ico('coins',20),
+                lb:'At home', st:`${b.doneToday} of ${b.total} today`});
+        t.push({href:'ask.html', bg:'var(--home-bg)', ic:'💬',
+                lb:'Ask', st:'Always free'});
+        return `<div class="m-quad">${t.map(x=>`
+          <a class="m-qt" href="${x.href}">
+            <span class="qi" style="background:${x.bg}">${x.ic}</span>
+            <span class="ql">${x.lb}</span>
+            <span class="qs">${esc(x.st)}</span>
+          </a>`).join('')}</div>`})()}
 
       <div class="m-secrow">${LOOP.framework().name} <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
       ${LOOP.deep()?`<div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>`:''}

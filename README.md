@@ -249,6 +249,37 @@ no bar beside it is exactly the "describe, don't rank" position. In Depth is the
 justification, which is why it also carries the as-of line explaining that a word only moves on a
 pattern.
 
+## Keeping Home short
+
+Home ran 2.5 phone screens. The rule used to cut it, so later sections don't creep back:
+
+> **Anything that is an ACTION keeps its full card. Anything that is a POINTER shrinks to an icon.**
+
+| Was | Now | Saved |
+|---|---|---|
+| Three flag cards, 154px each | First (and anything overdue) open, rest fold to a 71px row | 196px |
+| Six noticing chips wrapping to three rows | All ten on one horizontally scrolling rail | 99px |
+| Three full-width pointer rows (Daily feed / At home / Ask) | One 3-up icon tile grid | 115px |
+
+Measured at the same viewport: **2079px → 1686px, a 19% cut.** Nothing was removed — the flags fold,
+they don't disappear, and an overdue flag opens itself so a parent never taps to discover something is
+late. Ask keeps a tile of its own because the crisis path can never be more than one tap from Home.
+
+### Three CSS bugs found on the way
+
+1. **`body.sm .m-dark{padding-bottom:12px}` at line 1823 overrode `body.sm .g-dark{padding-bottom:60px}`
+   at line 1324** — same specificity, later wins, and the element carries both classes. The Growth header
+   stopped reserving the space its carousel pulls up into, so the six cards landed on top of the
+   greeting. Fixed as `body.sm .m-dark.g-dark`, which no blanket `.m-dark` rule can undercut.
+2. **A bare `.rail{flex-direction:column}` (line 376, desktop layout) captured `.m-chips.rail`** and
+   stacked the chip rail vertically — 511px instead of 48px. The modifier is now `.chiprail`. Do not
+   reuse `rail` as a modifier name.
+3. **`.mobilebar` was `position:absolute` but appended to `document.body`**, so it resolved against the
+   viewport and the title bar rendered across the full browser width, outside the phone frame. It now
+   mounts inside `.app`, the only positioned ancestor. The status bar under it was z-index 20 and
+   transparent on dark pages, so scrolled content painted through "9:41" — now z-index 60 and opaque
+   once the page moves.
+
 ## Build your own At Home page
 
 A gear beside the **At Home** title opens a builder. Three levels of control, because a chore list that

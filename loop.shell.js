@@ -236,7 +236,10 @@ function mountMobileBar(active){
       <span class="mb-kid">${esc(kid.label.split(' ')[0])}</span>
       <div class="av g1" style="width:26px;height:26px;border-radius:8px;font-size:11px">${esc(kid.label[0])}</div>
     </div>`;
-  document.body.appendChild(bar);
+  /* must live INSIDE .app — it is position:absolute, and .app is the only
+     positioned ancestor. Appended to body it resolved against the viewport
+     and the title bar rendered across the whole browser, outside the frame. */
+  (document.querySelector('.app') || document.body).appendChild(bar);
   const onScroll = () => {
     const y = (document.querySelector('.main')||document).scrollTop || window.scrollY || 0;
     document.body.classList.toggle('scrolled', y > 56);
