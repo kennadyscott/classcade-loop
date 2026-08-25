@@ -82,7 +82,7 @@ const BOGGIES = {
 /* the real icon set, sized by context */
 function ico(name, px, cls){
   return `<img class="ic-img ${cls||''}" src="icons/${name}.png" alt="" width="${px}" height="${px}"
-           style="width:${px}px;height:${px}px" loading="lazy">`;
+           style="width:${px}px;height:${px}px" decoding="async">`;
 }
 function dimIcon(dim, px){ return dim.icon ? ico(dim.icon, px) : dim.ico }
 

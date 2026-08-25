@@ -4,20 +4,171 @@
 <title>Growth · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=76">
+<link rel="stylesheet" href="loop.css?v=80">
 <style>
   .facet{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;margin:0 5px 5px 0}
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=76"></script>
-<script src="loop.engine.js?v=76"></script>
-<script src="loop.shell.js?v=76"></script>
+<script src="loop.data.js?v=80"></script>
+<script src="loop.engine.js?v=80"></script>
+<script src="loop.shell.js?v=80"></script>
 <script>
 const d = LOOP.child(ME);
 let sel = new URLSearchParams(location.search).get('d') || null;
 
 function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+function brandRow(){
+  return `<div class="m-brand">
+    <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true"><g stroke-linecap="round" fill="none">
+      <path d="M8 8.5 L18.5 4.2" stroke="#ffc425" stroke-width="4.2"/>
+      <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+      <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/></g></svg>
+    <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+    <span class="util"><a class="m-bell" href="messages.html">${ico('nav-notifications',20)}</a>
+    <span class="m-me">${esc(PARENT.name[0])}</span></span></div>`;
+}
+
+function renderPhone(){
+  document.body.classList.add('darktop');
+  const tier = LOOP.store.tier();
+  const r = LOOP.read(ME, tier);
+  if (!sel) sel = (LOOP.headlines(ME,tier,1)[0]||{}).dim?.id || 'confidence';
+  const dim = DIMENSIONS.find(x=>x.id===sel);
+  const x   = r[sel];
+  const ins = LOOP.insight(ME, sel, tier);
+  const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  const exp = LOOP.expectations(sel, 3);
+  const idx = DIMENSIONS.findIndex(z=>z.id===sel);
+
+  $('#app').innerHTML = `
+    <div class="m-dark g-dark">
+      ${brandRow()}
+      <div class="m-greetrow">
+        <div><div class="m-greet">Hi, ${esc(PARENT.name)}! 👋</div>
+        <div class="m-greet-sub">${esc(d.first)}'s growth, in six areas.</div></div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="g-pull">
+      <div class="m-growth">
+        ${DIMENSIONS.map(dm=>{const y=r[dm.id];return `
+          <div class="m-gcard ${dm.id===sel?'sel':''}" data-dim="${dm.id}">
+            <div class="tile" style="background:${dm.tint}">${dimIcon(dm,22)}</div>
+            <div class="nm">${esc(dm.name)}</div>
+            <div class="st" style="color:${y.cold?'var(--muted-2)':dm.color}">${LOOP.LEVEL_LABEL[y.level]}${y.cold?'':' '+LOOP.ARROW[y.dir]}</div>
+            <div class="bar"><i style="width:${y.cold?10:y.pct}%;background:${y.cold?'#c9d6ec':dm.color}"></i></div>
+          </div>`}).join('')}
+      </div>
+      <div class="g-dots">${DIMENSIONS.map((z,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div>
+    </div>
+
+    <div class="m-light">
+      ${ins.cold ? `
+      <div class="g-card">
+        <div class="g-pill">Still getting to know ${esc(d.first)}</div>
+        <p class="small muted">${esc(ins.body)}</p>
+      </div>` : `
+      <div class="g-card">
+        <div class="g-pill">Something we're noticing</div>
+        <div class="g-dimline">
+          <span class="nm" style="color:${dim.color}">${esc(dim.name)}</span>
+          <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
+          <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
+        </div>
+        <div class="g-head">
+          <div class="sh" style="background:${dim.tint}">${dimIcon(dim,24)}</div>
+          <h2>${esc(ins.head)}</h2>
+        </div>
+        ${ins.school?`<div class="g-ev"><span class="lb school">At school</span><span class="tx">${esc(ins.school)}</span></div>`:''}
+        ${ins.home?`<div class="g-ev"><span class="lb home">At home</span><span class="tx">${esc(ins.home)}</span></div>`:''}
+        ${ins.voice?`<div class="g-ev"><span class="lb said">${esc(d.first)} told you</span><span class="tx q">&ldquo;${esc(ins.voice)}&rdquo;</span></div>`:''}
+        <details class="fold" style="margin-top:14px">
+          <summary>Why it matters</summary>
+          <div class="foldbody"><p class="small">${esc(ins.why)}</p></div>
+        </details>
+      </div>
+
+      <div class="g-duo">
+        <div class="g-tile talk">
+          <div class="ti">💬</div>
+          <div class="tl">Talk about it</div>
+          <div class="tb">${esc(ins.talk)}</div>
+        </div>
+        <div class="g-tile try">
+          <div class="ti">🏠</div>
+          <div class="tl">Try at home</div>
+          <div class="tb">${esc(ins.tryAt)}</div>
+        </div>
+      </div>
+
+      ${tier==='connected' ? sendBlock(ins) : `
+      <div class="g-send"><div class="lb">The other direction</div>
+        <p class="small muted">Connect ${esc(d.poss)} classroom and you can send this back to ${esc(d.poss)} teacher in one tap.</p></div>`}
+      `}
+
+      <details class="g-fold">
+        <summary><span class="fi" style="background:${dim.tint}">${dimIcon(dim,15)}</span>What we're understanding</summary>
+        <div class="fb"><p class="small muted" style="margin-bottom:10px">${esc(dim.q)}</p>
+          ${dim.facets.map(f=>`<span class="facet" style="background:${dim.tint};color:${dim.color}">${esc(f)}</span>`).join('')}</div>
+      </details>
+
+      ${exp?`<details class="g-fold">
+        <summary><span class="fi" style="background:var(--tint)">${ico('school',15)}</span>Is this normal? · 3rd grade</summary>
+        <div class="fb"><p class="small">${esc(exp)}</p></div>
+      </details>`:''}
+
+      ${x.cold?'':`<details class="g-fold">
+        <summary><span class="fi" style="background:var(--tint)">📊</span>Everything feeding this · ${x.count}</summary>
+        <div class="fb">
+          ${x.events.slice(0,10).map(e=>`<div class="g-ev" style="padding:9px 0">
+            <span class="lb ${e.src}">${e.src==='school'?'School':'Home'}</span>
+            <span class="tx" style="font-size:13px;${e.raw<0?'color:var(--watch)':''}">${esc(e.detail)}</span>
+          </div>`).join('')}
+          <p class="tiny muted" style="margin-top:8px">${x.count} signals in the last 21 days, recency-weighted.</p>
+        </div>
+      </details>`}
+    </div>`;
+
+  $$('[data-dim]').forEach(c=>c.onclick=()=>{ sel=c.dataset.dim; history.replaceState(null,'','growth.html?d='+sel); render();
+    window.scrollTo({top:0,behavior:'smooth'}) });
+  wireTopline(); wireDetail(ins);
+}
+
+function sendBlock(ins){
+  const resp = ins.response;
+  if (resp){
+    const meta = RESPONSES.find(x=>x.id===resp.type);
+    return `<div class="g-send"><div class="lb">Sent to Ms. Alvarez</div>
+      <div style="font-weight:800;font-size:14px">${meta.emoji} ${esc(meta.label)}</div>
+      ${resp.note?`<p class="small muted" style="margin-top:5px">"${esc(resp.note)}"</p>`:''}
+      <button class="btn sm ghost" style="margin-top:10px" data-undo="${ins.id}">Undo</button></div>`;
+  }
+  return `<div class="g-send" data-respond="${ins.id}">
+    <div class="lb">Send Ms. Alvarez a quick read from home</div>
+    <div class="row">
+      ${RESPONSES.map(x=>`<button data-r="${x.id}"><span class="e">${x.emoji}</span>${esc(x.label)}</button>`).join('')}
+    </div>
+    <div class="note-wrap" style="display:none;margin-top:11px">
+      <textarea class="note" maxlength="${NOTE_CAP}" placeholder="Optional — one or two lines."></textarea>
+      <div class="counter"><span class="cnt">0</span>/${NOTE_CAP}</div>
+      <div style="display:flex;gap:8px"><button class="btn primary sm" data-send="${ins.id}">Send</button>
+      <button class="btn sm" data-cancel>Cancel</button></div>
+    </div>
+  </div>`;
+}
+
+function renderDesktop(){
+  document.body.classList.remove('darktop');
   const tier = LOOP.store.tier();
   const r = LOOP.read(ME, tier);
   if (!sel) sel = (LOOP.headlines(ME,tier,1)[0]||{}).dim?.id || 'confidence';

@@ -4,7 +4,7 @@
 <title>Ask · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=76">
+<link rel="stylesheet" href="loop.css?v=80">
 <style>
   .big-ask{
     border-radius:22px;padding:26px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-lg);
@@ -33,14 +33,138 @@
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=76"></script>
-<script src="loop.engine.js?v=76"></script>
-<script src="loop.shell.js?v=76"></script>
+<script src="loop.data.js?v=80"></script>
+<script src="loop.engine.js?v=80"></script>
+<script src="loop.shell.js?v=80"></script>
 <script>
 const d = LOOP.child(ME);
 let open = null;
 
 function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+function brandRow(){
+  return `<div class="m-brand">
+    <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true"><g stroke-linecap="round" fill="none">
+      <path d="M8 8.5 L18.5 4.2" stroke="#ffc425" stroke-width="4.2"/>
+      <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+      <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/></g></svg>
+    <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+    <span class="util"><a class="m-bell" href="messages.html">${ico('nav-notifications',20)}</a>
+    <span class="m-me">${esc(PARENT.name[0])}</span></span></div>`;
+}
+
+function renderPhone(){
+  document.body.classList.add('darktop');
+  const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  const c   = open ? LOOP.concern(open) : null;
+  const qs  = LOOP.conference(ME, LOOP.store.tier());
+  const evt = EVENTS_UPCOMING.find(x=>x.s===ME);
+
+  $('#app').innerHTML = `
+    <div class="m-dark">
+      ${brandRow()}
+      <div class="m-greetrow">
+        <div><div class="m-greet">Hi, ${esc(PARENT.name)}! 👋</div>
+        <div class="m-greet-sub">Whatever you're wondering — start here.</div></div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-light">
+      <div class="a-hero">
+        <img class="mon" src="art/loop-monster-sm.png" alt="">
+        <span class="pill">Always here · never behind the paywall</span>
+        <h2>I'm noticing something…</h2>
+        <p>Tell us what you're seeing. You'll get what it might mean, what to watch for, one small next step, and when it's worth asking someone else.</p>
+        <div class="a-search">
+          <svg style="width:17px;height:17px;flex:none;color:var(--muted-2)" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+            <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+          <input id="q" placeholder="e.g. “meltdowns after school”" autocomplete="off">
+        </div>
+      </div>
+
+      <div class="a-list">
+        ${CONCERNS.map(x=>`<button class="a-row ${open===x.id?'on':''}" data-c="${x.id}">
+          <span class="e">${x.emoji}</span><span class="t">${esc(x.label)}</span><span class="cv">›</span>
+        </button>`).join('')}
+      </div>
+
+      ${c ? `<div class="a-ans" id="answer">
+        <div class="sec">
+          <div class="lbl">What this might mean</div>
+          <p>${esc(c.mean)}</p>
+        </div>
+        <div class="sec">
+          <div class="lbl">What to watch for</div>
+          <ul>${c.watch.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>
+        </div>
+        <div class="sec">
+          <div class="lbl" style="color:var(--home)">One small next step</div>
+          <p>${esc(c.step)}</p>
+        </div>
+        <div class="sec">
+          <div class="lbl" style="color:var(--watch)">When to ask for more help</div>
+          <p>${esc(c.seek)}</p>
+          <p class="tiny muted" style="margin-top:9px">Loop is a parenting tool, not a clinical one. It never diagnoses.</p>
+        </div>
+      </div>` : ''}
+
+      <div class="m-secrow">Conference questions</div>
+      <div class="a-conf">
+        <div class="lbl">Conference question generator</div>
+        <h3>Walk in with something better than “how's she doing?”</h3>
+        ${evt?`<p class="small muted" style="margin-top:6px">${esc(evt.kind)} · ${esc(evt.when)}</p>`:''}
+        <div style="margin-top:8px">
+          ${qs.length ? qs.map(z=>`<div class="a-q">
+            <span class="lb" style="color:${z.dim.color}">${esc(z.dim.name)}</span>
+            <span class="tx">${esc(z.q)}</span></div>`).join('')
+            : '<p class="small muted">Not enough signal yet to build questions worth asking.</p>'}
+        </div>
+        <button class="btn sm ghost block" style="margin-top:12px" id="copyQ">Copy questions</button>
+      </div>
+
+      <div class="m-secrow">If it's urgent</div>
+      <div class="a-urgent">
+        <div class="lbl">🚩 Free, 24/7, no account</div>
+        <p class="small">Some things shouldn't wait for a weekly pattern.</p>
+        ${CRISIS.map(x=>`<div class="a-crisis">
+          <div style="flex:1;min-width:0"><b>${esc(x.label)}</b><span>${esc(x.detail)}</span></div>
+          <span class="cv" style="color:var(--muted-2);font-weight:900">›</span></div>`).join('')}
+      </div>
+
+      <div class="m-secrow">How Loop talks</div>
+      <div class="a-talks">
+        <div class="lbl">Status words only, never numbers</div>
+        <p class="small" style="margin-bottom:9px">Describe the child, never rank them.</p>
+        <div>${LANGUAGE.use.map(w=>`<span class="chip good" style="margin:0 5px 5px 0">${esc(w)}</span>`).join('')}</div>
+        <div style="margin-top:5px">${LANGUAGE.never.map(w=>`<span class="chip plain" style="margin:0 5px 5px 0;text-decoration:line-through;opacity:.55">${esc(w)}</span>`).join('')}</div>
+      </div>
+    </div>`;
+
+  wireTopline();
+  $$('[data-c]').forEach(b=>b.onclick=()=>{ open = open===b.dataset.c ? null : b.dataset.c; render();
+    const a=$('#answer'); if(a) a.scrollIntoView({behavior:'smooth',block:'center'}) });
+  const cq=$('#copyQ'); if(cq) cq.onclick=()=>{
+    const t = LOOP.conference(ME, LOOP.store.tier()).map(z=>`• ${z.dim.name}: ${z.q}`).join('\n');
+    navigator.clipboard?.writeText(t); toast('Questions copied.');
+  };
+  const qi=$('#q'); if(qi) qi.onkeydown=e=>{ if(e.key!=='Enter') return;
+    const t=qi.value.toLowerCase();
+    const hit = CONCERNS.find(z=>z.label.toLowerCase().split(/\W+/).some(w=>w.length>3&&t.includes(w)));
+    if(hit){ open=hit.id; render() } else toast('Nothing matched — pick one below.');
+  };
+}
+
+function renderDesktop(){
+  document.body.classList.remove('darktop');
   $('#app').innerHTML = `
     ${topline(`Whatever you're wondering about ${esc(d.first)} — start here.`)}
     <div class="dash">
