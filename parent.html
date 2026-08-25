@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=90">
+<link rel="stylesheet" href="loop.css?v=93">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=90"></script>
-<script src="loop.engine.js?v=90"></script>
-<script src="loop.shell.js?v=90"></script>
+<script src="loop.data.js?v=93"></script>
+<script src="loop.engine.js?v=93"></script>
+<script src="loop.shell.js?v=93"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -22,6 +22,25 @@ const wide = () => window.matchMedia('(min-width:901px)').matches
 function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
   return renderDesktop();
+}
+
+/* The week has a date, a new/seen state, and a way to be finished —
+   otherwise a parent opening on Wednesday can't tell what changed. */
+function weekBar(){
+  const id = 'digest|'+WEEK_START;
+  const fresh = LOOP.store.isNew(id);
+  const R = LOOP.store.ritualSteps();
+  return `
+  <div class="m-week-bar ${fresh?'fresh':''}">
+    <div class="wb-top">
+      <span class="wb-lb">${fresh?'<b class="wb-new">New</b> ':''}This week's read</span>
+      <span class="wb-dt">${fmtLong(WEEK_START)} – ${fmtLong(TODAY)}</span>
+    </div>
+    <div class="wb-steps">
+      ${R.steps.map(st=>`<span class="wb-step ${st.done?'done':''}">${st.done?'✓':'○'} ${esc(st.label)}</span>`).join('')}
+    </div>
+    ${R.complete ? `<div class="wb-done">🌱 That's the week. Nothing else to do — see you Sunday.</div>` : ''}
+  </div>`;
 }
 
 /* The confirm step: one tap picks it, a second commits it, and there is
@@ -106,6 +125,7 @@ function renderPhone(){
         </div>
       </div>
 
+      ${weekBar()}
       ${ins && !ins.cold ? `
       <div class="m-hero">
         <img class="m-mascot" src="art/loop-monster-sm.png" alt="" width="300" height="331">
@@ -151,7 +171,8 @@ function renderPhone(){
         <span class="chev">›</span>
       </a>
 
-      <div class="m-secrow">The Whole Learner <span class="swipe">swipe →</span> <a href="growth.html">View all →</a></div>
+      <div class="m-secrow">The Whole Learner <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
+      <div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>
       <div class="m-growth" id="wlStrip">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
           <div class="m-gcard" data-go="growth.html?d=${dim.id}">
@@ -214,6 +235,9 @@ function renderPhone(){
   $$('[data-go]').forEach(el2=>el2.onclick=()=>location.href=el2.dataset.go);
   const cr=$('#connectRow'); if(cr) cr.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
   const km=$('#kidmenu'); if(km) km.onclick=()=>toast('Only Maya is seeded in this prototype.');
+  /* opening Home is reading the week */
+  setTimeout(()=>{ if (LOOP.store.isNew('digest|'+WEEK_START)){
+    LOOP.store.markSeen('digest|'+WEEK_START); LOOP.store.ritualDone('read'); } }, 1200);
 
   /* pick → confirm → commit, then show the parent what changed */
   $$('[data-obs]').forEach(b=>b.onclick=()=>{ pending=b.dataset.obs; render();
@@ -222,6 +246,7 @@ function renderPhone(){
   const on=$('#obsNote'); if(on) on.oninput=()=>{ const c=$('#obsCount'); if(c) c.textContent=on.value.length };
   const os=$('#obsSave'); if(os) os.onclick=()=>{
     const entry = LOOP.store.addHome(ME, pending, $('#obsNote').value);
+    LOOP.store.ritualDone('notice');
     pending=null; justLogged=true; render();
     /* the payoff is the point — take the parent to the thing that changed */
     setTimeout(()=>{
@@ -553,6 +578,7 @@ function wire(){
   const sq = $('#shuffleQ'); if(sq) sq.onclick=()=>{ LOOP.store.bumpStarterSeed(); render() };
   $$('[data-talked]').forEach(b=>b.onclick=()=>{
     const on = LOOP.store.toggleTalked(b.dataset.talked);
+    if (on) LOOP.store.ritualDone('talk');
     if (on) toast('Logged. That’s the ritual — one question, then listen.');
     render();
   });

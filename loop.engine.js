@@ -15,6 +15,7 @@ const LOOP = (() => {
     teach:'loop.v1.teacherObs', focus:'loop.v1.focus',
     talked:'loop.v1.talked', seed:'loop.v1.starterSeed',
     view:'loop.v1.view', bog:'loop.v1.boggie', prefs:'loop.v1.prefs',
+    levels:'loop.v1.levels', seen:'loop.v1.seen', ritual:'loop.v1.ritual',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -59,6 +60,10 @@ const LOOP = (() => {
     /* null until the visitor actually picks one — the page then chooses a
        sensible default, so a first-time viewer lands in the right frame. */
     viewPref:  ()=> rd(K.view,null),
+    /* published levels — see publishLevel(). A status word is a promise, so
+       it is written down rather than recomputed fresh on every paint. */
+    levels:    ()=> rd(K.levels,{}),
+    setLevel:  (k,rec)=>{ const m=rd(K.levels,{}); m[k]=rec; wr(K.levels,m) },
     view:      ()=> rd(K.view,'web'),
     setView:   v => wr(K.view,v),
     /* each child's Boggie follows them from Showdown into Loop */
@@ -66,6 +71,24 @@ const LOOP = (() => {
     setBoggie: (s,b)=>{ const m=rd(K.bog,{}); m[s]=b; wr(K.bog,m) },
     prefs:     ()=> Object.assign({}, DEFAULT_PREFS, rd(K.prefs,{})),
     setPref:   (k,v)=>{ const p=rd(K.prefs,{}); p[k]=v; wr(K.prefs,p) },
+    /* ── weekly rhythm ────────────────────────────────────
+       The product is pitched as a ritual, so the week needs a date, a
+       new/seen state, and a way to be finished. */
+    seen:      ()=> rd(K.seen,{}),
+    markSeen:  (id)=>{ const m=store.seen(); m[id]={at:TODAY}; wr(K.seen,m) },
+    isNew:     (id)=> !store.seen()[id],
+    ritual:    ()=> rd(K.ritual,{})[WEEK_START] || {},
+    ritualDone:(step)=>{ const all=rd(K.ritual,{}); const w=all[WEEK_START]||{};
+                 w[step]=TODAY; all[WEEK_START]=w; wr(K.ritual,all) },
+    ritualSteps:()=>{
+      const w = store.ritual();
+      const steps = [
+        { id:'read',   label:'Read this week', done:!!w.read },
+        { id:'talk',   label:'Ask tonight\'s question', done:!!w.talk },
+        { id:'notice', label:'Log something you noticed', done:!!w.notice },
+      ];
+      return { steps, complete: steps.every(s=>s.done) };
+    },
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -127,15 +150,20 @@ const LOOP = (() => {
       else if (delta<-.28 && down>=2) dir='down';
 
       const cold = parts.length < 3;
-      const level = cold ? 'cold'
-        : score>=2.0 ? 'thriving'
-        : score>=0.8 ? 'growing'
-        : (score>0 && dir==='up') ? 'emerging'   /* real but early — "Building" */
-        : score>-0.8 ? 'steady'
-        : 'watch';
+      const raw  = rawLevel(score, dir, cold);
+      /* A status word must not flip because one observation nudged a score
+         across a boundary — that is exactly what makes a parent stop
+         believing the read. Publishing applies hysteresis and the same
+         "needs a pattern" rule the direction arrow already had. */
+      const pub  = publishLevel(studentId, dim.id, raw, score, parts.length);
+      const level = pub.level;
 
       out[dim.id] = {
         dim, score, count:parts.length, dir, level, cold,
+        rawLevel: raw,
+        changedFrom: pub.prev || null,
+        changedAt:   pub.prev ? pub.at : null,
+        asOf: TODAY,
         delta, nowAvg, priorAvg,
         pct: Math.max(8, Math.min(100, Math.round(((score+2.4)/5.6)*100))),
         events: parts.sort((a,b)=>day(b.e.d)-day(a.e.d)).map(p=>p.e),
@@ -147,6 +175,45 @@ const LOOP = (() => {
   }
 
   /* Status words only — never a number, never a comparison. See LANGUAGE in loop.data.js. */
+  /* ── level publication ────────────────────────────────────
+     rawLevel is what the maths says right now. publishLevel is what the
+     parent is shown, and it only moves when the evidence moved materially
+     AND more than one new signal arrived. */
+  const HYSTERESIS = 0.3;      /* score must move this much to change a word */
+  const MIN_NEW    = 2;        /* and at least this many new signals */
+  function rawLevel(score, dir, cold){
+    return cold ? 'cold'
+      : score>=2.0 ? 'thriving'
+      : score>=0.8 ? 'growing'
+      : (score>0 && dir==='up') ? 'emerging'
+      : score>-0.8 ? 'steady'
+      : 'watch';
+  }
+  function publishLevel(studentId, dimId, raw, score, count){
+    const key = studentId+'|'+dimId;
+    const all = store.levels();
+    const rec = all[key];
+
+    /* first read, or either side is cold — publish straight through */
+    if (!rec || rec.level === 'cold' || raw === 'cold'){
+      if (rec && rec.level === raw) return rec;
+      const n = { level:raw, scoreAt:score, countAt:count, at:TODAY, prev:rec?rec.level:null };
+      store.setLevel(key, n); return n;
+    }
+    if (raw === rec.level) return rec;
+
+    /* The baseline is the state at LAST PUBLICATION and is never rewritten
+       until the word actually changes — otherwise the "2 new signals" test
+       resets on every paint and the level can never move again. */
+    const moved  = Math.abs(score - rec.scoreAt) >= HYSTERESIS;
+    const enough = (count - rec.countAt) >= MIN_NEW;
+    if (moved && enough){
+      const n = { level:raw, scoreAt:score, countAt:count, at:TODAY, prev:rec.level };
+      store.setLevel(key, n); return n;
+    }
+    return rec;
+  }
+
   const LEVEL_LABEL = { thriving:'Strong', growing:'Growing', emerging:'Building', steady:'On track', watch:'Needs attention', cold:'Getting to know' };
   const LEVEL_TONE  = { thriving:'good', growing:'good', emerging:'good', steady:'plain', watch:'watch', cold:'plain' };
   const ARROW = { up:'↑', flat:'→', down:'↓' };
@@ -389,7 +456,9 @@ const LOOP = (() => {
     return g ? g[dimId] : null;
   }
 
-  return { store, read, insight, headlines, homeSignal, classView, child, events,
+  function levelLabel(l){ return LEVEL_LABEL[l] }
+
+  return { store, read, insight, headlines, homeSignal, classView, child, events, levelLabel,
            coins, activity, moment, conference, concern, expectations, starters,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

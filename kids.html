@@ -4,13 +4,14 @@
 <title>My Kids · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=90">
+<link rel="stylesheet" href="loop.css?v=93">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=90"></script>
-<script src="loop.engine.js?v=90"></script>
-<script src="loop.shell.js?v=90"></script>
+<script src="loop.data.js?v=93"></script>
+<script src="loop.engine.js?v=93"></script>
+<script src="loop.shell.js?v=93"></script>
 <script>
+let connecting = null;
 function render(){
   const kids = FAMILY.map(f=>{
     const seeded = SEED_EVENTS.some(e=>e.s===f.id);
@@ -29,13 +30,52 @@ function render(){
     </div>`;
   wireTopline();
   $$('[data-open]').forEach(b=>b.onclick=()=>location.href='growth.html');
-  $$('[data-connect]').forEach(b=>b.onclick=()=>toast('In production this asks the school for a class code.'));
+  $$('[data-connect]').forEach(b=>b.onclick=()=>{ connecting = b.dataset.connect; render() });
+  $$('[data-cancelconn]').forEach(b=>b.onclick=()=>{ connecting=null; render() });
+  $$('[data-joincode]').forEach(b=>b.onclick=()=>{
+    const v=($('#joinCode')||{}).value||'';
+    if (v.trim().length<4){ toast('Class codes are 6 characters, e.g. MA3-71K.'); return }
+    toast('Request sent to the classroom. A teacher approves it once.');
+    connecting=null; render();
+  });
+  $$('[data-invite2]').forEach(b=>b.onclick=()=>toast('Invite copied — send it to the teacher however you already talk to them.'));
   $$('[data-bogpick]').forEach(b=>b.onclick=()=>{
     LOOP.store.setBoggie(b.dataset.kid, b.dataset.bogpick);
     toast(BOGGIES[b.dataset.bogpick] + ' is now ' + b.dataset.name + '’s Boggie.');
     render();
   });
   const a=$('#addKid'); if(a) a.onclick=()=>toast('Prototype — only Maya carries seeded data.');
+}
+
+/* What connecting actually changes, said plainly, with a real next step. */
+function connectPanel(k){
+  const first = k.label.split(' ')[0];
+  return `
+  <div class="k-connect">
+    <div class="kc-head"><img src="art/loop-monster-sm.png" alt="" style="width:64px;height:auto">
+      <div><h4>Connect ${esc(first)}'s classroom</h4>
+      <p>One code from the teacher, approved once. Nothing changes for them afterwards.</p></div></div>
+
+    <div class="kc-cols">
+      <div class="kc-col">
+        <div class="kc-t">Without a classroom</div>
+        <ul><li>Your own observations</li><li>The weekly read from what you notice</li>
+            <li>Every conversation prompt</li><li>Ask, always free</li></ul>
+      </div>
+      <div class="kc-col on">
+        <div class="kc-t">With one connected</div>
+        <ul><li>Everything on the left, plus</li><li>Showdown signals from class</li>
+            <li>Prompts built from ${esc(first)}'s actual week</li><li>A reply channel to the teacher</li></ul>
+      </div>
+    </div>
+
+    <label class="kc-lb" for="joinCode">Class code from ${esc(first)}'s teacher</label>
+    <input id="joinCode" class="kc-in" placeholder="e.g. MA3-71K" autocomplete="off" aria-label="Class code">
+    <button class="btn primary block" data-joincode="${k.id}" style="margin-top:9px">Request to connect</button>
+    <button class="btn ghost block" data-invite2="${k.id}" style="margin-top:8px">Don't have a code? Send the teacher an invite</button>
+    <button class="btn block" data-cancelconn style="margin-top:8px">Not now</button>
+    <p class="kc-note">Loop never asks a school for permission to be useful — ${esc(first)}'s profile keeps working either way.</p>
+  </div>`;
 }
 
 function kidCard(k){
@@ -63,7 +103,7 @@ function kidCard(k){
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:13px">
           <button class="btn sm ${k.seeded?'primary':''}" data-open="${k.id}">Open ${esc(k.label.split(' ')[0])}’s growth</button>
-          ${k.connected ? '' : `<button class="btn sm ghost" data-connect="${k.id}">🔗 Connect classroom</button>`}
+          ${k.connected ? '' : `<button class="btn sm primary" data-connect="${k.id}">🔗 Connect ${esc(k.label.split(' ')[0])}'s classroom</button>`}
         </div>
       </div>
       ${r ? `<div style="min-width:210px;flex:1">

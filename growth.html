@@ -4,15 +4,15 @@
 <title>Growth · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=90">
+<link rel="stylesheet" href="loop.css?v=93">
 <style>
   .facet{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;margin:0 5px 5px 0}
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=90"></script>
-<script src="loop.engine.js?v=90"></script>
-<script src="loop.shell.js?v=90"></script>
+<script src="loop.data.js?v=93"></script>
+<script src="loop.engine.js?v=93"></script>
+<script src="loop.shell.js?v=93"></script>
 <script>
 const d = LOOP.child(ME);
 let sel = new URLSearchParams(location.search).get('d') || null;
@@ -21,6 +21,9 @@ function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
   return renderDesktop();
 }
+
+function fmtLong(x){const m=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const p=String(x).split('-'); return m[+p[1]-1]+' '+(+p[2])}
 
 function brandRow(){
   return `<div class="m-brand">
@@ -62,14 +65,17 @@ function renderPhone(){
     <div class="g-pull">
       <div class="m-growth">
         ${DIMENSIONS.map(dm=>{const y=r[dm.id];return `
-          <div class="m-gcard ${dm.id===sel?'sel':''}" data-dim="${dm.id}">
+          <button class="m-gcard ${dm.id===sel?'sel':''}" data-dim="${dm.id}"
+                  aria-pressed="${dm.id===sel}" aria-label="${esc(dm.name)}, ${esc(LOOP.LEVEL_LABEL[y.level])}">
             <div class="tile" style="background:${dm.tint}">${dimIcon(dm,22)}</div>
             <div class="nm">${esc(dm.name)}</div>
             <div class="st" style="color:${y.cold?'var(--muted-2)':dm.color}">${LOOP.LEVEL_LABEL[y.level]}${y.cold?'':' '+LOOP.ARROW[y.dir]}</div>
-            <div class="bar"><i style="width:${y.cold?10:y.pct}%;background:${y.cold?'#c9d6ec':dm.color}"></i></div>
-          </div>`}).join('')}
+            ${y.cold ? `<div class="nobar">Not enough yet</div>`
+                     : `<div class="bar"><i style="width:${y.pct}%;background:${dm.color}"></i></div>`}
+          </button>`}).join('')}
       </div>
-      <div class="g-dots">${DIMENSIONS.map((z,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div>
+      <div class="g-dots" aria-hidden="true">${DIMENSIONS.map((z,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div>
+      <div class="g-count">${idx+1} of ${DIMENSIONS.length} areas · tap one to open it</div>
     </div>
 
     <div class="m-light">
@@ -84,6 +90,11 @@ function renderPhone(){
           <span class="nm" style="color:${dim.color}">${esc(dim.name)}</span>
           <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
           <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
+        </div>
+        <div class="g-asof">
+          As of ${fmtLong(x.asOf)}${x.changedFrom
+            ? ` · <b>changed from ${esc(LOOP.LEVEL_LABEL[x.changedFrom])}</b>`
+            : ' · unchanged since last week'}
         </div>
         <div class="g-head">
           <div class="sh" style="background:${dim.tint}">${dimIcon(dim,24)}</div>
@@ -139,8 +150,12 @@ function renderPhone(){
       </details>`}
     </div>`;
 
-  $$('[data-dim]').forEach(c=>c.onclick=()=>{ sel=c.dataset.dim; history.replaceState(null,'','growth.html?d='+sel); render();
-    window.scrollTo({top:0,behavior:'smooth'}) });
+  $$('[data-dim]').forEach(c=>c.onclick=e=>{
+    e.preventDefault(); e.stopPropagation();
+    sel=c.dataset.dim; history.replaceState(null,'','growth.html?d='+sel); render();
+    const strip=$('.m-growth'), card=$('.m-gcard.sel');
+    if(strip&&card) strip.scrollTo({left:Math.max(0,card.offsetLeft-16),behavior:'smooth'});
+  });
   wireTopline(); wireDetail(ins);
 }
 
@@ -216,6 +231,11 @@ function detail(dim, x, ins, tier){
           <span class="sec-label" style="margin:0;color:${dim.color}">${esc(dim.name)}</span>
           <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
           <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
+        </div>
+        <div class="g-asof">
+          As of ${fmtLong(x.asOf)}${x.changedFrom
+            ? ` · <b>changed from ${esc(LOOP.LEVEL_LABEL[x.changedFrom])}</b>`
+            : ' · unchanged since last week'}
         </div>
         <h3 style="font-size:21px;line-height:1.25">${esc(ins.head)}</h3>
       </div>
