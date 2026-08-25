@@ -4,12 +4,12 @@
 <title>Daily Feed · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=101">
+<link rel="stylesheet" href="loop.css?v=102">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=101"></script>
-<script src="loop.engine.js?v=101"></script>
-<script src="loop.shell.js?v=101"></script>
+<script src="loop.data.js?v=102"></script>
+<script src="loop.engine.js?v=102"></script>
+<script src="loop.shell.js?v=102"></script>
 <script>
 const d = LOOP.child(ME);
 let filter = 'all';
@@ -59,7 +59,7 @@ function renderPhone(){
   const q     = LOOP.starters(ME, 1, LOOP.store.starterSeed())[0];
   const qkey  = q.q.slice(0,40);
   const qdone = !!LOOP.store.talked()[qkey];
-  const log   = mergeLog(all, CLASS_UPDATES, homeItems());
+  const log   = mergeLog(all, CLASS_UPDATES.concat(noteItems()), homeItems());
 
   $('#app').innerHTML = head + `
     <div class="m-light">
@@ -76,33 +76,6 @@ function renderPhone(){
         </div>
       </div>
 
-      <div class="m-secrow">Tonight's conversation</div>
-      <div class="m-q">
-        <div class="prov ${q.src==='home'?'home':''}">
-          ${q.grounded ? (q.src==='school'?'🏫 Because at school: ':'🏠 Because at home: ')+esc(q.because) : '💬 Always works'}
-        </div>
-        <div class="qq" style="${qdone?'opacity:.5;text-decoration:line-through':''}">&ldquo;${esc(q.q)}&rdquo;</div>
-        <div class="then">Then: &ldquo;${esc(q.follow)}&rdquo;</div>
-        <div class="acts">
-          <button class="btn sm ${qdone?'sel':''}" data-talked="${esc(qkey)}">${qdone?'✓ Talked':'We talked'}</button>
-          <button class="btn sm ghost" id="shuffleQ">↻ Another</button>
-        </div>
-      </div>
-
-      <div class="m-secrow">Notes home <a href="messages.html">Reply →</a></div>
-      <div class="s-card">
-        ${notes.length ? notes.map(n=>`
-          <div class="s-note">
-            <div class="av3">MA</div>
-            <div style="flex:1;min-width:0">
-              <div style="display:flex;gap:7px;align-items:baseline">
-                <span class="who">${esc(n.from)}</span><span class="when">${fmt(n.d)}</span></div>
-              <div class="body">${esc(n.body)}</div>
-            </div>
-          </div>`).join('')
-          : '<p class="small muted">Nothing this week. Teacher notes are rare by design.</p>'}
-      </div>
-
       <div class="m-secrow">This week</div>
       <div class="s-card">
         <p style="font-size:14.5px;line-height:1.5">${esc(d.first)}'s classroom tagged
@@ -117,7 +90,7 @@ function renderPhone(){
         <span class="cal"><b>${esc((evt.when.split(' · ')[0].split(' ')[0]||'').toUpperCase())}</b><i>${esc(evt.when.split(' · ')[0].split(' ')[1]||'')}</i></span>
         <span style="flex:1;min-width:0">
           <span style="display:block;font-size:14.5px;font-weight:900;letter-spacing:-.025em">${esc(evt.kind)}</span>
-          <span style="display:block;font-size:12.5px;color:var(--muted);margin-top:2px">${esc(evt.when)} · get questions to ask</span>
+          <span style="display:block;font-size:12.5px;color:var(--muted);margin-top:2px">${esc(evt.when)}</span>
         </span>
         <span class="chev" style="color:var(--muted-2);font-weight:900">›</span>
       </a>`:''}
@@ -128,7 +101,7 @@ function renderPhone(){
           .map(([k,l])=>`<button class="f-chip ${filter===k?'on':''}" data-f="${k}">${l}</button>`).join('')}
       </div>
       <div class="m-feed">
-        ${(applyFilter(log).length ? applyFilter(log) : []).map(x=> x.kind==='home' ? homeRow(x) : (x.kind ? classPost(x) : signalRow(x))).join('')
+        ${applyFilter(log).map(x=> x.kind==='home' ? homeRow(x) : (x.kind ? classPost(x) : signalRow(x))).join('')
           || '<div class="m-frow"><span class="ft"><span>Nothing in this filter.</span></span></div>'}
       </div>
       <p class="m-note">Everything tagged for ${esc(d.first)} today, from either side: Showdown signals captured
@@ -155,6 +128,12 @@ function brandRow(){
 
 /* class posts and per-child signals share one reverse-chronological log */
 /* Everything tagged, from either side, newest first. */
+/* a note home is something that happened, so it belongs in the log —
+   the conversation about it belongs on Messages */
+function noteItems(){
+  return TEACHER_MESSAGES.filter(m=>m.s===ME)
+    .map(m=>({ d:m.d, kind:'note', from:m.from, body:m.body }));
+}
 function homeItems(){
   return LOOP.events(ME).filter(e=>e.src==='home').map(e=>{
     const meta = HOME_OBS.find(o=>o.id===e.sig);
@@ -165,7 +144,7 @@ function homeItems(){
 function applyFilter(log){
   if (filter==='all') return log;
   if (filter==='home')   return log.filter(x=>x.kind==='home');
-  if (filter==='class')  return log.filter(x=>x.kind==='update'||x.kind==='system');
+  if (filter==='class')  return log.filter(x=>x.kind==='update'||x.kind==='system'||x.kind==='note');
   return log.filter(x=>!x.kind);
 }
 function mergeLog(sig, updates, home){
@@ -191,11 +170,14 @@ function signalRow(x){
   </div>`;
 }
 function classPost(u){
+  const ic = u.kind==='system' ? '⭐' : u.kind==='note' ? '✉️' : '📣';
+  const bg = u.kind==='system' ? '#fff6d9' : 'var(--school-bg)';
+  const tag = u.kind==='note' ? '· TO YOU' : '· WHOLE CLASS';
   return `<div class="m-frow" style="align-items:flex-start">
     <span class="fd">${fmtShort(u.d)}</span>
-    <span class="fi" style="background:${u.kind==='system'?'#fff6d9':'var(--school-bg)'}">${u.kind==='system'?'⭐':'📣'}</span>
+    <span class="fi" style="background:${bg}">${ic}</span>
     <span class="ft">
-      <b>${u.kind==='system'?'ClassCade':esc(u.from)} <span style="font-weight:800;color:var(--muted-2);font-size:10px;letter-spacing:.06em">· WHOLE CLASS</span></b>
+      <b>${u.kind==='system'?'ClassCade':esc(u.from)} <span style="font-weight:800;color:var(--muted-2);font-size:10px;letter-spacing:.06em">${tag}</span></b>
       <span>${esc(u.body)}</span>
       ${u.photo?'<span class="s-photo">📷 Photo from Ms. Alvarez</span>':''}
     </span>

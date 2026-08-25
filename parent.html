@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=101">
+<link rel="stylesheet" href="loop.css?v=102">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=101"></script>
-<script src="loop.engine.js?v=101"></script>
-<script src="loop.shell.js?v=101"></script>
+<script src="loop.data.js?v=102"></script>
+<script src="loop.engine.js?v=102"></script>
+<script src="loop.shell.js?v=102"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -93,7 +93,6 @@ function renderPhone(){
   const qkey = q.q.slice(0,40);
   const qdone = !!LOOP.store.talked()[qkey];
   const kid  = FAMILY.find(f=>f.id===ME) || FAMILY[0];
-  const msg  = TEACHER_MESSAGES.find(x=>x.s===ME);
   const evt  = EVENTS_UPCOMING.find(x=>x.s===ME);
   const fid  = LOOP.store.focus(ME) || (ins ? ins.dim.id : 'confidence');
   const fdim = DIMENSIONS.find(x=>x.id===fid);
@@ -146,7 +145,7 @@ function renderPhone(){
           <div class="h">
             <div class="hd">🏠 At home</div>
             <div class="stat">${esc(ins.homeStat||'Nothing logged yet')}</div>
-            ${ins.voice?`<div class="qt">"${esc(ins.voice)}"<span class="by">— ${esc(d.first)}</span></div>`:''}
+
           </div>
           </div>
         </div>
@@ -313,8 +312,6 @@ function renderDesktop(){
       <div class="rail">
         <div class="mo-2">${focusCard(r)}</div>
         <div class="mo-5">${addFromHome()}</div>
-        <div class="mo-8">${tier==='connected' ? eventCard() : ''}</div>
-        <div class="mo-9">${tier==='connected' ? messageCard() : ''}</div>
         <div class="mo-10">${tier==='family' ? connectCard() : ''}</div>
       </div>
     </div>`;

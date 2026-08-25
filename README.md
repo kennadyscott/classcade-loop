@@ -211,6 +211,30 @@ a media query and `body.appview`. Earlier passes duplicated; this is the pattern
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.
 
+## One tab, one job
+
+Content was appearing on three or four screens at once, which made the app feel
+thinner than it is. Each surface now owns one thing, and the others point at it
+rather than restating it.
+
+| Surface | Owns | Points to |
+|---|---|---|
+| **Home** | The week's noticing, tonight's conversation, logging | everything else |
+| **Growth** | The six dimensions in depth — evidence, the child's own words in context, what feeds a read | — |
+| **Ask** | Worry, and the conference question generator | crisis lines |
+| **Daily Feed** | The chronological log: Showdown signals, whole-class posts, notes home, home observations | Ask, for conference questions |
+| **Messages** | The two-way channel and its thread | the teacher view |
+| **My Kids / Settings** | Accounts, plan, rhythm, privacy | — |
+
+Specifically removed: the conversation prompt from Daily Feed (Home's job), the
+"Notes home" card from Daily Feed (the note is a log row; the conversation about
+it is Messages'), the child's quote from the Home hero (Growth shows it in the
+context of a dimension), and the conference and teacher-message cards from the
+Home rail (Ask and Messages own those).
+
+**The rule for anything new: if a second screen wants to show it, that screen
+gets a pointer, not a copy.**
+
 ## Open questions
 
 1. **Curiosity has no school source.** None of the eight Showdown signals feeds it. As specced, a
