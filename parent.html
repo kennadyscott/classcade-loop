@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=69">
+<link rel="stylesheet" href="loop.css?v=75">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=69"></script>
-<script src="loop.engine.js?v=69"></script>
-<script src="loop.shell.js?v=69"></script>
+<script src="loop.data.js?v=75"></script>
+<script src="loop.engine.js?v=75"></script>
+<script src="loop.shell.js?v=75"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -42,7 +42,6 @@ function renderPhone(){
   const fid  = LOOP.store.focus(ME) || (ins ? ins.dim.id : 'confidence');
   const fdim = DIMENSIONS.find(x=>x.id===fid);
   const pct  = cn.top ? cn.top.pct : 0;
-  const feed = LOOP.activity(ME, 4);
 
   $('#app').innerHTML = `
     <div class="m-dark">
@@ -78,19 +77,19 @@ function renderPhone(){
         <img class="m-mascot" src="art/loop-monster-sm.png" alt="" width="300" height="331">
         <div class="eyebrow2">${esc(d.first)}'s week at a glance</div>
         <div class="headrow">
-          <div class="shield" style="background:${ins.dim.tint}">${ins.dim.ico}</div>
+          <div class="shield" style="background:${ins.dim.tint}">${dimIcon(ins.dim,26)}</div>
           <div><h2>${esc(ins.head)}</h2>
           <div class="sub">${esc(ins.why)}</div></div>
         </div>
+        <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</button>
         <div class="m-bottom">
-          <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See week →</button>
           <div class="m-src2">
           ${tier==='connected'?`<div class="s">
             <div class="hd">🏫 At school</div>
             <div class="stat">${esc(ins.schoolStat||'Nothing flagged')}</div>
             ${msg?`<div class="qt">"${esc(msg.body.split('.')[0])}."<span class="by">— ${esc(msg.from)}</span></div>`:''}
           </div>`:''}
-          <div class="h" ${tier==='connected'?'':'style="grid-column:1/-1"'}>
+          <div class="h">
             <div class="hd">🏠 At home</div>
             <div class="stat">${esc(ins.homeStat||'Nothing logged yet')}</div>
             ${ins.voice?`<div class="qt">"${esc(ins.voice)}"<span class="by">— ${esc(d.first)}</span></div>`:''}
@@ -110,7 +109,7 @@ function renderPhone(){
       <div class="m-growth">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
           <div class="m-gcard" data-go="growth.html?d=${dim.id}">
-            <div class="tile" style="background:${dim.tint}">${dim.ico}</div>
+            <div class="tile" style="background:${dim.tint}">${dimIcon(dim,22)}</div>
             <div class="nm">${esc(dim.name)}</div>
             <div class="st" style="color:${x.cold?'var(--muted-2)':dim.color}">${LOOP.LEVEL_LABEL[x.level]}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
             <div class="bar"><i style="width:${x.cold?10:x.pct}%;background:${x.cold?'#c9d6ec':dim.color}"></i></div>
@@ -119,7 +118,7 @@ function renderPhone(){
 
       <div class="m-duo" style="margin-top:18px">
         <div class="m-tile convo">
-          <div class="th"><div class="ti" style="background:#e9e2ff">💬</div>
+          <div class="th"><div class="ti" style="background:#e9e2ff">${ico('conversation-bubbles',18)}</div>
             <div class="tl">Tonight's conversation</div></div>
           <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
           <div class="tp">“${esc(q.q)}”</div>
@@ -128,7 +127,7 @@ function renderPhone(){
         </div>
         ${tier==='connected' && cn.total ? `
         <div class="m-tile coins">
-          <div class="th"><div class="ti" style="background:#d8f3e0">⭐</div>
+          <div class="th"><div class="ti" style="background:#d8f3e0">${ico('coins',18)}</div>
             <div class="tl">ClassCade moment</div></div>
           <div class="tq">${esc(d.first)} earned ${cn.total} coins</div>
           <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
@@ -140,24 +139,14 @@ function renderPhone(){
           </div>
         </div>` : `
         <div class="m-tile moment">
-          <div class="th"><div class="ti" style="background:${fdim.tint}">${fdim.ico}</div>
+          <div class="th"><div class="ti" style="background:${fdim.tint}">${dimIcon(fdim,18)}</div>
             <div class="tl">Today's moment</div></div>
           <div class="tq">${esc(mom.title)}</div>
           <div class="tp">${esc(mom.prompt)}</div>
         </div>`}
       </div>
 
-      ${tier==='connected' ? `
-      <div class="m-secrow">What happened at school <a href="school.html">View all activity →</a></div>
-      <div class="m-feed">
-        ${feed.map(x=>`<div class="m-frow">
-          <span class="fd">${fmtShort(x.d)}</span>
-          <span class="fi" style="background:var(--tint)">${x.sig.emoji}</span>
-          <span class="ft"><b style="${x.v<0?'color:var(--watch)':''}">${esc(x.sig.label)}</b><span>${esc(x.detail)}</span></span>
-          <span class="fw" title="Ms. Alvarez">MA</span>
-          ${x.coins?`<span class="fc">⊙ +${x.coins}</span>`:''}
-        </div>`).join('')}
-      </div>` : `
+      ${tier==='connected' ? '' : `
       <div class="m-secrow">Not connected</div>
       <div class="m-row tall" id="connectRow">
         <div class="ric" style="background:var(--school-bg)">🔗</div>
@@ -226,7 +215,7 @@ function renderDesktop(){
           ${tier==='connected' ? coinCard(cn) : normalCard(r)}
         </div>
 
-        <div class="mo-7">${tier==='connected' ? feedCard() : ''}</div>
+        
       </div>
 
       <div class="rail">
@@ -257,7 +246,7 @@ function hero(ins, tier){
       <div>
         <div class="hero-eyebrow">${esc(d.first)}'s week at a glance</div>
         <div style="display:flex;align-items:flex-start;gap:13px">
-          <div class="dim-ico lg" style="background:${ins.dim.tint};box-shadow:none">${ins.dim.ico}</div>
+          <div class="dim-ico lg" style="background:${ins.dim.tint};box-shadow:none">${dimIcon(ins.dim,26)}</div>
           <div>
             <h2>${esc(ins.head)}</h2>
             <p class="hide-sm">${esc(ins.why)}</p>
@@ -384,7 +373,7 @@ function normalCard(r){
   return `
   <div class="card">
     <div class="mini-head">
-      <div class="mini-ico" style="background:${dim.tint}">${dim.ico}</div>
+      <div class="mini-ico" style="background:${dim.tint}">${dimIcon(dim,17)}</div>
       <div><div class="mini-lbl">Is this normal?</div>
       <h4 style="margin-top:1px">${esc(dim.name)} in 3rd grade</h4></div>
     </div>
@@ -443,7 +432,7 @@ function focusCard(r){
   return `
   <div class="card" style="border-color:${dim.color}33">
     <div class="mini-head">
-      <div class="mini-ico" style="background:${dim.tint}">${dim.ico}</div>
+      <div class="mini-ico" style="background:${dim.tint}">${dimIcon(dim,17)}</div>
       <div class="lbl" style="color:${dim.color}">Today's focus</div>
     </div>
     <h4>${esc(dim.name)}</h4>

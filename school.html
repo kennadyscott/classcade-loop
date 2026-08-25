@@ -1,15 +1,15 @@
 <!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>School · ClassCade Loop</title>
+<title>Daily Feed · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=69">
+<link rel="stylesheet" href="loop.css?v=75">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=69"></script>
-<script src="loop.engine.js?v=69"></script>
-<script src="loop.shell.js?v=69"></script>
+<script src="loop.data.js?v=75"></script>
+<script src="loop.engine.js?v=75"></script>
+<script src="loop.shell.js?v=75"></script>
 <script>
 const d = LOOP.child(ME);
 let filter = 'all';
@@ -30,7 +30,7 @@ function renderPhone(){
       ${brandRow()}
       <div class="m-greetrow">
         <div><div class="m-greet">Hi, ${esc(PARENT.name)}! 👋</div>
-        <div class="m-greet-sub">${tier==='connected'?'Everything '+esc(d.poss)+' classroom has seen.':'No classroom connected yet.'}</div></div>
+        <div class="m-greet-sub">${tier==='connected'?'Everything tagged today.':'No classroom connected yet.'}</div></div>
         <div class="m-kidpill" id="kidmenu">
           <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
           <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
@@ -56,7 +56,10 @@ function renderPhone(){
   const cn   = LOOP.coins(ME);
   const notes= TEACHER_MESSAGES.filter(m=>m.s===ME);
   const evt  = EVENTS_UPCOMING.find(x=>x.s===ME);
-  const log  = mergeLog(all, CLASS_UPDATES);
+  const q     = LOOP.starters(ME, 1, LOOP.store.starterSeed())[0];
+  const qkey  = q.q.slice(0,40);
+  const qdone = !!LOOP.store.talked()[qkey];
+  const log   = mergeLog(all, CLASS_UPDATES, homeItems());
 
   $('#app').innerHTML = head + `
     <div class="m-light">
@@ -70,6 +73,19 @@ function renderPhone(){
             <p>3rd Grade · ${ROSTER.length} students · using ClassCade Showdown</p>
           </div>
           ${bog(LOOP.store.boggie(ME),'md','ring')}
+        </div>
+      </div>
+
+      <div class="m-secrow">Tonight's conversation</div>
+      <div class="m-q">
+        <div class="prov ${q.src==='home'?'home':''}">
+          ${q.grounded ? (q.src==='school'?'🏫 Because at school: ':'🏠 Because at home: ')+esc(q.because) : '💬 Always works'}
+        </div>
+        <div class="qq" style="${qdone?'opacity:.5;text-decoration:line-through':''}">&ldquo;${esc(q.q)}&rdquo;</div>
+        <div class="then">Then: &ldquo;${esc(q.follow)}&rdquo;</div>
+        <div class="acts">
+          <button class="btn sm ${qdone?'sel':''}" data-talked="${esc(qkey)}">${qdone?'✓ Talked':'We talked'}</button>
+          <button class="btn sm ghost" id="shuffleQ">↻ Another</button>
         </div>
       </div>
 
@@ -104,15 +120,17 @@ function renderPhone(){
         <span class="chev" style="color:var(--muted-2);font-weight:900">›</span>
       </a>`:''}
 
-      <div class="m-secrow">What happened at school <a href="#" data-filter>Everything ▾</a></div>
+      <div class="m-secrow">Today's feed <a href="#" data-filter>Everything ▾</a></div>
       <div class="m-feed">
-        ${log.map(x=> x.kind ? classPost(x) : signalRow(x)).join('')}
+        ${log.map(x=> x.kind==='home' ? homeRow(x) : (x.kind ? classPost(x) : signalRow(x))).join('')}
       </div>
-      <p class="m-note">Signals are captured while Showdown runs — Ms. Alvarez fills out nothing.
-        Class updates and photos are posted by her for the whole class.</p>
+      <p class="m-note">Everything tagged for ${esc(d.first)} today, from either side: Showdown signals captured
+        while the game runs, whole-class posts from Ms. Alvarez, and anything you logged at home.</p>
     </div>`;
   wireTopline();
   const f=$('[data-filter]'); if(f) f.onclick=e=>{e.preventDefault();toast('Filters live on the desktop view in this prototype.')};
+  const sq=$('#shuffleQ'); if(sq) sq.onclick=()=>{ LOOP.store.bumpStarterSeed(); render() };
+  $$('[data-talked]').forEach(b=>b.onclick=()=>{ LOOP.store.toggleTalked(b.dataset.talked); render() });
 }
 
 function brandRow(){
@@ -129,11 +147,27 @@ function brandRow(){
 }
 
 /* class posts and per-child signals share one reverse-chronological log */
-function mergeLog(sig, updates){
+/* Everything tagged, from either side, newest first. */
+function homeItems(){
+  return LOOP.events(ME).filter(e=>e.src==='home').map(e=>{
+    const meta = HOME_OBS.find(o=>o.id===e.sig);
+    return { d:e.d, kind:'home', label: meta ? meta.label : 'Noticed at home',
+             emoji: meta ? meta.emoji : '🏠', body: e.detail, quote: !!e.quote };
+  });
+}
+function mergeLog(sig, updates, home){
   return sig.map(x=>Object.assign({},x))
-    .concat(updates.map(u=>Object.assign({},u)))
+    .concat(updates.map(u=>Object.assign({},u)), home||[])
     .sort((a,b)=>String(b.d).localeCompare(String(a.d)))
-    .slice(0, 12);
+    .slice(0, 14);
+}
+function homeRow(h){
+  return `<div class="m-frow" style="align-items:flex-start;background:var(--home-bg)">
+    <span class="fd">${fmtShort(h.d)}</span>
+    <span class="fi" style="background:#fff">${h.emoji}</span>
+    <span class="ft"><b>${esc(h.label)} <span style="font-weight:800;color:var(--home);font-size:10px;letter-spacing:.06em">· FROM YOU</span></b>
+      <span${h.quote?' style="font-style:italic"':''}>${h.quote?'&ldquo;'+esc(h.body)+'&rdquo;':esc(h.body)}</span></span>
+  </div>`;
 }
 function signalRow(x){
   return `<div class="m-frow">
@@ -173,7 +207,7 @@ function renderDesktop(){
       <div class="stack">
         <div class="card mo-1">
           <div class="wl-head" style="margin:0 0 10px">
-            <h3 style="font-size:17px">What happened at school</h3>
+            <h3 style="font-size:17px">Today's feed</h3>
             <span class="spacer"></span>
             <div style="display:flex;gap:6px">
               ${[['all','Everything'],['up','Went well'],['down','Worth knowing']].map(([k,l])=>

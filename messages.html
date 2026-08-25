@@ -4,12 +4,12 @@
 <title>Messages · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=69">
+<link rel="stylesheet" href="loop.css?v=75">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=69"></script>
-<script src="loop.engine.js?v=69"></script>
-<script src="loop.shell.js?v=69"></script>
+<script src="loop.data.js?v=75"></script>
+<script src="loop.engine.js?v=75"></script>
+<script src="loop.shell.js?v=75"></script>
 <script>
 const d = LOOP.child(ME);
 let pickDim = null, pickType = null;
@@ -115,7 +115,7 @@ function composer(){
     <div class="sec-label">Send something</div>
     <p class="small muted" style="margin-bottom:12px">Pick the area, pick the read, add a line if it helps.</p>
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-      ${dims.map(x=>`<button class="btn sm ${pickDim===x.id?'sel':''}" data-dim="${x.id}">${x.ico} ${esc(x.name)}</button>`).join('')}
+      ${dims.map(x=>`<button class="btn sm ${pickDim===x.id?'sel':''}" data-dim="${x.id}">${dimIcon(x,16)} ${esc(x.name)}</button>`).join('')}
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
       ${RESPONSES.map(x=>`<button class="btn sm ${pickType===x.id?'sel':''}" data-type="${x.id}">${x.emoji} ${esc(x.label)}</button>`).join('')}

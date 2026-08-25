@@ -4,12 +4,12 @@
 <title>My Kids · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=69">
+<link rel="stylesheet" href="loop.css?v=75">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=69"></script>
-<script src="loop.engine.js?v=69"></script>
-<script src="loop.shell.js?v=69"></script>
+<script src="loop.data.js?v=75"></script>
+<script src="loop.engine.js?v=75"></script>
+<script src="loop.shell.js?v=75"></script>
 <script>
 function render(){
   const kids = FAMILY.map(f=>{
@@ -68,7 +68,7 @@ function kidCard(k){
       </div>
       ${r ? `<div style="min-width:210px;flex:1">
         ${DIMENSIONS.map(d=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-          <span style="font-size:13px;width:15px">${d.ico}</span>
+          <span style="width:18px;display:inline-flex">${dimIcon(d,16)}</span>
           <span class="tiny" style="width:78px;font-weight:800">${esc(d.name)}</span>
           <span class="meter" style="flex:1"><i style="width:${r[d.id].cold?10:r[d.id].pct}%;background:${r[d.id].cold?'#c9d6ec':d.color}"></i></span>
         </div>`).join('')}

@@ -17,13 +17,13 @@ const ICON = {
 };
 
 const NAV = [
-  { id:'home',   href:'parent.html',   ic:'🏠', glyph:'home',   label:'Home',     tab:true },
+  { id:'home',   href:'parent.html',   ic:'🏠', navico:'nav-home',    label:'Home',     tab:true },
   { id:'growth', href:'growth.html',   ic:'🌱', glyph:'growth', label:'Growth',   tab:true },
   { id:'ask',    href:'ask.html',      ic:'💬', glyph:'ask',    label:'Ask',      tab:true },
-  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'School' },
-  { id:'kids',   href:'kids.html',     ic:'👥', glyph:'kids',   label:'My Kids' },
-  { id:'msgs',   href:'messages.html', ic:'✉️', glyph:'mail',   label:'Messages', tab:true },
-  { id:'set',    href:'settings.html', ic:'⚙️', glyph:'more', label:'Settings', tab:true, tabLabel:'More' },
+  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed', tabLabel:'Feed', tab:true },
+  { id:'kids',   href:'kids.html',     ic:'👥', navico:'nav-my-kids', label:'My Kids' },
+  { id:'msgs',   href:'messages.html', ic:'✉️', navico:'nav-messages',label:'Messages', tab:true },
+  { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'More' },
 ];
 const PROTO = [
   { href:'index.html',   ic:'🔗', label:'Concept' },
@@ -79,6 +79,13 @@ const BOGGIES = {
   queenie:'Queenie', sharky:'Sharky', ragnar:'Ragnar', oneeye:'One Eye Jr.',
   spitseed:'Spitseed', zapjaw:'ZapJaw',
 };
+/* the real icon set, sized by context */
+function ico(name, px, cls){
+  return `<img class="ic-img ${cls||''}" src="icons/${name}.png" alt="" width="${px}" height="${px}"
+           style="width:${px}px;height:${px}px" loading="lazy">`;
+}
+function dimIcon(dim, px){ return dim.icon ? ico(dim.icon, px) : dim.ico }
+
 function bog(slug, size, cls){
   return `<img class="bog bog-${size||'sm'} ${cls||''}" src="boggies/${slug}.png"
            alt="${BOGGIES[slug]||'Boggie'}" width="120" height="120" loading="lazy">`;
@@ -97,7 +104,9 @@ function mountApp(active){
     <nav class="mainnav">
       ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}">
           <span class="ic">${n.ic}</span>
-          <span class="gl">${n.glyph?ICON[n.glyph]:''}</span>
+          <span class="gl">${n.navico
+            ? `<img class="gl-off" src="icons/${n.navico}.png" alt=""><img class="gl-on" src="icons/${n.navico}-on.png" alt="">`
+            : (n.glyph?ICON[n.glyph]:'')}</span>
           <span class="nlabel" data-web="${esc(n.label)}" data-app="${esc(n.tabLabel||n.label)}">${esc(n.label)}</span>
         </a>`).join('')}
       <button class="tab-fab" id="addFab" aria-label="Add from home">
@@ -336,7 +345,7 @@ function wlCard(x){
   const lvl = LOOP.LEVEL_LABEL[x.level];
   return `
   <div class="wl-card" data-dim="${x.dim.id}">
-    <div class="tile" style="background:${x.dim.tint}">${x.dim.ico}</div>
+    <div class="tile" style="background:${x.dim.tint}">${dimIcon(x.dim,18)}</div>
     <div class="nm">${esc(x.dim.name)}</div>
     <div class="st" style="color:${x.cold?'var(--muted-2)':x.dim.color}">
       ${lvl}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
@@ -350,7 +359,7 @@ function dimRow(x, opts){
   const lvl = LOOP.LEVEL_LABEL[x.level], tone = LOOP.LEVEL_TONE[x.level];
   return `
     <div class="src" style="align-items:center;padding:11px 0">
-      <div class="dim-ico" style="background:${x.dim.tint};box-shadow:none">${x.dim.ico}</div>
+      <div class="dim-ico" style="background:${x.dim.tint};box-shadow:none">${dimIcon(x.dim,19)}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;gap:8px">
           <h4 style="margin:0">${x.dim.name}</h4>

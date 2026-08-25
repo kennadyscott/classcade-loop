@@ -4,7 +4,7 @@
 <title>ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=69">
+<link rel="stylesheet" href="loop.css?v=75">
 <style>
   .hero{padding:34px 0 6px;max-width:760px}
   .arch{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
@@ -285,15 +285,15 @@
   </p>
 </div>
 
-<script src="loop.data.js?v=69"></script>
-<script src="loop.engine.js?v=69"></script>
-<script src="loop.shell.js?v=69"></script>
+<script src="loop.data.js?v=75"></script>
+<script src="loop.engine.js?v=75"></script>
+<script src="loop.shell.js?v=75"></script>
 <script>
 mountApp('index.html');
 $('#dims').innerHTML = DIMENSIONS.map(d=>`
   <div class="dimcard" style="box-shadow:inset 0 0 0 1px ${d.color}33">
     <div style="display:flex;align-items:center;gap:9px">
-      <div class="dim-ico" style="background:${d.tint};box-shadow:none">${d.ico}</div>
+      <div class="dim-ico" style="background:${d.tint};box-shadow:none">${dimIcon(d,20)}</div>
       <strong style="letter-spacing:-.02em;color:${d.color}">${esc(d.name)}</strong>
     </div>
     <div class="q">${esc(d.q)}</div>
