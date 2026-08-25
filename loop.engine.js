@@ -16,6 +16,7 @@ const LOOP = (() => {
     talked:'loop.v1.talked', seed:'loop.v1.starterSeed',
     view:'loop.v1.view', bog:'loop.v1.boggie', prefs:'loop.v1.prefs',
     levels:'loop.v1.levels', seen:'loop.v1.seen', ritual:'loop.v1.ritual',
+    chores:'loop.v1.chores', choreLog:'loop.v1.choreLog', spent:'loop.v1.spent',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -89,6 +90,18 @@ const LOOP = (() => {
       ];
       return { steps, complete: steps.every(s=>s.done) };
     },
+    chores:    (s)=> (rd(K.chores,{})[s]) || DEFAULT_CHORES[s] || [],
+    setChores: (s,ids)=>{ const m=rd(K.chores,{}); m[s]=ids; wr(K.chores,m) },
+    toggleChore:(s,id)=>{ const cur=store.chores(s);
+                 store.setChores(s, cur.includes(id)?cur.filter(x=>x!==id):cur.concat(id)) },
+    choreLog:  ()=> rd(K.choreLog,[]),
+    isDone:    (s,id,dd)=> store.choreLog().some(e=>e.s===s&&e.c===id&&e.d===(dd||TODAY)),
+    markChore: (s,id,dd)=>{ const l=store.choreLog(); const day2=dd||TODAY;
+                 const i=l.findIndex(e=>e.s===s&&e.c===id&&e.d===day2);
+                 if(i>=0) l.splice(i,1); else l.push({s:s,c:id,d:day2});
+                 wr(K.choreLog,l); return i<0; },
+    spent:     (s)=> (rd(K.spent,{})[s]||[]),
+    spend:     (s,rid)=>{ const m=rd(K.spent,{}); m[s]=(m[s]||[]).concat({r:rid,d:TODAY}); wr(K.spent,m) },
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -116,8 +129,20 @@ const LOOP = (() => {
       .replace(/\btheir way\b/g, c.poss+' way');
     const extra = store.homeObs().filter(e=>e.s===studentId)
       .map(e=>Object.assign({}, e, { detail: fixPronouns(e.detail) }));
+    // A contribution kept up all week is a pattern, so it counts as ONE
+    // signal — never one per tick, which would let chores outrank the
+    // classroom simply by being daily.
+    const choreEvents = store.chores(studentId).map(id=>{
+      const c = CHORES.find(x=>x.id===id);
+      if (!c || c.kind!=='contribution') return null;
+      const days = choreStreak(studentId, id);
+      if (days < STREAK_FOR_SIGNAL) return null;
+      const w = {}; w[c.dim] = 0.7;
+      return { s:studentId, src:'home', sig:'chore_'+id, v:0.8, d:TODAY, chore:true, w:w,
+               detail:'kept up '+c.label.toLowerCase()+' '+days+' days this week' };
+    }).filter(Boolean);
     return SEED_EVENTS.filter(e=>e.s===studentId)
-      .concat(extra)
+      .concat(extra, choreEvents)
       .filter(e=>ago(e.d)<=WINDOW && ago(e.d)>=0);
   }
 
@@ -456,6 +481,51 @@ const LOOP = (() => {
     return DIMENSIONS.find(x=>x.id===id) || null;
   }
 
+  /* ── at home ──────────────────────────────────────────────
+     A chore board is a coin ledger AND a source of patterns, kept apart:
+     coins come only from `extra` completions, while a `contribution` kept
+     up across a week becomes one home signal. */
+  function choreBoard(studentId, dd){
+    const ids = store.chores(studentId);
+    const day2 = dd || TODAY;
+    const rows = ids.map(id=>{
+      const c = CHORES.find(x=>x.id===id); if(!c) return null;
+      return Object.assign({}, c, { done: store.isDone(studentId,id,day2), streak: choreStreak(studentId,id) });
+    }).filter(Boolean);
+    const contributions = rows.filter(r=>r.kind==='contribution');
+    const extras        = rows.filter(r=>r.kind==='extra');
+    return { day:day2, contributions, extras,
+      doneToday: rows.filter(r=>r.done).length, total: rows.length,
+      earnedToday: extras.filter(r=>r.done).reduce((a,r)=>a+r.coins,0) };
+  }
+  function choreStreak(studentId, id){
+    const log = store.choreLog().filter(e=>e.s===studentId && e.c===id);
+    let n = 0;
+    for (let i=0;i<7;i++){
+      const dt = new Date((day(TODAY)-i)*864e5).toISOString().slice(0,10);
+      if (log.some(e=>e.d===dt)) n++;
+    }
+    return n;
+  }
+  function homeCoins(studentId){
+    let earned = 0;
+    store.choreLog().filter(e=>e.s===studentId).forEach(e=>{
+      const c = CHORES.find(x=>x.id===e.c); if (c && c.kind==='extra') earned += c.coins;
+    });
+    const spent = store.spent(studentId)
+      .reduce((a,x)=>a+((HOME_REWARDS.find(r=>r.id===x.r)||{coins:0}).coins),0);
+    return { earned, spent, balance: earned - spent };
+  }
+  function choreSignals(studentId){
+    return store.chores(studentId).map(id=>{
+      const c = CHORES.find(x=>x.id===id);
+      if (!c || c.kind!=='contribution') return null;
+      const n = choreStreak(studentId,id);
+      if (n < STREAK_FOR_SIGNAL) return null;
+      return { chore:c, days:n, dim: DIMENSIONS.find(d=>d.id===c.dim) };
+    }).filter(Boolean);
+  }
+
   function concern(id){ return CONCERNS.find(c=>c.id===id) || null }
 
   function expectations(dimId, grade){
@@ -467,5 +537,6 @@ const LOOP = (() => {
 
   return { store, read, insight, headlines, homeSignal, classView, child, events, levelLabel,
            coins, activity, moment, conference, concern, expectations, starters,
+           choreBoard, choreStreak, homeCoins, choreSignals,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>At Home · ClassCade Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loop.css?v=108">
+</head><body>
+<div id="app"></div>
+<script src="loop.data.js?v=108"></script>
+<script src="loop.engine.js?v=108"></script>
+<script src="loop.shell.js?v=108"></script>
+<script>
+const d = LOOP.child(ME);
+let editing = false;
+
+function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+function brandRow(){
+  return `<div class="m-brand">
+    <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true"><g stroke-linecap="round" fill="none">
+      <path d="M8 8.5 L18.5 4.2" stroke="#ffc425" stroke-width="4.2"/>
+      <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+      <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/></g></svg>
+    <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+    <span class="util"><a class="m-bell" href="messages.html">${ico('nav-notifications',20)}</a>
+    <span class="m-me">${esc(PARENT.name[0])}</span></span></div>`;
+}
+
+function board(){ return LOOP.choreBoard(ME) }
+
+function choreRow(c){
+  return `<button class="ch-row ${c.done?'done':''}" data-chore="${c.id}"
+    aria-pressed="${c.done}" aria-label="${esc(c.label)}${c.done?', done':''}">
+    <span class="tick">✓</span>
+    <span class="e">${c.emoji}</span>
+    <span class="tx"><span class="lb">${esc(c.label)}</span>
+      ${c.streak>=STREAK_FOR_SIGNAL
+          ? `<span class="mt"><span class="ch-streak">${c.streak} days this week</span></span>`
+          : (c.streak>0 ? `<span class="mt">${c.streak} day${c.streak===1?'':'s'} this week</span>` : '')}</span>
+    ${c.coins?`<span class="cn">⊙ ${c.coins}</span>`:''}
+  </button>`;
+}
+
+function rewardGrid(bal){
+  return `<div class="rw-grid">
+    ${HOME_REWARDS.map(r=>`<button class="rw" data-reward="${r.id}" ${bal<r.coins?'disabled':''}>
+      <span class="e">${r.emoji}</span><span class="tx">${esc(r.label)}</span>
+      <span class="px">⊙ ${r.coins}</span></button>`).join('')}
+  </div>`;
+}
+
+function editList(){
+  const mine = LOOP.store.chores(ME);
+  return `<div class="s-card">
+    <p class="small muted" style="margin-bottom:11px">Pick what ${esc(d.first)} is responsible for.
+      Contributions never earn coins; extras do.</p>
+    ${['contribution','extra'].map(k=>`
+      <div class="sec-label" style="margin-top:10px">${CHORE_KINDS[k].label}s <span style="font-weight:700;text-transform:none;letter-spacing:0">— ${esc(CHORE_KINDS[k].note)}</span></div>
+      ${CHORES.filter(c=>c.kind===k).map(c=>`
+        <button class="ch-row ${mine.includes(c.id)?'done':''}" data-assign="${c.id}">
+          <span class="tick">✓</span><span class="e">${c.emoji}</span>
+          <span class="tx"><span class="lb">${esc(c.label)}</span></span>
+          ${c.coins?`<span class="cn">⊙ ${c.coins}</span>`:''}
+        </button>`).join('')}`).join('')}
+    <button class="btn primary block" style="margin-top:12px" id="doneEdit">Done</button>
+  </div>`;
+}
+
+function body(){
+  const b = board();
+  const hc = LOOP.homeCoins(ME);
+  const sig = LOOP.choreSignals(ME);
+  if (editing) return editList();
+  return `
+    <div class="s-card">
+      <div class="ch-bal">
+        <span class="coin">${ico('coins',30)}</span>
+        <div style="flex:1;min-width:0">
+          <div class="amt">${hc.balance} coins</div>
+          <div class="sub">${b.doneToday} of ${b.total} done today${b.earnedToday?` · +${b.earnedToday} earned`:''}</div>
+        </div>
+        <button class="btn sm ghost" id="edit">Edit list</button>
+      </div>
+      <p class="ch-note">Same currency as Showdown — ${esc(d.first)} can spend these in the game, or on
+        something at home. Coins are a game, not a read: they never move a Whole Learner area.</p>
+    </div>
+
+    <div class="m-secrow">Contributions <span class="swipe">no coins</span></div>
+    ${b.contributions.length ? b.contributions.map(choreRow).join('')
+      : '<p class="small muted" style="margin:0 3px 10px">None assigned yet.</p>'}
+
+    <div class="m-secrow">Extras <span class="swipe">earn coins</span></div>
+    ${b.extras.length ? b.extras.map(choreRow).join('')
+      : '<p class="small muted" style="margin:0 3px 10px">None assigned yet.</p>'}
+
+    ${sig.length?`
+    <div class="m-secrow">What this is telling Loop</div>
+    <div class="s-card" style="background:var(--home-bg);border-color:rgba(14,147,132,.22)">
+      ${sig.map(x=>`<div class="src" style="padding:9px 0">
+        <div class="src-key home">${esc(x.dim.name)}</div>
+        <div class="src-body small">Kept up <b>${esc(x.chore.label.toLowerCase())}</b> ${x.days} days this week —
+          that's a pattern, so it counts as one signal.</div></div>`).join('')}
+      <p class="ch-note">A single tick never counts. Only a week's worth does.</p>
+    </div>`:''}
+
+    <div class="m-secrow">Spend at home</div>
+    ${rewardGrid(hc.balance)}
+    <p class="ch-note">You set these. Showdown's own store is always the other option — that's the point
+      of one currency.</p>`;
+}
+
+function renderPhone(){
+  document.body.classList.add('darktop');
+  const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  $('#app').innerHTML = `
+    <div class="m-dark">
+      ${brandRow()}
+      <div class="m-greetrow">
+        <div><div class="m-greet">At Home</div>
+        <div class="m-greet-sub">${esc(d.first)}'s chores and coins.</div></div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
+      </div>
+    </div>
+    <div class="m-light">${body()}</div>`;
+  wireTopline(); wire();
+}
+
+function renderDesktop(){
+  document.body.classList.remove('darktop');
+  const hc = LOOP.homeCoins(ME);
+  $('#app').innerHTML = `
+    ${topline(esc(d.first)+"'s chores, and what they earn.", 'At Home')}
+    <div class="dash">
+      <div class="stack">${body()}</div>
+      <div class="rail">
+        <div class="card">
+          <div class="sec-label">How this works</div>
+          <p class="small"><b>Contributions</b> are what being in a family costs. They earn nothing —
+            paying for them teaches a child that unpaid help is optional.</p>
+          <p class="small" style="margin-top:8px"><b>Extras</b> are genuinely above and beyond, and optional.
+            Those earn coins.</p>
+        </div>
+        <div class="card tinted">
+          <div class="sec-label">Coins vs the read</div>
+          <p class="small muted">Coins are Showdown's currency. They never feed a Whole Learner area — not from
+            school, and not from here. What does feed a read is a <b>pattern</b>: a contribution kept up
+            ${STREAK_FOR_SIGNAL}+ days in a week becomes one home signal.</p>
+        </div>
+        <div class="card">
+          <div class="sec-label">Balance</div>
+          <div class="ch-bal"><span class="coin">${ico('coins',28)}</span>
+            <div><div class="amt">${hc.balance}</div>
+            <div class="sub">${hc.earned} earned · ${hc.spent} spent</div></div></div>
+        </div>
+      </div>
+    </div>`;
+  wireTopline(); wire();
+}
+
+function wire(){
+  $$('[data-chore]').forEach(b=>b.onclick=()=>{
+    const on = LOOP.store.markChore(ME, b.dataset.chore);
+    const c = CHORES.find(x=>x.id===b.dataset.chore);
+    render();
+    if (on && c.coins) toast('+'+c.coins+' coins for '+c.label.toLowerCase());
+    else if (on) toast('Done — contributions don\'t earn coins, on purpose.');
+  });
+  $$('[data-assign]').forEach(b=>b.onclick=()=>{ LOOP.store.toggleChore(ME, b.dataset.assign); render() });
+  $$('[data-reward]').forEach(b=>b.onclick=()=>{
+    const r = HOME_REWARDS.find(x=>x.id===b.dataset.reward);
+    LOOP.store.spend(ME, r.id); render();
+    toast('Spent '+r.coins+' coins on: '+r.label.toLowerCase());
+  });
+  const e=$('#edit'); if(e) e.onclick=()=>{ editing=true; render(); window.scrollTo(0,0) };
+  const de=$('#doneEdit'); if(de) de.onclick=()=>{ editing=false; render(); window.scrollTo(0,0) };
+}
+
+mountApp('chores');
+render();
+</script>
+</body></html>

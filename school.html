@@ -4,12 +4,12 @@
 <title>Daily Feed · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=106">
+<link rel="stylesheet" href="loop.css?v=108">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=106"></script>
-<script src="loop.engine.js?v=106"></script>
-<script src="loop.shell.js?v=106"></script>
+<script src="loop.data.js?v=108"></script>
+<script src="loop.engine.js?v=108"></script>
+<script src="loop.shell.js?v=108"></script>
 <script>
 const d = LOOP.child(ME);
 let filter = 'all';
@@ -59,7 +59,7 @@ function renderPhone(){
   const q     = LOOP.starters(ME, 1, LOOP.store.starterSeed())[0];
   const qkey  = q.q.slice(0,40);
   const qdone = !!LOOP.store.talked()[qkey];
-  const log   = mergeLog(all, CLASS_UPDATES.concat(noteItems()), homeItems());
+  const log   = mergeLog(all, CLASS_UPDATES.concat(noteItems()), homeItems().concat(choreItems()));
 
   $('#app').innerHTML = head + `
     <div class="m-light">
@@ -133,6 +133,13 @@ function brandRow(){
 function noteItems(){
   return TEACHER_MESSAGES.filter(m=>m.s===ME)
     .map(m=>({ d:m.d, kind:'note', from:m.from, body:m.body }));
+}
+function choreItems(){
+  return LOOP.store.choreLog().filter(e=>e.s===ME).map(e=>{
+    const c = CHORES.find(x=>x.id===e.c); if(!c) return null;
+    return { d:e.d, kind:'home', label:c.label, emoji:c.emoji,
+             body: c.kind==='extra' ? 'Extra · earned '+c.coins+' coins' : 'Contribution' };
+  }).filter(Boolean);
 }
 function homeItems(){
   return LOOP.events(ME).filter(e=>e.src==='home').map(e=>{

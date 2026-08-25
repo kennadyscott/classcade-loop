@@ -807,3 +807,62 @@ const CLASS_UPDATES = [
   { d:'2026-08-18', from:'ClassCade', kind:'system',
     body:'New Boggies unlocked for the class this week.' },
 ];
+
+/* ══ AT HOME · chores that align to the Showdown economy ═══════════
+   Two rules, both load-bearing:
+
+   1. CONTRIBUTIONS earn nothing. Making your bed is what being in a family
+      costs; paying for it teaches a child that unpaid help is optional.
+      EXTRAS — genuinely above and beyond, opt-in — earn coins.
+   2. Coins never feed a Whole Learner area. Same rule as Showdown coins.
+      What DOES feed a read is a pattern: a contribution kept up across a
+      week becomes a home signal into Independence, because that is a
+      pattern rather than a transaction.                                */
+
+const CHORE_KINDS = {
+  contribution: { label:'Contribution', note:'Part of being in this family. No coins.' },
+  extra:        { label:'Extra',        note:'Above and beyond, and optional. Earns coins.' },
+};
+
+const CHORES = [
+  /* ── contributions · no coins, every day ───────────────── */
+  { id:'bed',      label:'Make your bed',            emoji:'🛏️', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'dishes',   label:'Dishes in the sink',       emoji:'🍽️', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'bag',      label:'Backpack and shoes away',  emoji:'🎒', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'teeth',    label:'Teeth, morning and night', emoji:'🪥', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'hamper',   label:'Clothes in the hamper',    emoji:'🧺', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'pet',      label:'Feed the pet',             emoji:'🐕', kind:'contribution', coins:0, dim:'independence', every:true },
+  { id:'table',    label:'Set the table',            emoji:'🍴', kind:'contribution', coins:0, dim:'connection',   every:true },
+
+  /* ── extras · earn coins, opt-in ───────────────────────── */
+  { id:'laundry',  label:'Fold and put away laundry',      emoji:'👕', kind:'extra', coins:15, dim:'independence' },
+  { id:'cook',     label:'Help make dinner',               emoji:'🥘', kind:'extra', coins:20, dim:'connection' },
+  { id:'recycle',  label:'Take out the recycling',         emoji:'♻️', kind:'extra', coins:10, dim:'independence' },
+  { id:'sweep',    label:'Sweep or vacuum a room',         emoji:'🧹', kind:'extra', coins:20, dim:'resilience' },
+  { id:'plants',   label:'Water the plants',               emoji:'🪴', kind:'extra', coins:10, dim:'independence' },
+  { id:'readto',   label:'Read to a younger sibling',      emoji:'📖', kind:'extra', coins:15, dim:'learning' },
+  { id:'tidy',     label:'Tidy a shared space, unasked',   emoji:'✨', kind:'extra', coins:25, dim:'connection' },
+  { id:'groceries',label:'Put the groceries away',         emoji:'🛍️', kind:'extra', coins:15, dim:'connection' },
+  { id:'yard',     label:'Help in the yard',               emoji:'🌿', kind:'extra', coins:25, dim:'resilience' },
+  { id:'car',      label:'Help wash the car',              emoji:'🚗', kind:'extra', coins:30, dim:'resilience' },
+];
+
+/* What coins buy at home. Parent-set — these are defaults, not a rate card.
+   Showdown's own store is always the other option, which is the point of
+   using one currency. */
+const HOME_REWARDS = [
+  { id:'screen',  label:'15 minutes extra screen time', emoji:'📱', coins:40 },
+  { id:'movie',   label:'Pick the movie',               emoji:'🍿', coins:60 },
+  { id:'late',    label:'Stay up 20 minutes late',      emoji:'🌙', coins:70 },
+  { id:'dinner',  label:'Pick what we have for dinner', emoji:'🍕', coins:80 },
+  { id:'outing',  label:'One-on-one time, your choice', emoji:'🎡', coins:150 },
+];
+
+/* Which chores a child has, by default. A parent edits this. */
+const DEFAULT_CHORES = {
+  maya: ['bed','dishes','bag','teeth','laundry','cook','readto','tidy'],
+  ezra: ['bed','hamper','teeth','plants','groceries'],
+};
+
+/* A contribution kept up this many days in a week counts as a pattern. */
+const STREAK_FOR_SIGNAL = 4;

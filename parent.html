@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=106">
+<link rel="stylesheet" href="loop.css?v=108">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=106"></script>
-<script src="loop.engine.js?v=106"></script>
-<script src="loop.shell.js?v=106"></script>
+<script src="loop.data.js?v=108"></script>
+<script src="loop.engine.js?v=108"></script>
+<script src="loop.shell.js?v=108"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -185,6 +185,14 @@ function renderPhone(){
           <div class="rsub">Always here, never behind the paywall</div></div>
         <span class="chev">›</span>
       </a>
+
+      ${(()=>{const b=LOOP.choreBoard(ME),hc=LOOP.homeCoins(ME);return `
+      <a class="m-row" href="chores.html">
+        <div class="ric" style="background:#fff6d9">${ico('coins',18)}</div>
+        <div class="rtx"><div class="rtitle">At home · ${b.doneToday} of ${b.total} done today</div>
+          <div class="rsub">${hc.balance} coins${b.earnedToday?` · +${b.earnedToday} earned today`:''}</div></div>
+        <span class="chev">›</span>
+      </a>`})()}
 
       <div class="m-secrow">The Whole Learner <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
       <div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>

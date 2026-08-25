@@ -211,6 +211,35 @@ a media query and `body.appview`. Earlier passes duplicated; this is the pattern
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.
 
+## At Home · the chore board
+
+`chores.html`, tab **At Home**. Chores that align to Showdown's coin economy, built on two
+rules that are load-bearing rather than decorative:
+
+**1. Contributions earn nothing; extras earn coins.** Making your bed is what being in a family
+costs — paying for it teaches a child that unpaid help is optional. *Extras* (fold the laundry,
+help make dinner, tidy a shared space unasked) are genuinely above and beyond, opt-in, and priced.
+`CHORE_KINDS` and the `kind` field on every chore carry this; `homeCoins()` only counts `extra`.
+
+**2. Coins never feed a Whole Learner area** — not from Showdown, not from here. What *does* feed a
+read is a **pattern**: a contribution kept up `STREAK_FOR_SIGNAL` (4) days in a week becomes **one**
+home signal into its mapped dimension. Never one per tick, which would let chores outrank the
+classroom purely by being daily. Verified: ticking extras moves the coin balance and leaves the
+Independence level untouched.
+
+The board shows the parent what the streaks are telling Loop, in a panel headed *"What this is
+telling Loop"* — so the separation between the game and the read is visible rather than implied.
+
+Coins spend either in Showdown's own store or on parent-set home rewards (`HOME_REWARDS`), which is
+the entire point of using one currency.
+
+**The child does not tick these off.** The parent marks them, because the child-facing surface is
+parked over COPPA — see the open questions. A shared family device with no child login is the
+nearest thing this design allows.
+
+**Tab trade:** At Home is a daily surface, so it took a tab; Messages moved into More, since Messages
+is rare by design ("if this fills up, Loop has become a messaging app").
+
 ## One tab, one job
 
 Content was appearing on three or four screens at once, which made the app feel
