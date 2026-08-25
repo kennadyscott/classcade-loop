@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=99">
+<link rel="stylesheet" href="loop.css?v=101">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=99"></script>
-<script src="loop.engine.js?v=99"></script>
-<script src="loop.shell.js?v=99"></script>
+<script src="loop.data.js?v=101"></script>
+<script src="loop.engine.js?v=101"></script>
+<script src="loop.shell.js?v=101"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -160,6 +160,20 @@ function renderPhone(){
 
     <div class="m-light">
       ${weekBar()}
+
+      <div class="m-tile convo full ${justLogged?'flash':''}" id="qcard">
+        ${justLogged?`<div class="q-new">✨ New question for tonight, based on what you just noticed</div>`:''}
+        <div class="th"><div class="ti" style="background:#e9e2ff">${ico('conversation-bubbles',18)}</div>
+          <div class="tl">Tonight's conversation</div></div>
+        <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
+        <div class="tp">“${esc(q.q)}”</div>
+        <div class="convo-acts">
+          <button class="btn sm ${qdone?'sel':''}" data-talked="${esc(qkey)}">${qdone?'✓ Talked':'We talked'}</button>
+          <button class="btn sm ghost" id="shuffleQ">↻ Another</button>
+        </div>
+        <img class="art-img" src="art/bubbles-sm.png" alt="" width="200" height="124">
+      </div>
+
       <div class="m-secrow">Add what you noticed</div>
       ${pending ? confirmPanel() : `
       <div class="m-chips">
@@ -188,15 +202,6 @@ function renderPhone(){
       </div>
 
       <div class="m-duo" style="margin-top:18px">
-        <div class="m-tile convo ${justLogged?'flash':''}" id="qcard">
-          ${justLogged?`<div class="q-new">✨ New question for tonight, based on what you just noticed</div>`:''}
-          <div class="th"><div class="ti" style="background:#e9e2ff">${ico('conversation-bubbles',18)}</div>
-            <div class="tl">Tonight's conversation</div></div>
-          <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
-          <div class="tp">“${esc(q.q)}”</div>
-          <a class="tlink" href="#" data-open-q>See why this matters →</a>
-          <img class="art-img" src="art/bubbles-sm.png" alt="" width="200" height="124">
-        </div>
         ${tier==='connected' && cn.total ? `
         <div class="m-tile coins">
           <div class="th"><div class="ti" style="background:#d8f3e0">${ico('coins',18)}</div>
