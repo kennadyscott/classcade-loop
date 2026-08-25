@@ -26,6 +26,21 @@ const NAV = [
   { id:'chores', href:'chores.html',   ic:'🏠', navico:'nav-my-kids', glyph:'home', label:'At Home', tab:true },
   { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'Settings' },
 ];
+/* Lite keeps the nav to the three surfaces a parent uses on a weekday —
+   what's happening, what the teacher said, what to do at home. Growth, Ask,
+   Daily Feed and My Kids are still there, they just move behind More, so
+   nothing is stranded and switching depth never loses a page. */
+const LITE_NAV = ['home','msgs','chores','set'];
+function navItems(){
+  if (LOOP.deep()) return NAV;
+  return NAV.filter(n=>LITE_NAV.includes(n.id)).map(n=>({...n, tab:true}));
+}
+function navMore(){
+  const hidden = LOOP.deep() ? NAV.filter(n=>!n.tab) : NAV.filter(n=>!LITE_NAV.includes(n.id));
+  const set = NAV.find(n=>n.id==='set');
+  return hidden.filter(n=>n.id!=='set').concat(set?[set]:[]);
+}
+
 const PROTO = [
   { href:'index.html',   ic:'🔗', label:'Concept' },
   { href:'teacher.html', ic:'🧑‍🏫', label:'Teacher view' },
@@ -109,7 +124,7 @@ function mountApp(active){
   side.innerHTML = `
     ${brandMark()}
     <nav class="mainnav">
-      ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}"
+      ${navItems().map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}"
           aria-label="${esc(n.label)}" ${n.id===active?'aria-current="page"':''}>
           <span class="ic">${n.ic}</span>
           <span class="gl">${n.navico
@@ -122,6 +137,11 @@ function mountApp(active){
         <span class="flabel">Add from home</span>
       </button>
     </nav>
+    ${LOOP.deep() ? '' : `
+    <div class="side-label">Also in Loop</div>
+    <nav class="morenav">
+      ${navMore().filter(n=>n.id!=='set').map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}"><span class="ic">${n.ic}</span>${esc(n.label)}</a>`).join('')}
+    </nav>`}
     <div class="side-label">Prototype surfaces</div>
     <nav>
       ${PROTO.map(n=>`<a href="${n.href}" class="${n.href.startsWith(active)?'on':''}"><span class="ic">${n.ic}</span>${n.label}</a>`).join('')}
@@ -245,18 +265,30 @@ function mountViewToggle(){
   const mode = CURRENT_VIEW;
   applyView(mode);
   const t = el('div','viewtoggle');
+  const dp = LOOP.store.depth() || 'lite';
   t.innerHTML = `
     <span class="vt-label">Preview as</span>
     <div class="vt-group">
       <button data-v="web" class="${mode==='web'?'on':''}">🖥 Desktop</button>
       <button data-v="app" class="${mode==='app'?'on':''}">📱 Phone</button>
+    </div>
+    <span class="vt-sep"></span>
+    <span class="vt-label">Depth</span>
+    <div class="vt-group">
+      <button data-d="lite" class="${dp==='lite'?'on':''}">Lite</button>
+      <button data-d="deep" class="${dp==='deep'?'on':''}">In Depth</button>
     </div>`;
   document.body.appendChild(t);
-  t.querySelectorAll('.vt-group button').forEach(b=>b.onclick=()=>{
+  t.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{
     LOOP.store.setView(b.dataset.v);
     CURRENT_VIEW = b.dataset.v;
     applyView(b.dataset.v);
-    t.querySelectorAll('.vt-group button').forEach(x=>x.classList.toggle('on', x===b));
+    t.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on', x===b));
+  });
+  /* depth changes what renders, so reload rather than trying to re-run
+     every page's own render() from here */
+  t.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{
+    LOOP.store.setDepth(b.dataset.d); location.reload();
   });
 }
 function applyView(mode){
@@ -277,7 +309,7 @@ function moreSheet(active){
   return `
     <div class="grab"></div>
     <div class="sec">Also in Loop</div>
-    ${NAV.filter(n=>!n.tab || n.id==='set').map(n=>
+    ${navMore().map(n=>
       `<a href="${n.href}" class="${n.id===active?'on':''}"><span class="ic">${n.ic}</span>${esc(n.label)}</a>`).join('')}
     <div class="sec">Plan</div>
     <div class="srow" style="padding-bottom:4px">
@@ -401,7 +433,7 @@ function wlCard(x){
     <div class="nm">${esc(x.dim.name)}</div>
     <div class="st" style="color:${x.cold?'var(--muted-2)':x.dim.color}">
       ${lvl}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
-    <div class="bar"><i style="width:${x.cold?10:x.pct}%;background:${x.cold?'#c9d6ec':x.dim.color}"></i></div>
+    ${!LOOP.deep() ? '' : `<div class="bar"><i style="width:${x.cold?10:x.pct}%;background:${x.cold?'#c9d6ec':x.dim.color}"></i></div>`}
   </div>`;
 }
 
@@ -419,8 +451,8 @@ function dimRow(x, opts){
           <span class="spacer"></span>
           <span class="chip ${tone}">${lvl}</span>
         </div>
-        <div class="meter" style="margin-top:7px"><i style="width:${x.cold?12:x.pct}%;background:${x.cold?'#c9d6ec':x.dim.color}"></i></div>
-        ${opts.sub!==false?`<div class="tiny muted" style="margin-top:6px">${x.cold
+        ${!LOOP.deep() ? '' : `<div class="meter" style="margin-top:7px"><i style="width:${x.cold?12:x.pct}%;background:${x.cold?'#c9d6ec':x.dim.color}"></i></div>`}
+        ${(opts.sub!==false && LOOP.deep())?`<div class="tiny muted" style="margin-top:6px">${x.cold
             ? 'Not enough signals yet'
             : `${x.count} signal${x.count===1?'':'s'} · ${x.sources.map(s=>({school:'school',home:'home',child:'check-ins'}[s]||s)).join(' + ')}`}</div>`:''}
       </div>

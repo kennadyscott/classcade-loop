@@ -916,7 +916,7 @@ body.sm .side .brand,
 body.sm .side .side-label,
 body.sm .side .side-promo,
 body.sm .side .tier,
-body.sm .side nav:nth-of-type(2){display:none}
+body.sm .side nav:not(.mainnav){display:none}
 body.sm .side nav.mainnav{
   display:flex;flex-direction:row;justify-content:space-around;
   width:100%;gap:0;overflow:visible;order:0
@@ -2074,3 +2074,24 @@ body.appview .dp-gate{position:absolute;border-radius:46px}
 .dp-row.on .tick{background:var(--blue);border-color:var(--blue);color:#fff}
 .dp-row .lb{display:block;font-size:14px;font-weight:900;letter-spacing:-.025em;line-height:1.3}
 .dp-row .mt{display:block;font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:3px}
+.viewtoggle .vt-sep{width:1px;height:20px;background:rgba(255,255,255,.16);flex:none}
+.viewtoggle{padding:5px 5px 5px 15px;gap:9px}
+@media (max-width:1180px){
+  .viewtoggle{padding:5px 5px 5px 12px;gap:7px}
+  .viewtoggle .vt-label{font-size:9.5px;letter-spacing:.08em}
+  .viewtoggle button{padding:6px 11px;font-size:12px}
+}
+/* section headers and flags also render off-phone */
+.m-secrow{
+  display:flex;align-items:baseline;gap:9px;margin:22px 3px 10px;
+  font-size:11.5px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)
+}
+.m-secrow a{margin-left:auto;font-size:13px;font-weight:800;text-transform:none;letter-spacing:-.01em}
+.m-secrow .swipe{
+  font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--muted-2);background:var(--tint);border-radius:999px;padding:3px 8px
+}
+@media (min-width:901px){
+  body:not(.appview) .m-flag{max-width:760px}
+  body:not(.appview) .m-secrow.flagrow{margin-top:4px}
+}

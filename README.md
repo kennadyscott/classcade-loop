@@ -227,8 +227,22 @@ from being a crippled version:
 | Ask, and every crisis line | Coin, streak and practice breakdowns |
 | The chore list and its coins | *What this is telling Loop* |
 
+**Lite also shortens the nav.** In Depth carries six tabs; Lite carries three plus the More button —
+**Home · Messages · At Home**. Those are the three things a parent actually does on a Tuesday: see what
+happened, read what the teacher said, do the thing at home. Growth, Ask, Daily Feed and My Kids move
+behind More (a rail labelled *Also in Loop* on desktop, the sheet on phone), so nothing is stranded and
+switching depth never loses a page. `LITE_NAV` in `loop.shell.js` is the whole list; `navItems()` and
+`navMore()` split it, and the sidebar, the tab bar and the More sheet all read from those two, so the
+three surfaces can never disagree.
+
 Verified by diffing a Lite and an In Depth render of Home: bars 0 → 5, as-of absent → present, ritual
-chips 0 → 3, while flags stayed at 2, the conversation card stayed, and the six logging chips stayed.
+chips 0 → 3, tabs 6 → 4, while flags stayed at 2, the conversation card stayed, and the six logging
+chips stayed. Growth and Ask remained reachable in both.
+
+**A switch at the top.** The floating preview control now carries two segmented groups —
+*Preview as* **Desktop / Phone** and *Depth* **Lite / In Depth** — so both versions can be shown in one
+sitting without clearing storage. Depth clicks reload rather than re-render, because depth changes what
+each page builds and the shell can't re-run every page's own `render()`.
 
 Note that Lite dropping the bars pushes Home *closer* to the product's own promise — a status word with
 no bar beside it is exactly the "describe, don't rank" position. In Depth is the one that needs the
