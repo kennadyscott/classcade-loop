@@ -4,15 +4,15 @@
 <title>At Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=118">
+<link rel="stylesheet" href="loop.css?v=119">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=118"></script>
-<script src="loop.engine.js?v=118"></script>
-<script src="loop.shell.js?v=118"></script>
+<script src="loop.data.js?v=119"></script>
+<script src="loop.engine.js?v=119"></script>
+<script src="loop.shell.js?v=119"></script>
 <script>
 const d = LOOP.child(ME);
-let editing = false;
+let editing = false, building = false;
 
 function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
@@ -96,6 +96,106 @@ function rewardGrid(bal){
   </div>`;
 }
 
+/* Build your own At Home page: which sections appear, what's on each list,
+   and room to add the things this family actually does. */
+function builder(){
+  const P = LOOP.store.homePrefs();
+  const mine = LOOP.store.chores(ME);
+  const C = LOOP.store.custom();
+  const SEC = [
+    ['practice','Practice','Assign reading, fluency and drills, then release the coins'],
+    ['streak','Daily streak','A bonus for checking in day after day'],
+    ['contributions','Contributions','Everyday jobs that earn nothing, on purpose'],
+    ['extras','Extras','Above and beyond, and worth coins'],
+    ['rewards','Spend at home','What coins buy in your house'],
+  ];
+  return `
+  <div class="bld">
+    <div class="bld-h">
+      <div><h4>Build your At Home page</h4>
+        <p>Turn off what you don't use, and add the things your family actually does.</p></div>
+      <button class="btn primary sm" id="doneBuild">Done</button>
+    </div>
+
+    <div class="bld-sec">Sections on this page</div>
+    ${SEC.map(([k,lb,note])=>`
+      <div class="st-row" style="border-top:1px solid var(--line-soft)">
+        <div class="st-tx"><h5>${lb}</h5><p>${note}</p></div>
+        <button class="sw ${P[k]?'on':''}" data-sec="${k}" role="switch" aria-checked="${!!P[k]}"
+          aria-label="${lb}"></button>
+      </div>`).join('')}
+
+    <div class="bld-sec">What's on ${esc(d.first)}'s chore list</div>
+    ${['contribution','extra'].map(k=>`
+      <div class="bld-sub">${CHORE_KINDS[k].label}s — ${esc(CHORE_KINDS[k].note)}</div>
+      ${CHORES.filter(c=>c.kind===k).map(c=>`
+        <button class="ch-row ${mine.includes(c.id)?'done':''}" data-assign="${c.id}">
+          <span class="tick">✓</span><span class="e">${c.emoji}</span>
+          <span class="tx"><span class="lb">${esc(c.label)}</span>
+            ${c.custom?'<span class="mt">Added by you</span>':''}</span>
+          ${c.coins?`<span class="cn">⊙ ${c.coins}</span>`:''}
+          ${c.custom?`<span class="bx" data-rmchore="${c.id}">Delete</span>`:''}
+        </button>`).join('')}`).join('')}
+
+    <div class="bld-add">
+      <div class="bld-sub">Add your own job</div>
+      <input id="ncLabel" class="kc-in" style="text-transform:none;letter-spacing:0;font-weight:700"
+        placeholder="e.g. Walk the dog after dinner" maxlength="46">
+      <div class="bld-arow">
+        <select class="pick" id="ncKind">
+          <option value="contribution">Contribution — no coins</option>
+          <option value="extra">Extra — earns coins</option>
+        </select>
+        <select class="pick" id="ncCoins">
+          ${[10,15,20,25,30].map(n=>`<option value="${n}">⊙ ${n}</option>`).join('')}
+        </select>
+        <button class="btn sm primary" id="ncAdd">Add</button>
+      </div>
+    </div>
+
+    <div class="bld-sec">What coins buy here</div>
+    ${HOME_REWARDS.map(r=>`
+      <div class="rw" style="margin-bottom:8px">
+        <span class="e">${r.emoji}</span><span class="tx">${esc(r.label)}</span>
+        <span class="px">⊙ ${r.coins}</span>
+        ${r.custom?`<span class="bx" data-rmreward="${r.id}">Delete</span>`:''}
+      </div>`).join('')}
+    <div class="bld-add">
+      <div class="bld-sub">Add your own reward</div>
+      <input id="nrLabel" class="kc-in" style="text-transform:none;letter-spacing:0;font-weight:700"
+        placeholder="e.g. Friday movie pick" maxlength="46">
+      <div class="bld-arow">
+        <select class="pick" id="nrCoins">
+          ${[30,50,80,120,200].map(n=>`<option value="${n}">⊙ ${n}</option>`).join('')}
+        </select>
+        <button class="btn sm primary" id="nrAdd">Add</button>
+      </div>
+    </div>
+
+    <div class="bld-sec">Practice you can assign</div>
+    ${PRACTICE.map(p=>`
+      <div class="pa-row">
+        <span class="e">${p.emoji}</span>
+        <span class="tx"><span class="lb">${esc(p.label)}</span>
+          <span class="mt">${p.mins.join(' / ')} min · ⊙ ${p.perMin}/min</span></span>
+        ${p.custom?`<span class="bx" data-rmpractice="${p.id}">Delete</span>`:''}
+      </div>`).join('')}
+    <div class="bld-add">
+      <div class="bld-sub">Add your own practice</div>
+      <input id="npLabel" class="kc-in" style="text-transform:none;letter-spacing:0;font-weight:700"
+        placeholder="e.g. Piano practice" maxlength="46">
+      <div class="bld-arow">
+        <select class="pick" id="npMins">
+          ${[[ '10,20','10 / 20 min'],['15,30','15 / 30 min'],['5,10','5 / 10 min']].map(([v,l])=>`<option value="${v}">${l}</option>`).join('')}
+        </select>
+        <button class="btn sm primary" id="npAdd">Add</button>
+      </div>
+    </div>
+
+    <button class="btn primary block" style="margin-top:14px" id="doneBuild2">Done</button>
+  </div>`;
+}
+
 function editList(){
   const mine = LOOP.store.chores(ME);
   return `<div class="s-card">
@@ -117,11 +217,13 @@ function body(){
   const b = board();
   const hc = LOOP.homeCoins(ME);
   const sig = LOOP.choreSignals(ME);
+  const P = LOOP.store.homePrefs();
+  if (building) return builder();
   if (editing) return editList();
   return `
-    ${practiceSection()}
+    ${P.practice?practiceSection():''}
 
-    ${(()=>{const cb=LOOP.checkinBonus(ME);return `
+    ${!P.streak?'':(()=>{const cb=LOOP.checkinBonus(ME);return `
     <div class="ch-streakbar ${cb.streak?'on':''}">
       <span class="sb-flame">${cb.streak?'🔥':'○'}</span>
       <span class="sb-tx">
@@ -146,13 +248,15 @@ function body(){
         something at home. Coins are a game, not a read: they never move a ${esc(LOOP.framework().name)} area.</p>
     </div>
 
+    ${!P.contributions?'':`
     <div class="m-secrow">Contributions <span class="swipe">no coins</span></div>
     ${b.contributions.length ? b.contributions.map(choreRow).join('')
-      : '<p class="small muted" style="margin:0 3px 10px">None assigned yet.</p>'}
+      : '<p class="small muted" style="margin:0 3px 10px">None on the list yet.</p>'}`}
 
+    ${!P.extras?'':`
     <div class="m-secrow">Extras <span class="swipe">earn coins</span></div>
     ${b.extras.length ? b.extras.map(choreRow).join('')
-      : '<p class="small muted" style="margin:0 3px 10px">None assigned yet.</p>'}
+      : '<p class="small muted" style="margin:0 3px 10px">None on the list yet.</p>'}`}
 
     ${sig.length?`
     <div class="m-secrow">What this is telling Loop</div>
@@ -164,8 +268,9 @@ function body(){
       <p class="ch-note">A single tick never counts. Only a week's worth does.</p>
     </div>`:''}
 
+    ${!P.rewards?'':`
     <div class="m-secrow">Spend at home</div>
-    ${rewardGrid(hc.balance)}
+    ${rewardGrid(hc.balance)}`}
     <p class="ch-note">You set these. Showdown's own store is always the other option — that's the point
       of one currency.</p>`;
 }
@@ -177,7 +282,8 @@ function renderPhone(){
     <div class="m-dark">
       ${brandRow()}
       <div class="m-greetrow">
-        <div><div class="m-greet">At Home</div>
+        <div><div class="m-greet">At Home
+          <button class="hdr-gear" id="gear" aria-label="Build this page">⚙</button></div>
         <div class="m-greet-sub">${esc(d.first)}'s chores and coins.</div></div>
         <div class="m-kidpill" id="kidmenu">
           <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
@@ -248,7 +354,33 @@ function wire(){
     if (e2 && e2.done) toastUndo('+'+(p.perMin*e2.m)+' coins released',
       ()=>{ LOOP.store.releasePractice(ME, b.dataset.release); render() });
   });
-  const e=$('#edit'); if(e) e.onclick=()=>{ editing=true; render(); window.scrollTo(0,0) };
+  const gr=$('#gear'); if(gr) gr.onclick=()=>{ building=true; render(); window.scrollTo(0,0) };
+  ['doneBuild','doneBuild2'].forEach(id=>{ const b=$('#'+id); if(b) b.onclick=()=>{ building=false; render(); window.scrollTo(0,0) } });
+  $$('[data-sec]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.sec; LOOP.store.setHomePref(k, !LOOP.store.homePrefs()[k]); render();
+  });
+  const nc=$('#ncAdd'); if(nc) nc.onclick=()=>{
+    const v=($('#ncLabel')||{}).value||''; if(v.trim().length<3){ toast('Give it a name.'); return }
+    const kind=$('#ncKind').value; const coins=kind==='extra'?+$('#ncCoins').value:0;
+    const c=LOOP.store.addCustom('chores',{label:v.trim(),kind:kind,coins:coins});
+    LOOP.store.setChores(ME, LOOP.store.chores(ME).concat(c.id));
+    render(); toast('Added: '+c.label);
+  };
+  const nr=$('#nrAdd'); if(nr) nr.onclick=()=>{
+    const v=($('#nrLabel')||{}).value||''; if(v.trim().length<3){ toast('Give it a name.'); return }
+    LOOP.store.addCustom('rewards',{label:v.trim(),coins:+$('#nrCoins').value});
+    render(); toast('Added to what coins buy.');
+  };
+  const np=$('#npAdd'); if(np) np.onclick=()=>{
+    const v=($('#npLabel')||{}).value||''; if(v.trim().length<3){ toast('Give it a name.'); return }
+    LOOP.store.addCustom('practice',{label:v.trim(),mins:$('#npMins').value.split(',').map(Number)});
+    render(); toast('You can assign that now.');
+  };
+  $$('[data-rmchore]').forEach(b=>b.onclick=e2=>{ e2.stopPropagation();
+    LOOP.store.removeCustom('chores', b.dataset.rmchore); render(); toast('Removed.') });
+  $$('[data-rmreward]').forEach(b=>b.onclick=()=>{ LOOP.store.removeCustom('rewards', b.dataset.rmreward); render(); toast('Removed.') });
+  $$('[data-rmpractice]').forEach(b=>b.onclick=()=>{ LOOP.store.removeCustom('practice', b.dataset.rmpractice); render(); toast('Removed.') });
+  const e=$('#edit'); if(e) e.onclick=()=>{ building=true; render(); window.scrollTo(0,0) };
   const de=$('#doneEdit'); if(de) de.onclick=()=>{ editing=false; render(); window.scrollTo(0,0) };
 }
 

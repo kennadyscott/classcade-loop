@@ -2013,3 +2013,29 @@ body.sm .m-secrow.flagrow{margin-top:2px}
   .pa-row .tx{flex-basis:calc(100% - 32px)}
   .pa-row .mins{margin-left:28px}
 }
+
+/* ══ AT HOME BUILDER ═══════════════════════════════════════════════ */
+.hdr-gear{
+  border:0;background:rgba(255,255,255,.14);color:#fff;width:26px;height:26px;border-radius:999px;
+  font-size:14px;cursor:pointer;margin-left:8px;vertical-align:middle;line-height:1;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)
+}
+.hdr-gear:active{transform:translateY(1px)}
+.bld{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:16px 15px}
+.bld-h{display:flex;align-items:flex-start;gap:12px;margin-bottom:6px}
+.bld-h h4{font-size:17px;letter-spacing:-.03em}
+.bld-h p{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px}
+.bld-h .btn{flex:none}
+.bld-sec{
+  font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);
+  margin:20px 0 8px;padding-top:14px;border-top:1px solid var(--line-soft)
+}
+.bld-sub{font-size:11.5px;font-weight:800;color:var(--muted-2);margin:12px 0 7px;line-height:1.4}
+.bld-add{background:var(--tint);border-radius:14px;padding:12px;margin-top:11px}
+.bld-arow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.bld-arow .pick{flex:1;min-width:96px}
+.bld-arow .btn{flex:none}
+.bx{
+  flex:none;font-size:11px;font-weight:800;color:var(--watch);background:#fdf1e3;
+  border-radius:999px;padding:4px 9px;cursor:pointer;margin-left:6px
+}

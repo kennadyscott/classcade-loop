@@ -211,6 +211,24 @@ a media query and `body.appview`. Earlier passes duplicated; this is the pattern
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.
 
+## Build your own At Home page
+
+A gear beside the **At Home** title opens a builder. Three levels of control, because a chore list that
+isn't this family's chore list gets ignored:
+
+1. **Which sections appear** — Practice, Daily streak, Contributions, Extras, Spend at home. Turn off
+   what you don't use and it stops rendering entirely.
+2. **What's on the child's list** — pick from the library, per kind.
+3. **Add your own** — jobs ("Walk the dog after dinner", contribution or extra with a coin value),
+   rewards ("Friday movie pick", priced), and practice activities ("Piano practice", with durations).
+
+Custom items are pushed into the same `CHORES` / `HOME_REWARDS` / `PRACTICE` arrays the engine already
+reads (`syncCustom()`, idempotent, runs at load), so every existing lookup keeps working and a custom
+job behaves exactly like a built-in one — including feeding a streak signal if it's a contribution.
+
+Verified: adding a job puts it on the board as an Extra, adding a reward puts it in Spend at home, and
+switching off Daily streak removes the section rather than emptying it.
+
 ## Practice · assign it, then release the coins
 
 Top of **At Home**. A parent quick-assigns a session — 10 minutes of ClassCade fluency, 20 minutes of
