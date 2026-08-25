@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=115">
+<link rel="stylesheet" href="loop.css?v=117">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=115"></script>
-<script src="loop.engine.js?v=115"></script>
-<script src="loop.shell.js?v=115"></script>
+<script src="loop.data.js?v=117"></script>
+<script src="loop.engine.js?v=117"></script>
+<script src="loop.shell.js?v=117"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -22,6 +22,37 @@ const wide = () => window.matchMedia('(min-width:901px)').matches
 function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
   return renderDesktop();
+}
+
+/* Things the teacher needs the parent to DO. Above everything else, and
+   only when there is something open — an empty nag block trains people to
+   ignore the space it occupies. */
+function flagSection(){
+  const open = LOOP.flags(ME);
+  if (!open.length) return '';
+  const late = open.filter(f=>f.overdue).length;
+  return `
+  <div class="m-secrow flagrow">Needs you
+    <span class="flagcount ${late?'late':''}">${open.length}${late?` · ${late} overdue`:''}</span></div>
+  ${open.map(f=>`
+    <div class="m-flag ${f.overdue?'late':''}">
+      <div class="fl-top">
+        <span class="fl-ic">${f.meta.emoji}</span>
+        <span class="fl-tx">
+          <span class="fl-lb">${esc(f.label)}</span>
+          <span class="fl-mt">${esc(f.from)} · ${f.overdue
+            ? `<b>overdue by ${Math.abs(f.daysLeft)} day${Math.abs(f.daysLeft)===1?'':'s'}</b>`
+            : f.daysLeft===0 ? '<b>due today</b>'
+            : f.daysLeft===1 ? '<b>due tomorrow</b>'
+            : `due ${fmtLong(f.due)}`}</span>
+        </span>
+      </div>
+      <div class="fl-detail">${esc(f.detail)}</div>
+      <div class="fl-acts">
+        <button class="btn primary sm" data-flagdo="${f.id}">${esc(f.meta.cta)}</button>
+        <button class="btn sm" data-flagdone="${f.id}">Already done</button>
+      </div>
+    </div>`).join('')}`;
 }
 
 /* The week has a date, a new/seen state, and a way to be finished —
@@ -158,6 +189,7 @@ function renderPhone(){
     </div>
 
     <div class="m-light">
+      ${flagSection()}
       ${weekBar()}
 
       <div class="m-tile convo full ${justLogged?'flash':''}" id="qcard">
@@ -265,6 +297,14 @@ function renderPhone(){
   $$('[data-go]').forEach(el2=>el2.onclick=()=>location.href=el2.dataset.go);
   const cr=$('#connectRow'); if(cr) cr.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
   const km=$('#kidmenu'); if(km) km.onclick=()=>toast('Only Maya is seeded in this prototype.');
+  $$('[data-flagdo]').forEach(b=>b.onclick=()=>{
+    LOOP.store.markFlag(b.dataset.flagdo); render();
+    toastUndo('Handled — off your list', ()=>{ LOOP.store.unmarkFlag(b.dataset.flagdo); render() });
+  });
+  $$('[data-flagdone]').forEach(b=>b.onclick=()=>{
+    LOOP.store.markFlag(b.dataset.flagdone); render();
+    toastUndo('Marked done', ()=>{ LOOP.store.unmarkFlag(b.dataset.flagdone); render() });
+  });
   /* opening Home is reading the week */
   setTimeout(()=>{ if (LOOP.store.isNew('digest|'+WEEK_START)){
     LOOP.store.markSeen('digest|'+WEEK_START); LOOP.store.ritualDone('read'); } }, 1200);

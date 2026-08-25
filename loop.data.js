@@ -965,3 +965,27 @@ const CHECKIN = {
   maxStreakBonus:25, /* capped, so a streak can't dwarf real effort */
   perfectWeek:50,    /* all seven days */
 };
+
+/* ══ FLAGS · things the teacher needs the parent to DO ══════════════
+   Distinct from a note home, which is information. These have a verb and a
+   deadline, and they are the reason a parent opens a school app at all. They
+   sit above everything else on Home, and only when there is something open. */
+const FLAG_KINDS = {
+  signup: { label:'Sign-up',    emoji:'🗓️', cta:'Pick a time' },
+  form:   { label:'Form',       emoji:'📝', cta:'Open form' },
+  bring:  { label:'Bring in',   emoji:'🎒', cta:'Mark done' },
+  rsvp:   { label:'RSVP',       emoji:'✋', cta:'Reply' },
+  pay:    { label:'Payment',    emoji:'💳', cta:'Pay' },
+};
+
+const ACTION_ITEMS = [
+  { id:'conf',    s:'maya', from:'Ms. Alvarez', kind:'signup', d:'2026-08-22', due:'2026-08-29',
+    label:'Sign up for your conference',
+    detail:'Pick a slot for Sep 4 — the 3:30 and 4:00 windows are going first.' },
+  { id:'ski',     s:'maya', from:'Ms. Alvarez', kind:'form',   d:'2026-08-21', due:'2026-08-26',
+    label:'Permission form for ski day',
+    detail:'Needs to be back before Friday so Maya can be counted in the group.' },
+  { id:'library', s:'maya', from:'ClassCade',   kind:'bring',  d:'2026-08-20', due:'2026-08-27',
+    label:'Library books back Thursday',
+    detail:'Two still out on her card.' },
+];

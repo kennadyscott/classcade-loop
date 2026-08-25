@@ -18,6 +18,7 @@ const LOOP = (() => {
     levels:'loop.v1.levels', seen:'loop.v1.seen', ritual:'loop.v1.ritual',
     chores:'loop.v1.chores', choreLog:'loop.v1.choreLog', spent:'loop.v1.spent',
     fw:'loop.v1.framework', goals:'loop.v1.goals', checkin:'loop.v1.checkin',
+    flags:'loop.v1.flags', flagsExtra:'loop.v1.flagsExtra',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -109,6 +110,11 @@ const LOOP = (() => {
     setGoal:   (s,g)=>{ const m=rd(K.goals,{}); m[s]=g; wr(K.goals,m) },
     clearGoal: (s)=>{ const m=rd(K.goals,{}); delete m[s]; wr(K.goals,m) },
     checkins:  ()=> rd(K.checkin,{}),
+    flagsDone: ()=> rd(K.flags,{}),
+    markFlag:  (id)=>{ const m=rd(K.flags,{}); m[id]={at:TODAY}; wr(K.flags,m) },
+    unmarkFlag:(id)=>{ const m=rd(K.flags,{}); delete m[id]; wr(K.flags,m) },
+    sentFlags: ()=> rd(K.flagsExtra,[]),
+    sendFlag:  (f)=>{ const l=rd(K.flagsExtra,[]); l.push(f); wr(K.flagsExtra,l); return f },
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -567,6 +573,25 @@ const LOOP = (() => {
              base:CHECKIN.base, bonus };
   }
 
+  /* ── flags ────────────────────────────────────────────────
+     Open action items for a child, soonest deadline first. Overdue is
+     flagged but never alarmed — a late permission slip is not a crisis. */
+  function flags(studentId){
+    const done = store.flagsDone();
+    return ACTION_ITEMS.concat(store.sentFlags())
+      .filter(f=>f.s===studentId && !done[f.id])
+      .map(f=>Object.assign({}, f, {
+        daysLeft: f.due ? Math.round(day(f.due) - day(TODAY)) : null,
+        overdue:  f.due ? day(f.due) < day(TODAY) : false,
+        meta: FLAG_KINDS[f.kind] || FLAG_KINDS.form,
+      }))
+      .sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+  }
+  function flagsHandled(studentId){
+    const done = store.flagsDone();
+    return ACTION_ITEMS.concat(store.sentFlags()).filter(f=>f.s===studentId && done[f.id]);
+  }
+
   function concern(id){ return CONCERNS.find(c=>c.id===id) || null }
 
   function expectations(dimId, grade){
@@ -581,6 +606,6 @@ const LOOP = (() => {
   return { store, read, insight, headlines, homeSignal, classView, child, events, levelLabel,
            coins, activity, moment, conference, concern, expectations, starters,
            choreBoard, choreStreak, homeCoins, choreSignals,
-           applyFramework, framework, checkinDays, checkinBonus,
+           applyFramework, framework, checkinDays, checkinBonus, flags, flagsHandled,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

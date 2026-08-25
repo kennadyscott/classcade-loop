@@ -4,7 +4,7 @@
 <title>Class view · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=115">
+<link rel="stylesheet" href="loop.css?v=117">
 <style>
   .t-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
   @media (max-width:900px){.t-layout{grid-template-columns:1fr}}
@@ -15,13 +15,28 @@
 </head><body>
 <div class="wrap"><div id="app"></div></div>
 
-<script src="loop.data.js?v=115"></script>
-<script src="loop.engine.js?v=115"></script>
-<script src="loop.shell.js?v=115"></script>
+<script src="loop.data.js?v=117"></script>
+<script src="loop.engine.js?v=117"></script>
+<script src="loop.shell.js?v=117"></script>
 <script>
 /* Delegated once on the document: goal buttons are re-created on every
    render, and per-element binding kept missing them. */
+let flagKind = 'form';
 document.addEventListener('click', e=>{
+  const fk = e.target.closest('[data-flagkind]');
+  if (fk){ flagKind = fk.dataset.flagkind;
+    $$('[data-flagkind]').forEach(x=>x.classList.toggle('sel', x===fk));
+    const lb=$('#flagLabel'); if(lb) lb.focus(); return }
+  const fs = e.target.closest('[data-flagsend]');
+  if (fs){
+    const label=($('#flagLabel')||{}).value||'', detail=($('#flagDetail')||{}).value||'';
+    if (label.trim().length<5){ toast('Give it a name a parent can act on.'); return }
+    const n = +(($('#flagDue')||{}).value||3);
+    const due = new Date((new Date(TODAY+'T00:00:00').getTime()) + n*864e5).toISOString().slice(0,10);
+    LOOP.store.sendFlag({ id:'t'+Date.now(), s:fs.dataset.flagsend, from:TEACHER, kind:flagKind,
+      d:TODAY, due:due, label:label.trim(), detail:detail.trim()||'Sent by '+TEACHER+'.' });
+    toast('Sent — it sits at the top of their Home until they handle it.');
+    render(); return }
   const set = e.target.closest('[data-goalset]');
   if (set){ LOOP.store.setGoal(set.dataset.goalset,
       { text:set.dataset.text, dim:set.dataset.dim, at:TODAY });
@@ -131,6 +146,27 @@ function renderDetail(){
       </div>`}
 
       ${goalCard(s)}
+
+      <div class="card">
+        <div class="sec-label">Send something they need to do</div>
+        <p class="small muted" style="margin-bottom:12px">This lands at the top of ${esc(s.first)}'s
+          family Home until they handle it. Use it for verbs and deadlines — a note home is for information.</p>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px">
+          ${Object.keys(FLAG_KINDS).map(k=>`<button class="btn sm" data-flagkind="${k}">
+            ${FLAG_KINDS[k].emoji} ${esc(FLAG_KINDS[k].label)}</button>`).join('')}
+        </div>
+        <input id="flagLabel" class="kc-in" style="text-transform:none;letter-spacing:0;font-weight:700"
+          placeholder="e.g. Sign up for your conference" maxlength="70">
+        <textarea class="note" id="flagDetail" style="margin-top:8px" maxlength="160"
+          placeholder="One line of context — what and by when."></textarea>
+        <div style="display:flex;gap:9px;align-items:center;margin-top:9px">
+          <label class="small muted" for="flagDue">Due</label>
+          <select class="pick" id="flagDue">
+            ${[1,2,3,5,7,14].map(n=>`<option value="${n}">in ${n} day${n===1?'':'s'}</option>`).join('')}
+          </select>
+          <button class="btn primary sm" data-flagsend="${s.id}" style="margin-left:auto">Send to family</button>
+        </div>
+      </div>
 
       <div class="card">
         <div class="sec-label">Add an observation</div>

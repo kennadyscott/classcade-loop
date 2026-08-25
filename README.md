@@ -276,6 +276,26 @@ effect with no child data path. A real child login reopens verifiable parental c
 notice, retention limits and deletion rights, and it splits by tier. That is a decision for counsel,
 not a config flag.
 
+## Flags · things the teacher needs the parent to DO
+
+Top of Home, above everything including the week strip — and **only when something is open**. An empty
+nag block trains people to ignore the space it occupies, so the section does not render at all when the
+list is clear (verified).
+
+Deliberately distinct from a note home: a note is *information*, a flag has a **verb and a deadline**.
+`FLAG_KINDS` gives each its own verb — sign-up → "Pick a time", form → "Open form", bring-in → "Mark
+done", RSVP, payment. Sorted soonest-deadline-first, with *due today* / *due tomorrow* / *overdue by N
+days* rather than a bare date.
+
+Overdue gets a warmer treatment but never a red alarm — a late permission slip is not a crisis, and
+styling it like one is how an app teaches a parent to dismiss its warnings.
+
+Every flag has **"Already done"** next to the action, because a parent who handled it on paper should
+not have to keep seeing it. Both paths are undoable from the toast.
+
+The teacher sends them from the class view: pick a kind, name it, one line of context, a due window.
+It lands at the top of that family's Home until they handle it.
+
 ## One tab, one job
 
 Content was appearing on three or four screens at once, which made the app feel
