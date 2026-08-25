@@ -1183,9 +1183,9 @@ body.sm .m-hero .eyebrow2{
 }
 body.sm .m-hero h2{font-size:17px;line-height:1.21;letter-spacing:-.038em;color:#fff;margin:7px 0 5px}
 body.sm .m-hero .sub{font-size:12px;line-height:1.4;color:rgba(255,255,255,.6);
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 body.sm .m-hero .bog{position:absolute;right:-12px;top:26px;width:70px;height:70px;opacity:.95}
-body.sm .m-hero .headrow{display:flex;gap:10px;align-items:flex-start;padding-right:52px}
+body.sm .m-hero .headrow{display:flex;gap:10px;align-items:flex-start;padding-right:98px}
 body.sm .m-hero .shield{
   width:34px;height:34px;border-radius:11px;flex:none;display:grid;place-items:center;font-size:17px
 }
@@ -1378,8 +1378,8 @@ body.sm .g-fold .fb{padding:0 15px 15px}
 
 /* ══ MASCOT + SPOT ART ═════════════════════════════════════════════ */
 body.sm .m-mascot{
-  position:absolute !important;right:-10px;top:26px;width:86px;height:auto;
-  pointer-events:none;z-index:0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.32))
+  position:absolute !important;right:-6px;top:20px;width:112px;height:auto;
+  pointer-events:none;z-index:0;filter:drop-shadow(0 8px 18px rgba(0,0,0,.34))
 }
 body.sm .m-hero .headrow{padding-right:74px}
 body.sm .m-hero > *:not(.m-mascot){position:relative;z-index:1}
@@ -1413,8 +1413,10 @@ body.sm .side nav a.on{color:var(--blue)}
 body.sm .side nav a.on .gl{color:var(--blue)}
 body.sm .side nav a .nlabel{font-size:10.5px;font-weight:800}
 
-/* ══ HEADER TAB STRIP ══════════════════════════════════════════════ */
-.h-tabs{display:none}
+/* ══ HEADER TAB STRIP — removed 2026-08-24 ════════════════════════
+   It duplicated the bottom bar and cost ~70px of the first screen.
+   Rules kept (inert) in case a wide-tablet layout wants it back. */
+.h-tabs{display:none !important}
 body.sm .h-tabs{
   display:flex;gap:4px;margin:14px -16px 0;padding:0 16px 2px;
   overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch
