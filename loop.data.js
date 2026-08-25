@@ -866,3 +866,102 @@ const DEFAULT_CHORES = {
 
 /* A contribution kept up this many days in a week counts as a pattern. */
 const STREAK_FOR_SIGNAL = 4;
+
+/* ══ FRAMEWORKS · the school's own vocabulary ══════════════════════
+   The six areas are structural — the signal→area maths is universal. What
+   is NOT universal is what a school calls them. A school running "Habits of
+   a Scholar" or an IB learner profile should see its own words, not ours.
+
+   So a framework only renames. `applyFramework()` rewrites DIMENSIONS in
+   place at load, which means every surface picks up the school's language
+   with no other change. Six areas is the fixed part; the labels are not.  */
+const FRAMEWORKS = {
+  'whole-learner': {
+    name:'The Whole Learner', source:'ClassCade Loop default',
+    areas:{
+      confidence:  { name:'Confidence',   q:'Will I try when I\'m unsure?' },
+      curiosity:   { name:'Curiosity',    q:'Do I wonder, explore and ask?' },
+      connection:  { name:'Connection',   q:'How do I relate to other people?' },
+      independence:{ name:'Independence', q:'Can I manage myself and ask for help?' },
+      resilience:  { name:'Resilience',   q:'What happens when things get hard?' },
+      learning:    { name:'Learning',     q:'How am I developing academically?' },
+    }},
+  'habits-of-a-scholar': {
+    name:'Habits of a Scholar', source:'School-defined',
+    areas:{
+      confidence:  { name:'Academic Courage',     q:'Do I take academic risks?' },
+      curiosity:   { name:'Inquiry',              q:'Do I ask and investigate?' },
+      connection:  { name:'Community',            q:'How do I contribute to the group?' },
+      independence:{ name:'Executive Functioning',q:'Can I plan, start and follow through?' },
+      resilience:  { name:'Perseverance',         q:'Do I keep going when it\'s hard?' },
+      learning:    { name:'Scholarship',          q:'How is my academic work developing?' },
+    }},
+  'learner-profile': {
+    name:'Learner Profile', source:'School-defined',
+    areas:{
+      confidence:  { name:'Risk-Taker',    q:'Do I approach uncertainty with courage?' },
+      curiosity:   { name:'Inquirer',      q:'Do I nurture my curiosity?' },
+      connection:  { name:'Caring',        q:'Do I show empathy and respect?' },
+      independence:{ name:'Self-Manager',  q:'Can I organise myself and act?' },
+      resilience:  { name:'Reflective',    q:'Do I learn from what went wrong?' },
+      learning:    { name:'Knowledgeable', q:'Am I building understanding?' },
+    }},
+  'character-strengths': {
+    name:'Character Strengths', source:'School-defined',
+    areas:{
+      confidence:  { name:'Confidence',      q:'Will I try when I\'m unsure?' },
+      curiosity:   { name:'Curiosity',       q:'Do I wonder and ask?' },
+      connection:  { name:'Compassion',      q:'How do I treat other people?' },
+      independence:{ name:'Responsibility',  q:'Do I own my work and my things?' },
+      resilience:  { name:'Grit',            q:'What do I do when it\'s hard?' },
+      learning:    { name:'Academic Growth', q:'How is my learning going?' },
+    }},
+};
+
+/* ══ GOALS · what a teacher sets for one child ═════════════════════
+   A teacher can write their own, or pick one already tied to an area so the
+   goal and the read speak the same language. */
+const GOAL_LIBRARY = {
+  independence:[
+    'Get started on your own before asking',
+    'Bring your homework back each day',
+    'Pack your own bag before you leave',
+    'Check your work before you hand it in',
+  ],
+  confidence:[
+    'Answer once a day, even when you\'re not sure',
+    'Share your thinking out loud in your group',
+    'Pick the stretch task once this week',
+  ],
+  curiosity:[
+    'Ask one question a day',
+    'Write down one thing you wondered about',
+    'Follow up on something you were curious about',
+  ],
+  connection:[
+    'Include someone new at recess',
+    'Give a teammate credit out loud',
+    'Check on someone having a hard day',
+  ],
+  resilience:[
+    'Try again once before you stop',
+    'Use the reset corner before you need it',
+    'Name what was hard instead of shutting down',
+  ],
+  learning:[
+    'Read 15 minutes a night',
+    'Explain one answer out loud',
+    'Ask for the harder version once',
+  ],
+};
+
+/* ══ DAILY CHECK-IN · streaks, not a child login ═══════════════════
+   Showing up daily is the behaviour worth rewarding, so the bonus is a
+   streak rather than a per-tick payout. NOTE: this is a HOUSEHOLD check-in
+   marked by the parent — Loop still has no child login. See README. */
+const CHECKIN = {
+  base:5,            /* coins for checking in and ticking something */
+  perDay:5,          /* added per consecutive day */
+  maxStreakBonus:25, /* capped, so a streak can't dwarf real effort */
+  perfectWeek:50,    /* all seven days */
+};

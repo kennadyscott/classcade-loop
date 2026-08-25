@@ -240,6 +240,42 @@ nearest thing this design allows.
 **Tab trade:** At Home is a daily surface, so it took a tab; Messages moved into More, since Messages
 is rare by design ("if this fills up, Loop has become a messaging app").
 
+## Frameworks · the school's own vocabulary
+
+The six areas are **structural** — the signal→area maths is universal. What is not universal is what a
+school calls them. `FRAMEWORKS` in `loop.data.js` holds the default plus *Habits of a Scholar*,
+*Learner Profile* and *Character Strengths*; `applyFramework()` rewrites `DIMENSIONS` in place at load,
+so every surface picks up the school's language with no other change.
+
+Verified: switching to Habits of a Scholar renames the section header, all six cards, and a goal's area
+tag (`Independence` → `Executive Functioning`) while the engine returns the same read. Set in Settings;
+in production this is a school-level setting, not a parent preference.
+
+**Known limit:** exactly six areas. A school running five or eight can be *renamed* onto these six but
+not restructured. Aliasing more than one school area onto one internal area would make the read
+ambiguous, so that needs a real decision rather than a config option.
+
+## Goals · one per child, set by the teacher
+
+`GOAL_LIBRARY` holds goals already tied to an area ("Get started on your own before asking" →
+Independence), so a goal and a read speak the same language. A teacher can also write their own. Set on
+the teacher view, shown on the family's Home under *"Ms. Alvarez's goal for Maya"*.
+
+The teacher-view goal actions use **event delegation on the document**, not per-element binding —
+the buttons are recreated on every render and per-element handlers kept missing them.
+
+## The daily check-in streak, and why it isn't a child login
+
+`CHECKIN` rewards *showing up*: base coins for checking in, +5 per consecutive day, capped at +25 so a
+streak can never dwarf actual effort, plus a perfect-week bonus.
+
+**It is a household check-in marked by the parent.** The obvious version of this feature — the child
+logs in and ticks their own list, earning more for logging in daily — requires a child account, which
+is precisely the COPPA path parked in `parked/student.html`. The streak gives most of the motivational
+effect with no child data path. A real child login reopens verifiable parental consent, a child-facing
+notice, retention limits and deletion rights, and it splits by tier. That is a decision for counsel,
+not a config flag.
+
 ## One tab, one job
 
 Content was appearing on three or four screens at once, which made the app feel

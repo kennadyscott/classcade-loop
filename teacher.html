@@ -4,7 +4,7 @@
 <title>Class view · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=108">
+<link rel="stylesheet" href="loop.css?v=113">
 <style>
   .t-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
   @media (max-width:900px){.t-layout{grid-template-columns:1fr}}
@@ -15,10 +15,26 @@
 </head><body>
 <div class="wrap"><div id="app"></div></div>
 
-<script src="loop.data.js?v=108"></script>
-<script src="loop.engine.js?v=108"></script>
-<script src="loop.shell.js?v=108"></script>
+<script src="loop.data.js?v=113"></script>
+<script src="loop.engine.js?v=113"></script>
+<script src="loop.shell.js?v=113"></script>
 <script>
+/* Delegated once on the document: goal buttons are re-created on every
+   render, and per-element binding kept missing them. */
+document.addEventListener('click', e=>{
+  const set = e.target.closest('[data-goalset]');
+  if (set){ LOOP.store.setGoal(set.dataset.goalset,
+      { text:set.dataset.text, dim:set.dataset.dim, at:TODAY });
+    toast('Goal set — the family sees it on their Home screen.'); render(); return }
+  const own = e.target.closest('[data-goalown]');
+  if (own){ const v=($('#goalOwn')||{}).value||'';
+    if(v.trim().length<6){ toast('Write a few more words.'); return }
+    LOOP.store.setGoal(own.dataset.goalown, { text:v.trim(), dim:null, at:TODAY });
+    toast('Goal set.'); render(); return }
+  const clr = e.target.closest('[data-goalclear],[data-goaledit]');
+  if (clr){ LOOP.store.clearGoal(clr.dataset.goalclear || clr.dataset.goaledit); render() }
+});
+
 mountApp('teacher.html');
 let sel = ME;
 
@@ -114,6 +130,8 @@ function renderDetail(){
         <button class="btn sm ghost" style="margin-top:10px" data-invite="${s.id}">Send an invite home</button>
       </div>`}
 
+      ${goalCard(s)}
+
       <div class="card">
         <div class="sec-label">Add an observation</div>
         <p class="small muted" style="margin-bottom:12px">Optional. Showdown already covers most of this — use it when you noticed something the game wouldn't catch.</p>
@@ -157,6 +175,42 @@ function homeCard(s, home){
         </div>
       </div>`).join('')
       : `<p class="small muted">Nothing from home this week. Open the parent surface, respond to an insight, and it lands here.</p>`}
+  </div>`;
+}
+
+/* One goal per child. A teacher writes their own, or picks one already
+   tied to an area so the goal and the read speak the same language. */
+function goalCard(st){
+  const g = LOOP.store.goals(st.id);
+  if (g) return `
+  <div class="card" style="border-color:rgba(124,92,252,.35)">
+    <div class="sec-label" style="color:#6b4bd8">${esc(st.first)}'s goal</div>
+    <h3 style="font-size:18px;line-height:1.3">${esc(g.text)}</h3>
+    ${g.dim?`<p class="small muted" style="margin-top:6px">Tied to
+      <strong style="color:${(DIMENSIONS.find(x=>x.id===g.dim)||{}).color}">${esc((DIMENSIONS.find(x=>x.id===g.dim)||{}).name)}</strong>
+      · set ${esc(g.at)}</p>`:`<p class="small muted" style="margin-top:6px">Your own wording · set ${esc(g.at)}</p>`}
+    <p class="tiny muted" style="margin-top:9px">${esc(st.first)}'s family sees this on their Home screen.</p>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn sm ghost" data-goaledit="${st.id}">Change</button>
+      <button class="btn sm" data-goalclear="${st.id}">Remove</button>
+    </div>
+  </div>`;
+  return `
+  <div class="card">
+    <div class="sec-label">Set a goal for ${esc(st.first)}</div>
+    <p class="small muted" style="margin-bottom:12px">One goal at a time. Pick one tied to an area, or write your own.</p>
+    ${DIMENSIONS.filter(x=>GOAL_LIBRARY[x.id]).map(x=>`
+      <div style="margin-bottom:10px">
+        <div class="tiny" style="font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:${x.color};margin-bottom:5px">${esc(x.name)}</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          ${GOAL_LIBRARY[x.id].map(t=>`<button class="btn sm" data-goalset="${st.id}" data-dim="${x.id}"
+            data-text="${esc(t)}">${esc(t)}</button>`).join('')}
+        </div>
+      </div>`).join('')}
+    <div class="hairline"></div>
+    <label class="sec-label" for="goalOwn">Or write your own</label>
+    <textarea class="note" id="goalOwn" maxlength="120" placeholder="e.g. Put your name on your paper before you start."></textarea>
+    <button class="btn primary sm" style="margin-top:9px" data-goalown="${st.id}">Set this goal</button>
   </div>`;
 }
 

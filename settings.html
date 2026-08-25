@@ -4,12 +4,12 @@
 <title>Settings · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=108">
+<link rel="stylesheet" href="loop.css?v=113">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=108"></script>
-<script src="loop.engine.js?v=108"></script>
-<script src="loop.shell.js?v=108"></script>
+<script src="loop.data.js?v=113"></script>
+<script src="loop.engine.js?v=113"></script>
+<script src="loop.shell.js?v=113"></script>
 <script>
 const d = LOOP.child(ME);
 
@@ -83,6 +83,23 @@ function renderPhone(){
               sw('shareWithSchool',p.shareWithSchool))}
         ${row('Language','Insights, prompts and the Ask library.',
               `<select class="pick" data-pref="language">${['English','Español','Tiếng Việt','中文','العربية'].map(x=>`<option ${p.language===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      </div>
+
+      <div class="m-secrow">Framework</div>
+      <div class="s-card">
+        <p class="small muted" style="margin-bottom:11px">${tier==='connected'
+          ? 'Set by '+esc(d.poss)+' school. Loop shows their words for the six areas.'
+          : 'No school connected, so Loop uses its own names.'}</p>
+        <div class="st-row" style="border-top:0;padding-top:0">
+          <div class="st-tx"><h5>${esc(LOOP.framework().name)}</h5>
+            <p>${esc(LOOP.framework().source)} · ${DIMENSIONS.map(x=>esc(x.name)).join(' · ')}</p></div>
+        </div>
+        <select class="pick" id="fwPick" style="width:100%;margin-top:4px">
+          ${Object.keys(FRAMEWORKS).map(k=>`<option value="${k}" ${LOOP.store.framework()===k?'selected':''}>${esc(FRAMEWORKS[k].name)}</option>`).join('')}
+        </select>
+        <p class="tiny muted" style="margin-top:9px">The six areas are structural — the signals and the
+          maths don't change. Only the words do, so a school running its own habits framework sees its own
+          language.</p>
       </div>
 
       <div class="m-secrow">Child privacy</div>
@@ -252,6 +269,8 @@ function wire(){
     render();
   });
   $$('[data-pref]').forEach(s=>s.onchange=()=>{ LOOP.store.setPref(s.dataset.pref, s.value); toast('Saved.') });
+  const fw=$('#fwPick'); if(fw) fw.onchange=()=>{ LOOP.store.setFramework(fw.value);
+    toast('Now showing '+FRAMEWORKS[fw.value].name+'.'); setTimeout(()=>location.reload(),700) };
   $('#flip').onclick = ()=>{ LOOP.store.setTier(LOOP.store.tier()==='family'?'connected':'family'); location.reload() };
   $('#exp').onclick = ()=>{
     const data = { child:ME, tier:LOOP.store.tier(), read:LOOP.read(ME), events:LOOP.events(ME),

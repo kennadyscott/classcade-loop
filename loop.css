@@ -1928,3 +1928,25 @@ body.sm .page-eyebrow{display:none}
 .rw .px{flex:none;font-size:11.5px;font-weight:900;color:#7a5a00}
 .rw[disabled]{opacity:.5;cursor:default}
 .ch-note{font-size:12px;color:var(--muted-2);line-height:1.5;margin:10px 3px 0}
+/* the teacher's goal, on the family's Home */
+.m-goal{
+  background:linear-gradient(170deg,#f6f3ff,#fdfcff);border:1px solid rgba(124,92,252,.24);
+  border-radius:16px;padding:14px 15px;margin-bottom:14px
+}
+.m-goal .gh{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.m-goal .gl{font-size:10.5px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#6b4bd8}
+.m-goal .gt{font-size:16px;font-weight:900;letter-spacing:-.03em;line-height:1.35}
+/* streak bar */
+.ch-streakbar{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:12px;border-radius:15px;
+  background:#fff;border:1px solid var(--line-soft)
+}
+.ch-streakbar.on{background:linear-gradient(170deg,#fff6ec,#fffdfa);border-color:rgba(230,120,20,.28)}
+.ch-streakbar .sb-flame{font-size:22px;flex:none}
+.ch-streakbar .sb-tx{flex:1;min-width:0}
+.ch-streakbar .sb-tx b{display:block;font-size:14.5px;font-weight:900;letter-spacing:-.025em}
+.ch-streakbar .sb-tx span{display:block;font-size:12px;color:var(--muted);line-height:1.45;margin-top:2px}
+.ch-streakbar .sb-amt{
+  flex:none;font-size:14px;font-weight:900;color:#7a5a00;background:#fff6d9;
+  border-radius:999px;padding:6px 11px;box-shadow:inset 0 0 0 1px rgba(255,196,37,.4)
+}

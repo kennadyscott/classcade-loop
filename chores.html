@@ -4,12 +4,12 @@
 <title>At Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=108">
+<link rel="stylesheet" href="loop.css?v=113">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=108"></script>
-<script src="loop.engine.js?v=108"></script>
-<script src="loop.shell.js?v=108"></script>
+<script src="loop.data.js?v=113"></script>
+<script src="loop.engine.js?v=113"></script>
+<script src="loop.shell.js?v=113"></script>
 <script>
 const d = LOOP.child(ME);
 let editing = false;
@@ -76,6 +76,17 @@ function body(){
   const sig = LOOP.choreSignals(ME);
   if (editing) return editList();
   return `
+    ${(()=>{const cb=LOOP.checkinBonus(ME);return `
+    <div class="ch-streakbar ${cb.streak?'on':''}">
+      <span class="sb-flame">${cb.streak?'🔥':'○'}</span>
+      <span class="sb-tx">
+        <b>${cb.streak?cb.streak+' day'+(cb.streak===1?'':'s')+' in a row':'No streak yet'}</b>
+        <span>${cb.streak
+          ? `+${cb.base} for showing up${cb.bonus?` · +${cb.bonus} streak bonus`:''}${cb.perfect?` · +${CHECKIN.perfectWeek} perfect week`:''}`
+          : 'Check something off today to start one.'}</span></span>
+      ${cb.streak?`<span class="sb-amt">+${cb.today}</span>`:''}
+    </div>`})()}
+
     <div class="s-card">
       <div class="ch-bal">
         <span class="coin">${ico('coins',30)}</span>
@@ -85,8 +96,9 @@ function body(){
         </div>
         <button class="btn sm ghost" id="edit">Edit list</button>
       </div>
-      <p class="ch-note">Same currency as Showdown — ${esc(d.first)} can spend these in the game, or on
-        something at home. Coins are a game, not a read: they never move a Whole Learner area.</p>
+      <p class="ch-note">The streak rewards showing up, and it's capped at
+        +${CHECKIN.maxStreakBonus} so it can never outweigh real effort. Same currency as Showdown — ${esc(d.first)} can spend these in the game, or on
+        something at home. Coins are a game, not a read: they never move a ${esc(LOOP.framework().name)} area.</p>
     </div>
 
     <div class="m-secrow">Contributions <span class="swipe">no coins</span></div>
@@ -150,7 +162,7 @@ function renderDesktop(){
         </div>
         <div class="card tinted">
           <div class="sec-label">Coins vs the read</div>
-          <p class="small muted">Coins are Showdown's currency. They never feed a Whole Learner area — not from
+          <p class="small muted">Coins are Showdown's currency. They never feed a ${esc(LOOP.framework().name)} area — not from
             school, and not from here. What does feed a read is a <b>pattern</b>: a contribution kept up
             ${STREAK_FOR_SIGNAL}+ days in a week becomes one home signal.</p>
         </div>

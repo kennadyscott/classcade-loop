@@ -17,6 +17,7 @@ const LOOP = (() => {
     view:'loop.v1.view', bog:'loop.v1.boggie', prefs:'loop.v1.prefs',
     levels:'loop.v1.levels', seen:'loop.v1.seen', ritual:'loop.v1.ritual',
     chores:'loop.v1.chores', choreLog:'loop.v1.choreLog', spent:'loop.v1.spent',
+    fw:'loop.v1.framework', goals:'loop.v1.goals', checkin:'loop.v1.checkin',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -102,6 +103,12 @@ const LOOP = (() => {
                  wr(K.choreLog,l); return i<0; },
     spent:     (s)=> (rd(K.spent,{})[s]||[]),
     spend:     (s,rid)=>{ const m=rd(K.spent,{}); m[s]=(m[s]||[]).concat({r:rid,d:TODAY}); wr(K.spent,m) },
+    framework: ()=> rd(K.fw,'whole-learner'),
+    setFramework:(id)=>{ wr(K.fw,id); applyFramework(id) },
+    goals:     (s)=> rd(K.goals,{})[s] || null,
+    setGoal:   (s,g)=>{ const m=rd(K.goals,{}); m[s]=g; wr(K.goals,m) },
+    clearGoal: (s)=>{ const m=rd(K.goals,{}); delete m[s]; wr(K.goals,m) },
+    checkins:  ()=> rd(K.checkin,{}),
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -508,7 +515,7 @@ const LOOP = (() => {
     return n;
   }
   function homeCoins(studentId){
-    let earned = 0;
+    let earned = checkinBonus(studentId).today;
     store.choreLog().filter(e=>e.s===studentId).forEach(e=>{
       const c = CHORES.find(x=>x.id===e.c); if (c && c.kind==='extra') earned += c.coins;
     });
@@ -526,6 +533,40 @@ const LOOP = (() => {
     }).filter(Boolean);
   }
 
+  /* Rewrites DIMENSIONS in place so every surface speaks the school's
+     language without knowing a framework exists. */
+  function applyFramework(id){
+    const fw = FRAMEWORKS[id] || FRAMEWORKS['whole-learner'];
+    DIMENSIONS.forEach(d=>{
+      const a = fw.areas[d.id]; if(!a) return;
+      d.name = a.name; d.q = a.q;
+    });
+    return fw;
+  }
+  function framework(){ return FRAMEWORKS[store.framework()] || FRAMEWORKS['whole-learner'] }
+
+  /* ── daily check-in streak ────────────────────────────────
+     Rewards showing up rather than each tick, and the bonus is capped so a
+     streak can never dwarf actual effort. */
+  function checkinDays(studentId){
+    const log = store.choreLog().filter(e=>e.s===studentId);
+    const days = new Set(log.map(e=>e.d));
+    let n = 0;
+    for (let i=0;i<14;i++){
+      const dt = new Date((day(TODAY)-i)*864e5).toISOString().slice(0,10);
+      if (days.has(dt)) n++; else break;
+    }
+    return n;
+  }
+  function checkinBonus(studentId){
+    const streak = checkinDays(studentId);
+    if (!streak) return { streak:0, today:0, perfect:false };
+    const bonus = Math.min(CHECKIN.maxStreakBonus, (streak-1)*CHECKIN.perDay);
+    const perfect = streak >= 7;
+    return { streak, today: CHECKIN.base + bonus + (perfect?CHECKIN.perfectWeek:0), perfect,
+             base:CHECKIN.base, bonus };
+  }
+
   function concern(id){ return CONCERNS.find(c=>c.id===id) || null }
 
   function expectations(dimId, grade){
@@ -535,8 +576,11 @@ const LOOP = (() => {
 
   function levelLabel(l){ return LEVEL_LABEL[l] }
 
+  try { applyFramework(store.framework()) } catch(e){}
+
   return { store, read, insight, headlines, homeSignal, classView, child, events, levelLabel,
            coins, activity, moment, conference, concern, expectations, starters,
            choreBoard, choreStreak, homeCoins, choreSignals,
+           applyFramework, framework, checkinDays, checkinBonus,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

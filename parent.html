@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=108">
+<link rel="stylesheet" href="loop.css?v=113">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=108"></script>
-<script src="loop.engine.js?v=108"></script>
-<script src="loop.shell.js?v=108"></script>
+<script src="loop.data.js?v=113"></script>
+<script src="loop.engine.js?v=113"></script>
+<script src="loop.shell.js?v=113"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -186,6 +186,14 @@ function renderPhone(){
         <span class="chev">›</span>
       </a>
 
+      ${(()=>{const g=LOOP.store.goals(ME); if(!g) return '';
+        const gd = g.dim ? DIMENSIONS.find(x=>x.id===g.dim) : null;
+        return `<div class="m-secrow">${esc(TEACHER)}'s goal for ${esc(d.first)}</div>
+        <div class="m-goal">
+          <div class="gh">${gd?ico(gd.icon,20):'🎯'}<span class="gl">${gd?esc(gd.name):'Set by the teacher'}</span></div>
+          <div class="gt">${esc(g.text)}</div>
+        </div>`})()}
+
       ${(()=>{const b=LOOP.choreBoard(ME),hc=LOOP.homeCoins(ME);return `
       <a class="m-row" href="chores.html">
         <div class="ric" style="background:#fff6d9">${ico('coins',18)}</div>
@@ -194,7 +202,7 @@ function renderPhone(){
         <span class="chev">›</span>
       </a>`})()}
 
-      <div class="m-secrow">The Whole Learner <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
+      <div class="m-secrow">${LOOP.framework().name} <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
       <div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>
       <div class="m-growth" id="wlStrip">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
@@ -301,7 +309,7 @@ function renderDesktop(){
 
         <div class="mo-4">
         <div class="wl-head">
-          <h3>The Whole Learner</h3>
+          <h3>${LOOP.framework().name}</h3>
           <span class="chip plain tiny" title="${esc(LANGUAGE.rule)}">?</span>
           <span class="spacer"></span>
           <a href="growth.html" class="small">View all growth →</a>
