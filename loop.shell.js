@@ -193,6 +193,13 @@ function mountApp(active){
 function syncMode(){
   const small = window.innerWidth <= 900 || document.body.classList.contains('appview');
   document.body.classList.toggle('sm', small);
+  fitPhone();
+}
+/* Scale the phone frame down to fit a short window rather than squashing it. */
+function fitPhone(){
+  const avail = window.innerHeight - 84;
+  const scale = Math.max(0.45, Math.min(1, avail / 844));
+  document.documentElement.style.setProperty('--pscale', scale.toFixed(4));
 }
 /* iOS-style large title: it lives in the content and a compact bar takes over
    once you scroll past it. */

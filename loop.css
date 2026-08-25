@@ -510,7 +510,12 @@ body.appview .app{
   /* min-height:100vh on the base .app rule beats `height`, which stretched the
      "phone" to the full browser window and sliced its bottom off. */
   min-height:0;
-  width:392px;height:min(844px, calc(100vh - 72px));margin:36px auto;grid-template-columns:1fr;
+  /* Always a real phone's dimensions, then scaled to fit — capping height
+     alone made the frame squat in a short browser window. Scaling keeps the
+     layout at a true 392px so the preview matches an actual handset. */
+  width:392px;height:844px;margin:36px auto;grid-template-columns:1fr;
+  transform:scale(var(--pscale,1));transform-origin:top center;
+  margin-bottom:calc(36px + (var(--pscale,1) - 1) * 844px);
   border-radius:46px;overflow:hidden;position:relative;background:var(--page);
   box-shadow:0 0 0 11px #0a1226,0 0 0 13px #26355c,0 34px 70px rgba(6,24,70,.4)
 }
