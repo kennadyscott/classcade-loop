@@ -4,63 +4,180 @@
 <title>Messages · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=93">
+<link rel="stylesheet" href="loop.css?v=97">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=93"></script>
-<script src="loop.engine.js?v=93"></script>
-<script src="loop.shell.js?v=93"></script>
+<script src="loop.data.js?v=97"></script>
+<script src="loop.engine.js?v=97"></script>
+<script src="loop.shell.js?v=97"></script>
 <script>
 const d = LOOP.child(ME);
-let pickDim = null, pickType = null;
+let pickDim = null, pickType = null, noteVal = '';
 
 function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+function brandRow(){
+  return `<div class="m-brand">
+    <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true"><g stroke-linecap="round" fill="none">
+      <path d="M8 8.5 L18.5 4.2" stroke="#ffc425" stroke-width="4.2"/>
+      <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+      <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/></g></svg>
+    <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+    <span class="util"><a class="m-bell" href="messages.html">${ico('nav-notifications',20)}</a>
+    <span class="m-me">${esc(PARENT.name[0])}</span></span></div>`;
+}
+
+function renderPhone(){
+  document.body.classList.add('darktop');
+  const tier   = LOOP.store.tier();
+  const kid    = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+  const thread = buildThread();
+  const noteLen = (noteVal||'').length;
+  const ready  = !!pickDim && !!pickType;
+
+  $('#app').innerHTML = `
+    <div class="m-dark">
+      ${brandRow()}
+      <div class="m-greetrow">
+        <div><div class="m-greet">Hi, ${esc(PARENT.name)}! 👋</div>
+        <div class="m-greet-sub">Structured context, both directions.</div></div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-light">
+      <div class="m-secrow">With Ms. Alvarez <span class="swipe">${thread.length} exchange${thread.length===1?'':'s'}</span></div>
+      <div class="s-card">
+        ${thread.length ? thread.map(bubble).join('') : `
+          <div style="text-align:center;padding:8px 0">
+            <img src="art/loop-monster-sm.png" alt="" style="width:78px;height:auto">
+            <p class="small muted" style="margin-top:10px">Nothing exchanged yet. Send something below and it lands on Ms. Alvarez's class view.</p>
+          </div>`}
+      </div>
+
+      ${tier!=='connected' ? `
+      <div class="s-card" style="margin-top:12px"><p class="small muted">
+        There's no one to send to on the Family plan. Connect ${esc(d.poss)} classroom and this channel opens.</p></div>`
+      : `
+      <div class="m-secrow">Send something</div>
+      <div class="s-card">
+        <div class="cm-step" style="margin-top:0">
+          <div class="cm-h"><span class="cm-n ${pickDim?'done':''}">${pickDim?'✓':'1'}</span>
+            <span class="cm-t">Pick the area<span>What is this about?</span></span></div>
+          <div class="cm-grid">
+            ${DIMENSIONS.map(x=>`<button class="cm-opt ${pickDim===x.id?'on':''}" data-dim="${x.id}"
+                aria-pressed="${pickDim===x.id}">${dimIcon(x,17)} <span>${esc(x.name)}</span>
+                <span class="cm-ck">✓</span></button>`).join('')}
+          </div>
+        </div>
+
+        <div class="cm-step">
+          <div class="cm-h"><span class="cm-n ${pickType?'done':''}">${pickType?'✓':'2'}</span>
+            <span class="cm-t">Pick the read<span>How does it look from home?</span></span></div>
+          <div class="cm-grid">
+            ${RESPONSES.map(x=>`<button class="cm-opt cm-full ${pickType===x.id?'on':''}" data-type="${x.id}"
+                aria-pressed="${pickType===x.id}"><span class="e">${x.emoji}</span>
+                <span>${esc(x.label)}</span><span class="cm-ck">✓</span></button>`).join('')}
+          </div>
+        </div>
+
+        <div class="cm-step">
+          <div class="cm-h"><span class="cm-n">3</span>
+            <span class="cm-t">Add a line <span>Optional — and capped at ${NOTE_CAP} characters</span></span></div>
+          <textarea class="note" id="note" maxlength="${NOTE_CAP}"
+            placeholder="One or two lines of context.">${esc(noteVal)}</textarea>
+          <div class="cm-cap">${noteLen}/${NOTE_CAP}</div>
+        </div>
+
+        <button class="btn primary block cm-send" id="send" ${ready?'':'disabled'}>
+          ${ready?'Send to Ms. Alvarez':'Send to Ms. Alvarez'}</button>
+        <div class="cm-help">${ready
+          ? `Goes out as one line tagged to <b>${esc((DIMENSIONS.find(x=>x.id===pickDim)||{}).name)}</b>.`
+          : (!pickDim && !pickType) ? 'Pick an area and a read to send.'
+            : !pickDim ? 'Still need an area — step 1.' : 'Still need a read — step 2.'}</div>
+      </div>`}
+
+      <details class="g-fold" style="margin-top:14px">
+        <summary><span class="fi" style="background:var(--tint)">💬</span>Why Loop works this way</summary>
+        <div class="fb">
+          <p class="small" style="margin-bottom:10px">A teacher with 24 families cannot absorb 24 open inboxes.
+            Everything here is one tap plus at most ${NOTE_CAP} characters, always attached to a specific area of
+            growth. The cap is the feature — it's what stops this becoming email.</p>
+          <p class="small muted" style="margin-bottom:6px"><b>What a teacher sees:</b> one line per family, tagged to
+            a dimension, on their class view. They tap Acknowledge and you see that they saw it.</p>
+          <p class="small muted"><b>Not available here:</b> free-form messaging, attachments, read receipts on your
+            side, or anything that expects a reply within the day. Urgent things belong in a phone call.</p>
+          <a class="link" href="teacher.html">Open the teacher view →</a>
+        </div>
+      </details>
+    </div>`;
+
+  wireTopline();
+  $$('[data-dim]').forEach(b=>b.onclick=()=>{ pickDim = pickDim===b.dataset.dim?null:b.dataset.dim; render() });
+  $$('[data-type]').forEach(b=>b.onclick=()=>{ pickType = pickType===b.dataset.type?null:b.dataset.type; render() });
+  const t=$('#note'); if(t) t.oninput=()=>{ noteVal=t.value; const c=$('.cm-cap'); if(c) c.textContent=noteVal.length+'/'+NOTE_CAP };
+  const sd=$('#send'); if(sd) sd.onclick=()=>{
+    if(!pickDim||!pickType) return;
+    LOOP.store.respond(`${ME}|${pickDim}|${WEEK_START}`, pickType, noteVal);
+    pickDim=null; pickType=null; noteVal=''; render();
+    toast('Sent — one line, one area. That’s the whole channel.');
+  };
+}
+
+function bubble(m){
+  const out = m.dir==='out';
+  return `<div class="msg-b ${out?'out':'in'}">
+    <div>
+      <div class="meta" style="${out?'text-align:right':''}">${esc(m.who)} · ${fmt(m.d)}${m.dim?` · ${esc(m.dim.name)}`:''}</div>
+      <div class="bub">
+        ${m.label?`<div style="font-weight:900;margin-bottom:${m.body?'5px':'0'}">${m.emoji} ${esc(m.label)}</div>`:''}
+        ${m.body?esc(m.body):''}
+      </div>
+      ${out?`<div class="st" style="text-align:right;color:${m.acked?'var(--good)':'var(--muted-2)'}">
+        ${m.acked?'✓ Acknowledged by Ms. Alvarez':'Delivered'}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderDesktop(){
+  document.body.classList.remove('darktop');
   const tier = LOOP.store.tier();
   const thread = buildThread();
   $('#app').innerHTML = `
     ${topline('Structured context, in both directions. Deliberately not a chat.')}
-    <div class="dash">
-      <div class="stack">
-        <div class="card" style="background:var(--tint)">
-          <div class="mini-head">
-            <div class="mini-ico" style="background:#fff">🚫</div>
-            <div><div class="mini-lbl">Why this looks so limited</div>
-            <h4 style="margin-top:1px">Loop is not a messaging app, and this page is where that gets enforced.</h4></div>
-          </div>
-          <div class="hide-sm"><p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is
-          <strong>one tap plus at most ${NOTE_CAP} characters</strong>, always attached to a specific area of growth.
-          The cap is the feature — it's what stops this becoming email.</p></div>
-          <div class="show-sm">${foldable('Why', `<p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is <strong>one tap plus at most ${NOTE_CAP} characters</strong>, always attached to a specific area of growth. The cap is the feature — it's what stops this becoming email.</p>`)}</div>
-        </div>
-
-        <div class="card">
-          <div class="wl-head" style="margin:0 0 12px"><h3 style="font-size:17px">With Ms. Alvarez</h3>
-          <span class="spacer"></span><span class="chip plain tiny">${thread.length} exchange${thread.length===1?'':'s'}</span></div>
-          ${thread.length ? thread.map(bubble).join('') : empty()}
-        </div>
-
-        ${tier==='connected' ? composer() : `
-        <div class="card tinted"><p class="small muted">
-          There's no one to send to on the Family plan. Connect ${esc(d.poss)} classroom and this channel opens.</p></div>`}
+    <div class="dash"><div class="stack">
+      <div class="card">
+        <div class="wl-head" style="margin:0 0 12px"><h3 style="font-size:17px">With Ms. Alvarez</h3></div>
+        ${thread.length ? thread.map(bubble).join('') : '<p class="small muted">Nothing exchanged yet.</p>'}
       </div>
-
-      <div class="rail">
-        <div class="card">
-          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">What a teacher sees</div>
-          <p class="small">One line per family, tagged to a dimension, on their class view. They tap <strong>Acknowledge</strong> and you see that they saw it.</p>
-          <a class="link" href="teacher.html">Open the teacher view →</a>
+      <div class="card">
+        <div class="sec-label">Send something</div>
+        <p class="small muted" style="margin-bottom:12px">Pick the area, pick the read, add a line if it helps.</p>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
+          ${DIMENSIONS.map(x=>`<button class="btn sm ${pickDim===x.id?'sel':''}" data-dim="${x.id}">${dimIcon(x,16)} ${esc(x.name)}</button>`).join('')}
         </div>
-        <div class="card">
-          <div class="lbl" style="font-size:10.5px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Not available here</div>
-          <ul class="small muted" style="margin:0;padding-left:17px;line-height:1.75">
-            <li>Free-form messaging</li><li>Attachments</li><li>Read receipts on your side</li>
-            <li>Anything that expects a reply within the day</li>
-          </ul>
-          <p class="tiny muted" style="margin-top:10px">Urgent things belong in a phone call, not in a product.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          ${RESPONSES.map(x=>`<button class="btn sm ${pickType===x.id?'sel':''}" data-type="${x.id}">${x.emoji} ${esc(x.label)}</button>`).join('')}
         </div>
+        <textarea class="note" id="note" maxlength="${NOTE_CAP}" placeholder="Optional — one or two lines of context."></textarea>
+        <button class="btn primary sm" id="send" ${(!pickDim||!pickType)?'disabled':''}>Send to Ms. Alvarez</button>
       </div>
-    </div>`;
-  wireTopline(); wire();
+    </div><div class="rail"></div></div>`;
+  wireTopline();
+  $$('[data-dim]').forEach(b=>b.onclick=()=>{ pickDim=b.dataset.dim; render() });
+  $$('[data-type]').forEach(b=>b.onclick=()=>{ pickType=b.dataset.type; render() });
+  const sd=$('#send'); if(sd) sd.onclick=()=>{
+    if(!pickDim||!pickType) return;
+    LOOP.store.respond(`${ME}|${pickDim}|${WEEK_START}`, pickType, ($('#note')||{}).value||'');
+    pickDim=null; pickType=null; render(); toast('Sent.');
+  };
 }
 
 /* Every exchange, both directions, newest last. */

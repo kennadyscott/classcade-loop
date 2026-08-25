@@ -108,7 +108,14 @@ const LOOP = (() => {
      (the parent, by tap). There is deliberately no child data path —
      see the COPPA note above CHILD_PROMPTS in loop.data.js. */
   function events(studentId){
-    const extra = store.homeObs().filter(e=>e.s===studentId);
+    const c = child(studentId);
+    const fixPronouns = t => String(t||'')
+      .replace(/\{subj\}/g,c.subj).replace(/\{poss\}/g,c.poss).replace(/\{obj\}/g,c.obj)
+      .replace(/\bthey weren't\b/g, c.subj+(c.isPlural?" weren't":" wasn't"))
+      .replace(/\bthey were\b/g, c.subj+(c.isPlural?' were':' was'))
+      .replace(/\btheir way\b/g, c.poss+' way');
+    const extra = store.homeObs().filter(e=>e.s===studentId)
+      .map(e=>Object.assign({}, e, { detail: fixPronouns(e.detail) }));
     return SEED_EVENTS.filter(e=>e.s===studentId)
       .concat(extra)
       .filter(e=>ago(e.d)<=WINDOW && ago(e.d)>=0);

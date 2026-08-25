@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=93">
+<link rel="stylesheet" href="loop.css?v=97">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=93"></script>
-<script src="loop.engine.js?v=93"></script>
-<script src="loop.shell.js?v=93"></script>
+<script src="loop.data.js?v=97"></script>
+<script src="loop.engine.js?v=97"></script>
+<script src="loop.shell.js?v=97"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -30,17 +30,20 @@ function weekBar(){
   const id = 'digest|'+WEEK_START;
   const fresh = LOOP.store.isNew(id);
   const R = LOOP.store.ritualSteps();
+  const done = R.steps.filter(s=>s.done).length;
   return `
-  <div class="m-week-bar ${fresh?'fresh':''}">
-    <div class="wb-top">
-      <span class="wb-lb">${fresh?'<b class="wb-new">New</b> ':''}This week's read</span>
-      <span class="wb-dt">${fmtLong(WEEK_START)} – ${fmtLong(TODAY)}</span>
-    </div>
-    <div class="wb-steps">
+  <details class="m-week-bar ${fresh?'fresh':''} ${R.complete?'complete':''}">
+    <summary>
+      ${fresh?'<b class="wb-new">New</b>':''}
+      <span class="wb-lb">${R.complete?'Week done':'This week'}</span>
+      <span class="wb-dt">${fmtLong(WEEK_START)}–${fmtLong(TODAY)}</span>
+      <span class="wb-prog">${done}/3</span>
+    </summary>
+    <div class="wb-body">
       ${R.steps.map(st=>`<span class="wb-step ${st.done?'done':''}">${st.done?'✓':'○'} ${esc(st.label)}</span>`).join('')}
+      ${R.complete ? `<div class="wb-done">🌱 That's the week. Nothing else to do — see you Sunday.</div>` : ''}
     </div>
-    ${R.complete ? `<div class="wb-done">🌱 That's the week. Nothing else to do — see you Sunday.</div>` : ''}
-  </div>`;
+  </details>`;
 }
 
 /* The confirm step: one tap picks it, a second commits it, and there is
@@ -125,15 +128,13 @@ function renderPhone(){
         </div>
       </div>
 
-      ${weekBar()}
       ${ins && !ins.cold ? `
       <div class="m-hero">
         <img class="m-mascot" src="art/loop-monster-sm.png" alt="" width="300" height="331">
         <div class="eyebrow2">${esc(d.first)}'s week at a glance</div>
         <div class="headrow">
           <div class="shield" style="background:${ins.dim.tint}">${dimIcon(ins.dim,26)}</div>
-          <div><h2>${esc(ins.head)}</h2>
-          <div class="sub">${esc(ins.why)}</div></div>
+          <div><h2>${esc(ins.head)}</h2></div>
         </div>
         <button class="btn gold" data-go="growth.html?d=${ins.dim.id}">See ${esc(d.poss)} week →</button>
         <div class="m-bottom">
@@ -158,6 +159,7 @@ function renderPhone(){
     </div>
 
     <div class="m-light">
+      ${weekBar()}
       <div class="m-secrow">Add what you noticed</div>
       ${pending ? confirmPanel() : `
       <div class="m-chips">

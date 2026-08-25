@@ -1741,3 +1741,97 @@ body.sm .wb-done{
   margin-top:9px;font-size:12.5px;font-weight:800;color:#8ee6b4;
   background:rgba(46,204,113,.12);border-radius:10px;padding:8px 10px
 }
+
+/* ══ PHONE · MESSAGES COMPOSE ══════════════════════════════════════ */
+body.sm .cm-step{margin-top:16px}
+body.sm .cm-h{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+body.sm .cm-n{
+  width:22px;height:22px;border-radius:999px;flex:none;display:grid;place-items:center;
+  font-size:11px;font-weight:900;background:var(--tint);color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)
+}
+body.sm .cm-n.done{background:var(--good);color:#fff;box-shadow:none}
+body.sm .cm-t{font-size:13px;font-weight:900;letter-spacing:-.02em}
+body.sm .cm-t span{display:block;font-size:11.5px;font-weight:700;color:var(--muted);margin-top:1px}
+body.sm .cm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+body.sm .cm-opt{
+  display:flex;align-items:center;gap:9px;border:1px solid var(--line-soft);background:#fff;
+  border-radius:13px;padding:11px 11px;font:inherit;font-size:13px;font-weight:800;letter-spacing:-.02em;
+  color:var(--ink);cursor:pointer;text-align:left;min-width:0;line-height:1.3
+}
+body.sm .cm-opt.on{background:var(--blue);border-color:var(--blue);color:#fff}
+body.sm .cm-opt.on .cm-ck{display:grid}
+body.sm .cm-ck{
+  display:none;margin-left:auto;width:18px;height:18px;border-radius:999px;flex:none;
+  background:rgba(255,255,255,.24);place-items:center;font-size:10px;font-weight:900
+}
+body.sm .cm-opt img,body.sm .cm-opt .e{flex:none}
+body.sm .cm-full{grid-column:1/-1}
+body.sm .cm-send{margin-top:14px}
+body.sm .cm-help{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.45;text-align:center}
+body.sm .cm-cap{font-size:11.5px;color:var(--muted-2);text-align:right;font-weight:700;margin-top:4px}
+body.sm .msg-b{display:flex;margin-bottom:13px}
+body.sm .msg-b .bub{max-width:86%;border-radius:16px;padding:12px 13px;font-size:14px;line-height:1.5}
+body.sm .msg-b .meta{font-size:11px;color:var(--muted-2);font-weight:800;margin-bottom:5px}
+body.sm .msg-b.in .bub{background:var(--school-bg);box-shadow:inset 0 0 0 1px rgba(7,93,250,.16)}
+body.sm .msg-b.out{justify-content:flex-end}
+body.sm .msg-b.out .bub{background:var(--home-bg);box-shadow:inset 0 0 0 1px rgba(14,147,132,.2)}
+body.sm .msg-b .st{font-size:11px;font-weight:800;margin-top:5px}
+/* the week strip lives in the light content and collapses to one line */
+body.sm .m-week-bar{
+  background:#fff;border:1px solid var(--line-soft);border-radius:14px;margin-bottom:14px;box-shadow:none
+}
+body.sm .m-week-bar.fresh{border-color:rgba(255,196,37,.55);background:#fffdf4}
+body.sm .m-week-bar.complete{background:#f2fbf5;border-color:rgba(16,139,47,.25)}
+body.sm .m-week-bar > summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 13px
+}
+body.sm .m-week-bar > summary::-webkit-details-marker{display:none}
+body.sm .m-week-bar > summary::after{content:"⌄";margin-left:0;color:var(--muted-2);font-weight:900}
+body.sm .m-week-bar[open] > summary::after{transform:rotate(180deg)}
+body.sm .m-week-bar .wb-lb{font-size:13.5px;font-weight:900;letter-spacing:-.025em;color:var(--ink)}
+body.sm .m-week-bar .wb-dt{font-size:11.5px;color:var(--muted-2);font-weight:700}
+body.sm .m-week-bar .wb-prog{
+  margin-left:auto;font-size:11.5px;font-weight:900;color:var(--muted);
+  background:var(--tint);border-radius:999px;padding:3px 9px
+}
+body.sm .m-week-bar .wb-new{
+  background:var(--gold);color:var(--ink-2);border-radius:999px;padding:2px 8px;
+  font-size:9.5px;font-weight:900;letter-spacing:.06em;text-transform:uppercase
+}
+body.sm .m-week-bar .wb-body{padding:0 13px 13px;display:flex;gap:7px;flex-wrap:wrap}
+body.sm .m-week-bar .wb-step{
+  font-size:11.5px;font-weight:800;color:var(--muted);background:var(--tint);
+  border-radius:999px;padding:5px 10px
+}
+body.sm .m-week-bar .wb-step.done{color:#12803a;background:#e9f8ee}
+body.sm .m-week-bar .wb-done{
+  flex-basis:100%;margin-top:4px;font-size:12.5px;font-weight:800;color:#12803a;
+  background:#e9f8ee;border-radius:10px;padding:9px 11px
+}
+/* tighten what remains of the header block */
+body.sm .m-hero{padding:12px;margin-top:11px}
+body.sm .m-hero h2{font-size:17px;margin:6px 0 2px}
+body.sm .m-hero .btn{margin-top:11px;padding:10px}
+body.sm .m-bottom{margin-top:10px;padding-top:10px}
+body.sm .m-src2 > div{padding:7px 0}
+body.sm .m-src2 .qt{margin-top:5px;padding:6px 8px;font-size:11.5px}
+body.sm .m-dark{padding-bottom:12px}
+body.sm .m-week-bar > summary{padding:11px 13px;flex-wrap:nowrap}
+body.sm .m-week-bar .wb-lb{white-space:nowrap;font-size:13px}
+body.sm .m-week-bar .wb-dt{white-space:nowrap;font-size:11px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+/* ══ PHONE · SETTINGS ══════════════════════════════════════════════ */
+body.sm .st-row{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-top:1px solid var(--line-soft)}
+body.sm .s-card > .st-row:first-of-type{border-top:0;padding-top:2px}
+body.sm .st-tx{flex:1;min-width:0}
+body.sm .st-tx h5{margin:0 0 3px;font-size:14px;font-weight:900;letter-spacing:-.025em;line-height:1.3}
+body.sm .st-tx p{font-size:12.5px;color:var(--muted);line-height:1.45}
+body.sm .st-row .sw,body.sm .st-row .pick,body.sm .st-row .btn{flex:none;margin-top:2px}
+/* locked rules are rows, not switches */
+body.sm .lockcard{background:#faf8ff;border-color:rgba(124,92,252,.2)}
+body.sm .st-row.lock{align-items:flex-start}
+body.sm .st-row.lock .lk{font-size:15px;flex:none;margin-top:2px}
+body.sm .lk-tag{
+  flex:none;margin-top:2px;font-size:10.5px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;
+  color:#6b4bd8;background:#efe9ff;border-radius:999px;padding:5px 10px;
+  box-shadow:inset 0 0 0 1px rgba(124,92,252,.25)
+}

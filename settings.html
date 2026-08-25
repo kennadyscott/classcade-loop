@@ -4,16 +4,129 @@
 <title>Settings · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=93">
+<link rel="stylesheet" href="loop.css?v=97">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=93"></script>
-<script src="loop.engine.js?v=93"></script>
-<script src="loop.shell.js?v=93"></script>
+<script src="loop.data.js?v=97"></script>
+<script src="loop.engine.js?v=97"></script>
+<script src="loop.shell.js?v=97"></script>
 <script>
 const d = LOOP.child(ME);
 
 function render(){
+  if (document.body.classList.contains('sm')) return renderPhone();
+  return renderDesktop();
+}
+
+function brandRow(){
+  return `<div class="m-brand">
+    <svg style="width:17px;height:17px" viewBox="0 0 24 24" aria-hidden="true"><g stroke-linecap="round" fill="none">
+      <path d="M8 8.5 L18.5 4.2" stroke="#ffc425" stroke-width="4.2"/>
+      <path d="M4.8 13 L14.8 10.4" stroke="#1172ff" stroke-width="4.2"/>
+      <path d="M5.6 19 L12.6 17.2" stroke="#5cb0ff" stroke-width="4.2"/></g></svg>
+    <span class="lock"><span class="cc">ClassCade</span><span class="lp">Loop</span></span>
+    <span class="util"><a class="m-bell" href="messages.html">${ico('nav-notifications',20)}</a>
+    <span class="m-me">${esc(PARENT.name[0])}</span></span></div>`;
+}
+
+function renderPhone(){
+  document.body.classList.add('darktop');
+  const p = LOOP.store.prefs();
+  const tier = LOOP.store.tier();
+  const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
+
+  $('#app').innerHTML = `
+    <div class="m-dark">
+      ${brandRow()}
+      <div class="m-greetrow">
+        <div><div class="m-greet">Settings</div>
+        <div class="m-greet-sub">Your plan and your rhythm.</div></div>
+        <div class="m-kidpill" id="kidmenu">
+          <div class="av g1" style="width:28px;height:28px;border-radius:9px;font-size:12px">${esc(kid.label[0])}</div>
+          <div style="min-width:0"><div class="nm">${esc(kid.label)}</div><div class="mt">${esc(kid.grade)}</div></div>
+          <span class="cv">⌄</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-light">
+      <div class="m-secrow">Plan</div>
+      <div class="s-card">
+        <div style="display:flex;align-items:center;gap:13px">
+          <div class="dim-ico lg" style="background:${tier==='connected'?'var(--school-bg)':'var(--home-bg)'};box-shadow:none">
+            ${tier==='connected'?'🔗':'🏠'}</div>
+          <div style="flex:1;min-width:0">
+            <h4 style="font-size:16px;letter-spacing:-.03em">Loop ${esc(TIER_COPY[tier].name)}</h4>
+            <p class="small muted" style="margin-top:2px">${esc(TIER_COPY[tier].price)}</p>
+          </div>
+        </div>
+        <p class="small muted" style="margin-top:11px">${esc(TIER_COPY[tier].blurb)}</p>
+        <button class="btn ${tier==='family'?'primary':'ghost'} sm block" style="margin-top:12px" id="flip">
+          ${tier==='family'?'🔗 Connect a classroom':'Switch to Family'}</button>
+      </div>
+
+      <div class="m-secrow">The weekly ritual</div>
+      <div class="s-card">
+        ${row('Weekly read','One noticing, one thing to try, one question to ask.',
+              `<select class="pick" data-pref="weeklyDay">${['Sunday','Saturday','Monday','Friday'].map(x=>`<option ${p.weeklyDay===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+        ${row('Daily 5-minute moment','One small idea, six days a week.',
+              sw('dailyMoment',p.dailyMoment))}
+        ${row('Never notify me about a single bad day','Loop waits for a pattern — 3+ signals, 2+ pointing the same way.',
+              sw('quietUntilPattern',p.quietUntilPattern))}
+        ${row('When Ms. Alvarez acknowledges something','A quiet confirmation. No badge, no count.',
+              sw('teacherAlerts',p.teacherAlerts))}
+      </div>
+
+      <div class="m-secrow">Sharing</div>
+      <div class="s-card">
+        ${row('Send my observations to her teacher','One tap plus up to '+NOTE_CAP+' characters, always tagged to an area.',
+              sw('shareWithSchool',p.shareWithSchool))}
+        ${row('Language','Insights, prompts and the Ask library.',
+              `<select class="pick" data-pref="language">${['English','Español','Tiếng Việt','中文','العربية'].map(x=>`<option ${p.language===x?'selected':''}>${x}</option>`).join('')}</select>`)}
+      </div>
+
+      <div class="m-secrow">Child privacy</div>
+      <div class="s-card lockcard">
+        <p class="small muted" style="margin-bottom:4px">These aren't preferences — they're why a child keeps telling
+          the truth in the app. Shown here so you can see them, not change them.</p>
+        ${lockRow('Loop collects nothing from '+esc(d.first)+' directly',
+          'There is no child login and no child-facing screen. Everything comes from her classroom or from you.')}
+        ${lockRow(esc(d.first)+' never sees a level, trend, or score',
+          'Not hidden behind a toggle — never computed for a child at all.')}
+      </div>
+
+      <div class="m-secrow">Your data</div>
+      <div class="s-card">
+        ${row('Export everything','Every signal and observation, as JSON.','<button class="btn sm ghost" id="exp">Download</button>')}
+        ${row('Reset this prototype','Clears everything. Seeded data returns.','<button class="btn sm" id="rst">Reset</button>')}
+      </div>
+
+      <details class="g-fold" style="margin-top:12px">
+        <summary><span class="fi" style="background:var(--tint)">💬</span>Why Loop works this way</summary>
+        <div class="fb">
+          <p class="small" style="margin-bottom:9px">${esc(LANGUAGE.rule)}</p>
+          <div>${LANGUAGE.use.map(w=>`<span class="chip good" style="margin:0 5px 5px 0">${esc(w)}</span>`).join('')}</div>
+          <div style="margin-top:5px">${LANGUAGE.never.map(w=>`<span class="chip plain" style="margin:0 5px 5px 0;text-decoration:line-through;opacity:.55">${esc(w)}</span>`).join('')}</div>
+          <p class="tiny muted" style="margin-top:11px">Prototype — no account, no server, nothing leaves this browser.</p>
+        </div>
+      </details>
+    </div>`;
+  wireTopline(); wire();
+}
+
+function row(title, sub, control){
+  return `<div class="st-row"><div class="st-tx"><h5>${title}</h5><p>${sub}</p></div>${control}</div>`;
+}
+function sw(key, on){ return `<button class="sw ${on?'on':''}" data-toggle="${key}" role="switch" aria-checked="${!!on}" aria-label="${key}"></button>` }
+/* A rule that cannot be changed must not look like a switch. */
+function lockRow(title, sub){
+  return `<div class="st-row lock"><span class="lk">🔒</span>
+    <div class="st-tx"><h5>${title}</h5><p>${sub}</p></div>
+    <span class="lk-tag">Always on</span></div>`;
+}
+
+function renderDesktop(){
+  document.body.classList.remove('darktop');
   const p = LOOP.store.prefs();
   const tier = LOOP.store.tier();
   $('#app').innerHTML = `
