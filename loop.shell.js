@@ -20,10 +20,10 @@ const NAV = [
   { id:'home',   href:'parent.html',   ic:'🏠', navico:'nav-home',    label:'Home',     tab:true },
   { id:'growth', href:'growth.html',   ic:'🌱', glyph:'growth', label:'Growth',   tab:true },
   { id:'ask',    href:'ask.html',      ic:'💬', glyph:'ask',    label:'Ask',      tab:true },
-  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed', tabLabel:'Feed', tab:true },
+  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed', tabLabel:'Daily Feed', tab:true },
   { id:'kids',   href:'kids.html',     ic:'👥', navico:'nav-my-kids', label:'My Kids' },
   { id:'msgs',   href:'messages.html', ic:'✉️', navico:'nav-messages',label:'Messages', tab:true },
-  { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'More' },
+  { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'Settings' },
 ];
 const PROTO = [
   { href:'index.html',   ic:'🔗', label:'Concept' },
@@ -108,7 +108,8 @@ function mountApp(active){
   side.innerHTML = `
     ${brandMark()}
     <nav class="mainnav">
-      ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}">
+      ${NAV.map(n=>`<a href="${n.href}" class="${n.id===active?'on':''}${n.tab?'':' notab'}"
+          aria-label="${esc(n.label)}" ${n.id===active?'aria-current="page"':''}>
           <span class="ic">${n.ic}</span>
           <span class="gl">${n.navico
             ? `<img class="gl-off" src="icons/${n.navico}.png" alt=""><img class="gl-on" src="icons/${n.navico}-on.png" alt="">`
@@ -266,7 +267,7 @@ function moreSheet(active){
   const tier = LOOP.store.tier();
   return `
     <div class="grab"></div>
-    <div class="sec">More</div>
+    <div class="sec">Also in Loop</div>
     ${NAV.filter(n=>!n.tab || n.id==='set').map(n=>
       `<a href="${n.href}" class="${n.id===active?'on':''}"><span class="ic">${n.ic}</span>${esc(n.label)}</a>`).join('')}
     <div class="sec">Plan</div>

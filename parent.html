@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=80">
+<link rel="stylesheet" href="loop.css?v=85">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=80"></script>
-<script src="loop.engine.js?v=80"></script>
-<script src="loop.shell.js?v=80"></script>
+<script src="loop.data.js?v=85"></script>
+<script src="loop.engine.js?v=85"></script>
+<script src="loop.shell.js?v=85"></script>
 <script>
 const d = LOOP.child(ME);
 /* folds start open on a wide screen and closed on a phone */
@@ -104,14 +104,27 @@ function renderPhone(){
     </div>
 
     <div class="m-light">
-      <div class="m-secrow">The Whole Learner <a href="growth.html">View all growth →</a></div>
-      <div class="m-growth">
+      <div class="m-secrow">Add what you noticed</div>
+      <div class="m-chips">
+        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+      </div>
+      <a class="m-row" href="ask.html" style="margin-top:10px">
+        <div class="ric" style="background:var(--home-bg)">💬</div>
+        <div class="rtx"><div class="rtitle">Something worrying you?</div>
+          <div class="rsub">Always here, never behind the paywall</div></div>
+        <span class="chev">›</span>
+      </a>
+
+      <div class="m-secrow">The Whole Learner <span class="swipe">swipe →</span> <a href="growth.html">View all →</a></div>
+      <div class="m-growth" id="wlStrip">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
           <div class="m-gcard" data-go="growth.html?d=${dim.id}">
             <div class="tile" style="background:${dim.tint}">${dimIcon(dim,22)}</div>
             <div class="nm">${esc(dim.name)}</div>
             <div class="st" style="color:${x.cold?'var(--muted-2)':dim.color}">${LOOP.LEVEL_LABEL[x.level]}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
-            <div class="bar"><i style="width:${x.cold?10:x.pct}%;background:${x.cold?'#c9d6ec':dim.color}"></i></div>
+            ${x.cold
+              ? `<div class="nobar">Not enough yet</div>`
+              : `<div class="bar" role="img" aria-label="${LOOP.LEVEL_LABEL[x.level]}"><i style="width:${x.pct}%;background:${dim.color}"></i></div>`}
           </div>`}).join('')}
       </div>
 
@@ -154,16 +167,7 @@ function renderPhone(){
         <span class="chev">›</span>
       </div>`}
 
-      <div class="m-secrow">Add what you noticed</div>
-      <div class="m-chips">
-        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
-      </div>
-      <a class="m-row" href="ask.html" style="margin-top:10px">
-        <div class="ric" style="background:var(--home-bg)">💬</div>
-        <div class="rtx"><div class="rtitle">Something worrying you?</div>
-          <div class="rsub">Always here, never behind the paywall</div></div>
-        <span class="chev">›</span>
-      </a>
+
       ${evt?`<a class="m-row" href="ask.html#conference">
         <div class="ric" style="background:#fff6d9">📅</div>
         <div class="rtx"><div class="rtitle">${esc(evt.kind)}</div>

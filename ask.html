@@ -4,7 +4,7 @@
 <title>Ask · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=80">
+<link rel="stylesheet" href="loop.css?v=85">
 <style>
   .big-ask{
     border-radius:22px;padding:26px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-lg);
@@ -33,9 +33,9 @@
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=80"></script>
-<script src="loop.engine.js?v=80"></script>
-<script src="loop.shell.js?v=80"></script>
+<script src="loop.data.js?v=85"></script>
+<script src="loop.engine.js?v=85"></script>
+<script src="loop.shell.js?v=85"></script>
 <script>
 const d = LOOP.child(ME);
 let open = null;
@@ -87,13 +87,13 @@ function renderPhone(){
           <svg style="width:17px;height:17px;flex:none;color:var(--muted-2)" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
             <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-          <input id="q" placeholder="e.g. “meltdowns after school”" autocomplete="off">
+          <input id="q" placeholder="e.g. meltdowns, won't read…" autocomplete="off">
         </div>
       </div>
 
-      <div class="a-list">
+      <div class="a-grid">
         ${CONCERNS.map(x=>`<button class="a-row ${open===x.id?'on':''}" data-c="${x.id}">
-          <span class="e">${x.emoji}</span><span class="t">${esc(x.label)}</span><span class="cv">›</span>
+          <span class="e">${x.emoji}</span><span class="t">${esc(x.label)}</span>
         </button>`).join('')}
       </div>
 
