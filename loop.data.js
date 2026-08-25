@@ -63,7 +63,7 @@ const SIGNALS = {
 /* ── HOME OBSERVATIONS ─────────────────────────────────────────────
    What a parent can log in one tap. Deliberately small and finite. */
 const HOME_OBS = [
-  { id:'tried_hard_thing', label:'Tried something hard',     emoji:'🧗', w:{ resilience:.6, confidence:.4 },  phrase:'tried something they weren\'t sure about' },
+  { id:'tried_hard_thing', label:'Tried something hard',     emoji:'🧗', w:{ resilience:.6, confidence:.4 },  phrase:'tried something {subj} wasn\'t sure about' },
   { id:'did_it_alone',     label:'Did it without help',      emoji:'🧭', w:{ independence:1 },                phrase:'got started without help' },
   { id:'asked_for_help',   label:'Asked for help well',      emoji:'✋', w:{ independence:.7, confidence:.3 }, phrase:'asked for help instead of shutting down' },
   { id:'curious_question', label:'Asked a great question',   emoji:'❓', w:{ curiosity:1 },                   phrase:'asked a question nobody prompted' },
@@ -71,7 +71,7 @@ const HOME_OBS = [
   { id:'friend_stuff',     label:'Friend stuff came up',     emoji:'🤝', w:{ connection:-.5 },                phrase:'had something come up with friends' },
   { id:'read_together',    label:'Read or worked together',  emoji:'📚', w:{ learning:.7, connection:.3 },    phrase:'read or worked through something with you' },
   { id:'said_something',   label:'Something they said',      emoji:'💬', w:{},                                phrase:'said something worth remembering', quote:true },
-  { id:'rough_moment',     label:'Rough moment',             emoji:'🌧️', w:{ resilience:-.7 },                phrase:'had a hard time when something didn\'t go their way' },
+  { id:'rough_moment',     label:'Rough moment',             emoji:'🌧️', w:{ resilience:-.7 },                phrase:'had a hard time when something didn\'t go {poss} way' },
   { id:'homework_battle',  label:'Homework was a battle',    emoji:'⚔️', w:{ learning:-.4, resilience:-.4 },  phrase:'struggled to get started on homework' },
 ];
 

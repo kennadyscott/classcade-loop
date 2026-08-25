@@ -4,12 +4,12 @@
 <title>Daily Feed · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=85">
+<link rel="stylesheet" href="loop.css?v=90">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=85"></script>
-<script src="loop.engine.js?v=85"></script>
-<script src="loop.shell.js?v=85"></script>
+<script src="loop.data.js?v=90"></script>
+<script src="loop.engine.js?v=90"></script>
+<script src="loop.shell.js?v=90"></script>
 <script>
 const d = LOOP.child(ME);
 let filter = 'all';
@@ -104,9 +104,11 @@ function renderPhone(){
       </div>
 
       <div class="m-secrow">This week</div>
-      <div class="s-meta" style="margin-top:0;padding-top:0;border-top:0">
-        <div class="s-stat"><b>${wk.length}</b><span>signals from the classroom</span></div>
-        <div class="s-stat"><b style="color:#7a5a00">${cn.total}</b><span>coins earned</span></div>
+      <div class="s-card">
+        <p style="font-size:14.5px;line-height:1.5">${esc(d.first)}'s classroom tagged
+          <b>${wk.length} moments</b> this week${cn.top?`, most often for <b>${esc(cn.top.label.toLowerCase())}</b>`:''}.</p>
+        <p class="tiny muted" style="margin-top:8px">She also earned ${cn.total} Showdown coins. Coins are the game's
+          currency, not Loop's read — they never feed a Whole Learner area.</p>
       </div>
 
       ${evt?`
@@ -120,15 +122,20 @@ function renderPhone(){
         <span class="chev" style="color:var(--muted-2);font-weight:900">›</span>
       </a>`:''}
 
-      <div class="m-secrow">Today's feed <a href="#" data-filter>Everything ▾</a></div>
+      <div class="m-secrow">Recent activity</div>
+      <div class="f-filters">
+        ${[['all','Everything'],['school','From school'],['home','From you'],['class','Whole class']]
+          .map(([k,l])=>`<button class="f-chip ${filter===k?'on':''}" data-f="${k}">${l}</button>`).join('')}
+      </div>
       <div class="m-feed">
-        ${log.map(x=> x.kind==='home' ? homeRow(x) : (x.kind ? classPost(x) : signalRow(x))).join('')}
+        ${(applyFilter(log).length ? applyFilter(log) : []).map(x=> x.kind==='home' ? homeRow(x) : (x.kind ? classPost(x) : signalRow(x))).join('')
+          || '<div class="m-frow"><span class="ft"><span>Nothing in this filter.</span></span></div>'}
       </div>
       <p class="m-note">Everything tagged for ${esc(d.first)} today, from either side: Showdown signals captured
         while the game runs, whole-class posts from Ms. Alvarez, and anything you logged at home.</p>
     </div>`;
   wireTopline();
-  const f=$('[data-filter]'); if(f) f.onclick=e=>{e.preventDefault();toast('Filters live on the desktop view in this prototype.')};
+  $$('[data-f]').forEach(b=>b.onclick=()=>{ filter=b.dataset.f; render() });
   const sq=$('#shuffleQ'); if(sq) sq.onclick=()=>{ LOOP.store.bumpStarterSeed(); render() };
   $$('[data-talked]').forEach(b=>b.onclick=()=>{ LOOP.store.toggleTalked(b.dataset.talked); render() });
 }
@@ -154,6 +161,12 @@ function homeItems(){
     return { d:e.d, kind:'home', label: meta ? meta.label : 'Noticed at home',
              emoji: meta ? meta.emoji : '🏠', body: e.detail, quote: !!e.quote };
   });
+}
+function applyFilter(log){
+  if (filter==='all') return log;
+  if (filter==='home')   return log.filter(x=>x.kind==='home');
+  if (filter==='class')  return log.filter(x=>x.kind==='update'||x.kind==='system');
+  return log.filter(x=>!x.kind);
 }
 function mergeLog(sig, updates, home){
   return sig.map(x=>Object.assign({},x))

@@ -4,7 +4,7 @@
 <title>Ask · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=85">
+<link rel="stylesheet" href="loop.css?v=90">
 <style>
   .big-ask{
     border-radius:22px;padding:26px;background:#fff;border:1px solid var(--line);box-shadow:var(--shadow-lg);
@@ -33,12 +33,12 @@
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=85"></script>
-<script src="loop.engine.js?v=85"></script>
-<script src="loop.shell.js?v=85"></script>
+<script src="loop.data.js?v=90"></script>
+<script src="loop.engine.js?v=90"></script>
+<script src="loop.shell.js?v=90"></script>
 <script>
 const d = LOOP.child(ME);
-let open = null;
+let open = null, query = '';
 
 function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
@@ -62,6 +62,7 @@ function renderPhone(){
   const c   = open ? LOOP.concern(open) : null;
   const qs  = LOOP.conference(ME, LOOP.store.tier());
   const evt = EVENTS_UPCOMING.find(x=>x.s===ME);
+  const hits = filterConcerns(query);
 
   $('#app').innerHTML = `
     <div class="m-dark">
@@ -78,26 +79,38 @@ function renderPhone(){
     </div>
 
     <div class="m-light">
+      <!-- crisis first. A parent in an acute moment will not scroll. -->
+      <a class="a-urgentbar" href="#urgent">
+        <span class="ub-ic">🚩</span>
+        <span class="ub-tx"><b>Need help right now?</b><span>988 · Childhelp · Crisis Text Line — free, 24/7</span></span>
+        <span class="cv">›</span>
+      </a>
+
       <div class="a-hero">
         <img class="mon" src="art/loop-monster-sm.png" alt="">
         <span class="pill">Always here · never behind the paywall</span>
         <h2>I'm noticing something…</h2>
-        <p>Tell us what you're seeing. You'll get what it might mean, what to watch for, one small next step, and when it's worth asking someone else.</p>
+        <p>Tell us what you're seeing, in your own words.</p>
         <div class="a-search">
           <svg style="width:17px;height:17px;flex:none;color:var(--muted-2)" viewBox="0 0 24 24" fill="none"
                stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
             <circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
-          <input id="q" placeholder="e.g. meltdowns, won't read…" autocomplete="off">
+          <input id="q" value="${esc(query)}" placeholder="e.g. anxious about math tests" autocomplete="off"
+                 aria-label="Describe what you're noticing">
+          ${query?`<button class="a-clear" id="clearQ" aria-label="Clear">✕</button>`:''}
         </div>
+        ${query ? `<div class="a-hint">${hits.length
+            ? `Closest ${hits.length===1?'match':'matches'} below`
+            : `Nothing in the library matches that yet — the closest we have is <b>${esc(nearest(query).label)}</b>.`}</div>` : ''}
       </div>
 
-      <div class="a-grid">
-        ${CONCERNS.map(x=>`<button class="a-row ${open===x.id?'on':''}" data-c="${x.id}">
-          <span class="e">${x.emoji}</span><span class="t">${esc(x.label)}</span>
-        </button>`).join('')}
-      </div>
-
-      ${c ? `<div class="a-ans" id="answer">
+      ${c ? `
+      <button class="a-back" id="backAll">‹ All topics</button>
+      <div class="a-ans" id="answer">
+        <div class="a-anshead">
+          <span class="e">${c.emoji}</span>
+          <span><span class="lbl2">You said</span><b>${esc(c.label)}</b></span>
+        </div>
         <div class="sec">
           <div class="lbl">What this might mean</div>
           <p>${esc(c.mean)}</p>
@@ -113,9 +126,18 @@ function renderPhone(){
         <div class="sec">
           <div class="lbl" style="color:var(--watch)">When to ask for more help</div>
           <p>${esc(c.seek)}</p>
+          <a class="a-seek" href="#urgent">🚩 See crisis lines and who to call ›</a>
           <p class="tiny muted" style="margin-top:9px">Loop is a parenting tool, not a clinical one. It never diagnoses.</p>
         </div>
-      </div>` : ''}
+      </div>` : `
+      <div class="a-grid">
+        ${(hits.length?hits:CONCERNS).map(x=>`<button class="a-row" data-c="${x.id}">
+          <span class="e">${x.emoji}</span><span class="t">${esc(x.label)}</span>
+        </button>`).join('')}
+      </div>
+      ${!hits.length && query ? `<button class="btn ghost block" style="margin-top:10px" data-c="${nearest(query).id}">
+        Open “${esc(nearest(query).label)}” instead</button>` : ''}
+      `}
 
       <div class="m-secrow">Conference questions</div>
       <div class="a-conf">
@@ -131,36 +153,67 @@ function renderPhone(){
         <button class="btn sm ghost block" style="margin-top:12px" id="copyQ">Copy questions</button>
       </div>
 
-      <div class="m-secrow">If it's urgent</div>
+      <div class="m-secrow" id="urgent">If it's urgent</div>
       <div class="a-urgent">
-        <div class="lbl">🚩 Free, 24/7, no account</div>
+        <div class="lbl">🚩 Free, 24/7, no account needed</div>
         <p class="small">Some things shouldn't wait for a weekly pattern.</p>
         ${CRISIS.map(x=>`<div class="a-crisis">
           <div style="flex:1;min-width:0"><b>${esc(x.label)}</b><span>${esc(x.detail)}</span></div>
           <span class="cv" style="color:var(--muted-2);font-weight:900">›</span></div>`).join('')}
       </div>
 
-      <div class="m-secrow">How Loop talks</div>
-      <div class="a-talks">
-        <div class="lbl">Status words only, never numbers</div>
-        <p class="small" style="margin-bottom:9px">Describe the child, never rank them.</p>
-        <div>${LANGUAGE.use.map(w=>`<span class="chip good" style="margin:0 5px 5px 0">${esc(w)}</span>`).join('')}</div>
-        <div style="margin-top:5px">${LANGUAGE.never.map(w=>`<span class="chip plain" style="margin:0 5px 5px 0;text-decoration:line-through;opacity:.55">${esc(w)}</span>`).join('')}</div>
-      </div>
+      <details class="g-fold" style="margin-top:12px">
+        <summary><span class="fi" style="background:var(--tint)">💬</span>Why Loop works this way</summary>
+        <div class="fb">
+          <p class="small" style="margin-bottom:9px">Status words only, never numbers. Describe the child, never rank them.</p>
+          <div>${LANGUAGE.use.map(w=>`<span class="chip good" style="margin:0 5px 5px 0">${esc(w)}</span>`).join('')}</div>
+          <div style="margin-top:5px">${LANGUAGE.never.map(w=>`<span class="chip plain" style="margin:0 5px 5px 0;text-decoration:line-through;opacity:.55">${esc(w)}</span>`).join('')}</div>
+        </div>
+      </details>
     </div>`;
 
   wireTopline();
-  $$('[data-c]').forEach(b=>b.onclick=()=>{ open = open===b.dataset.c ? null : b.dataset.c; render();
-    const a=$('#answer'); if(a) a.scrollIntoView({behavior:'smooth',block:'center'}) });
+  $$('[data-c]').forEach(b=>b.onclick=()=>{
+    open = b.dataset.c; query=''; render();
+    requestAnimationFrame(()=>{ const a=$('#answer'); if(a) a.scrollIntoView({behavior:'smooth',block:'start'}) });
+  });
+  const back=$('#backAll'); if(back) back.onclick=()=>{ open=null; render(); window.scrollTo({top:0,behavior:'smooth'}) };
+  const cl=$('#clearQ'); if(cl) cl.onclick=()=>{ query=''; render(); $('#q')&&$('#q').focus() };
   const cq=$('#copyQ'); if(cq) cq.onclick=()=>{
     const t = LOOP.conference(ME, LOOP.store.tier()).map(z=>`• ${z.dim.name}: ${z.q}`).join('\n');
     navigator.clipboard?.writeText(t); toast('Questions copied.');
   };
-  const qi=$('#q'); if(qi) qi.onkeydown=e=>{ if(e.key!=='Enter') return;
-    const t=qi.value.toLowerCase();
-    const hit = CONCERNS.find(z=>z.label.toLowerCase().split(/\W+/).some(w=>w.length>3&&t.includes(w)));
-    if(hit){ open=hit.id; render() } else toast('Nothing matched — pick one below.');
-  };
+  const qi=$('#q');
+  if(qi){
+    qi.oninput = ()=>{ query = qi.value; const pos=qi.selectionStart; render();
+      const n=$('#q'); if(n){ n.focus(); try{n.setSelectionRange(pos,pos)}catch(e){} } };
+    qi.onkeydown = e=>{ if(e.key!=='Enter') return;
+      const h = filterConcerns(qi.value);
+      open = (h[0]||nearest(qi.value)).id; query=''; render();
+      requestAnimationFrame(()=>{ const a=$('#answer'); if(a) a.scrollIntoView({behavior:'smooth',block:'start'}) });
+    };
+  }
+}
+
+/* live filter over the topic library, plus a nearest-match fallback so
+   describing a child in your own words is never the wrong move */
+function filterConcerns(qq){
+  const t = (qq||'').trim().toLowerCase();
+  if (!t) return [];
+  return CONCERNS.filter(c=>{
+    const hay = (c.label+' '+c.id.replace(/_/g,' ')+' '+c.mean+' '+c.watch.join(' ')).toLowerCase();
+    return t.split(/\s+/).filter(w=>w.length>2).some(w=>hay.includes(w));
+  });
+}
+function nearest(qq){
+  const t=(qq||'').toLowerCase();
+  let best=CONCERNS[0], score=-1;
+  CONCERNS.forEach(c=>{
+    const hay=(c.label+' '+c.mean).toLowerCase();
+    const n = t.split(/\s+/).filter(w=>w.length>2).reduce((a,w)=>a+(hay.includes(w)?1:0),0);
+    if (n>score){ score=n; best=c }
+  });
+  return best;
 }
 
 function renderDesktop(){

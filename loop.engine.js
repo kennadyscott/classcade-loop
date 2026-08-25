@@ -28,8 +28,17 @@ const LOOP = (() => {
     acks:      ()=> rd(K.ack,{}),
     ack:      (id)=>{ const a=store.acks(); a[id]={at:TODAY}; wr(K.ack,a) },
     homeObs:   ()=> rd(K.home,[]),
-    addHome:  (student,obsId,note)=>{ const l=store.homeObs();
-                 l.push({s:student,src:'home',sig:obsId,v:1,d:TODAY,detail:note||HOME_OBS.find(o=>o.id===obsId).phrase,user:true}); wr(K.home,l); },
+    addHome:  (student,obsId,note,when)=>{ const l=store.homeObs();
+                 const c = child(student), o = HOME_OBS.find(x=>x.id===obsId);
+                 const base = (o.phrase||'').replace(/\{subj\}/g,c.subj).replace(/\{poss\}/g,c.poss).replace(/\{obj\}/g,c.obj);
+                 l.push({ s:student, src:'home', sig:obsId, v:1, d:when||TODAY,
+                          detail: base, note:(note||'').slice(0,NOTE_CAP) || null,
+                          user:true, id:'h'+l.length+'_'+obsId });
+                 wr(K.home,l); return l[l.length-1]; },
+    removeHome:(id)=>{ wr(K.home, store.homeObs().filter(e=>e.id!==id)) },
+    updateHome:(id,note)=>{ const l=store.homeObs();
+                 const e=l.find(x=>x.id===id); if(e) e.note=(note||'').slice(0,NOTE_CAP)||null; wr(K.home,l) },
+    lastHome:  ()=>{ const l=store.homeObs(); return l.length?l[l.length-1]:null },
     teacherObs:()=> rd(K.teach,[]),
     addTeacher:(student,dim,note)=>{ const l=store.teacherObs(); l.push({s:student,dim,note,d:TODAY}); wr(K.teach,l) },
     checkins:  ()=> rd(K.child,[]),

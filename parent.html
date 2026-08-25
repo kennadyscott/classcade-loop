@@ -4,15 +4,17 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=85">
+<link rel="stylesheet" href="loop.css?v=90">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=85"></script>
-<script src="loop.engine.js?v=85"></script>
-<script src="loop.shell.js?v=85"></script>
+<script src="loop.data.js?v=90"></script>
+<script src="loop.engine.js?v=90"></script>
+<script src="loop.shell.js?v=90"></script>
 <script>
 const d = LOOP.child(ME);
+let pending = null;        /* an observation awaiting confirmation */
+let justLogged = false;    /* stage the payoff after one is added */
 /* folds start open on a wide screen and closed on a phone */
 const wide = () => window.matchMedia('(min-width:901px)').matches
                  && !document.body.classList.contains('appview');
@@ -21,6 +23,38 @@ function render(){
   if (document.body.classList.contains('sm')) return renderPhone();
   return renderDesktop();
 }
+
+/* The confirm step: one tap picks it, a second commits it, and there is
+   room for a line of context. Logging writes a dated entry a teacher may
+   see, so it should not be a single irreversible tap. */
+function confirmPanel(){
+  const o = HOME_OBS.find(x=>x.id===pending);
+  const phrase = (o.phrase||'').replace(/\{subj\}/g,d.subj).replace(/\{poss\}/g,d.poss);
+  return `
+  <div class="m-confirm">
+    <div class="ch"><span class="e">${o.emoji}</span>
+      <span><b>${esc(o.label)}</b><span class="pv">Will read: “${esc(d.first)} ${esc(phrase)}”</span></span></div>
+    <textarea id="obsNote" class="note" maxlength="${NOTE_CAP}" placeholder="Add a line of context (optional)"></textarea>
+    <div class="cw"><span id="obsCount">0</span>/${NOTE_CAP} · dated today, ${fmtLong(TODAY)}</div>
+    <div class="ca">
+      <button class="btn primary sm" id="obsSave">Add to ${esc(d.first)}'s day</button>
+      <button class="btn sm" id="obsCancel">Cancel</button>
+    </div>
+  </div>`;
+}
+function loggedList(){
+  const mine = LOOP.store.homeObs().filter(e=>e.s===ME && e.user).slice(-3).reverse();
+  if (!mine.length) return '';
+  return `<div class="m-logged">
+    <div class="ll">You logged today</div>
+    ${mine.map(e=>{const o=HOME_OBS.find(x=>x.id===e.sig)||{emoji:'🏠',label:'Noticed'};
+      return `<div class="lr"><span class="e">${o.emoji}</span>
+        <span class="t"><b>${esc(o.label)}</b>${e.note?`<span>“${esc(e.note)}”</span>`:''}</span>
+        <button class="lx" data-del="${esc(e.id||'')}" aria-label="Remove">Remove</button></div>`}).join('')}
+  </div>`;
+}
+function fmtLong(x){const m=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const p=x.split('-'); return m[+p[1]-1]+' '+(+p[2])}
 
 /* ── PHONE ────────────────────────────────────────────────
    One panel carries the week. Everything else is a section header
@@ -105,9 +139,11 @@ function renderPhone(){
 
     <div class="m-light">
       <div class="m-secrow">Add what you noticed</div>
+      ${pending ? confirmPanel() : `
       <div class="m-chips">
-        ${HOME_OBS.slice(0,4).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
-      </div>
+        ${HOME_OBS.slice(0,6).map(o=>`<button data-obs="${o.id}">${o.emoji} ${esc(o.label)}</button>`).join('')}
+      </div>`}
+      ${loggedList()}
       <a class="m-row" href="ask.html" style="margin-top:10px">
         <div class="ric" style="background:var(--home-bg)">💬</div>
         <div class="rtx"><div class="rtitle">Something worrying you?</div>
@@ -129,7 +165,8 @@ function renderPhone(){
       </div>
 
       <div class="m-duo" style="margin-top:18px">
-        <div class="m-tile convo">
+        <div class="m-tile convo ${justLogged?'flash':''}" id="qcard">
+          ${justLogged?`<div class="q-new">✨ New question for tonight, based on what you just noticed</div>`:''}
           <div class="th"><div class="ti" style="background:#e9e2ff">${ico('conversation-bubbles',18)}</div>
             <div class="tl">Tonight's conversation</div></div>
           <div class="tq">${q.grounded?'Instead of “How was school today?”':'Ask tonight'}</div>
@@ -141,14 +178,9 @@ function renderPhone(){
         <div class="m-tile coins">
           <div class="th"><div class="ti" style="background:#d8f3e0">${ico('coins',18)}</div>
             <div class="tl">ClassCade moment</div></div>
-          <div class="tq">${esc(d.first)} earned ${cn.total} coins</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:9px">
-            <div class="donut" style="width:44px;height:44px;background:conic-gradient(#108b2f ${pct*3.6}deg,#e9f0fb 0)">
-              <div style="width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center">
-                <span style="font-size:11px">${pct}%</span></div>
-            </div>
-            <div class="tp" style="margin:0">From ${esc(cn.top?cn.top.label:'—')}</div>
-          </div>
+          <div class="tq">${esc(d.first)} is earning coins for ${esc((cn.top?cn.top.label:'taking part').toLowerCase())}</div>
+          <div class="tp" style="padding-right:0">Coins are Showdown's currency, not Loop's read of ${esc(d.first)}.
+            <span class="coinfoot">${cn.total} this week</span></div>
         </div>` : `
         <div class="m-tile moment">
           <div class="th"><div class="ti" style="background:${fdim.tint}">${dimIcon(fdim,18)}</div>
@@ -182,6 +214,31 @@ function renderPhone(){
   $$('[data-go]').forEach(el2=>el2.onclick=()=>location.href=el2.dataset.go);
   const cr=$('#connectRow'); if(cr) cr.onclick=()=>{ LOOP.store.setTier('connected'); location.reload() };
   const km=$('#kidmenu'); if(km) km.onclick=()=>toast('Only Maya is seeded in this prototype.');
+
+  /* pick → confirm → commit, then show the parent what changed */
+  $$('[data-obs]').forEach(b=>b.onclick=()=>{ pending=b.dataset.obs; render();
+    requestAnimationFrame(()=>$('#obsNote')&&$('#obsNote').focus()) });
+  const oc=$('#obsCancel'); if(oc) oc.onclick=()=>{ pending=null; render() };
+  const on=$('#obsNote'); if(on) on.oninput=()=>{ const c=$('#obsCount'); if(c) c.textContent=on.value.length };
+  const os=$('#obsSave'); if(os) os.onclick=()=>{
+    const entry = LOOP.store.addHome(ME, pending, $('#obsNote').value);
+    pending=null; justLogged=true; render();
+    /* the payoff is the point — take the parent to the thing that changed */
+    setTimeout(()=>{
+      const card=$('#qcard');
+      if(card){
+        const y = Math.max(0, card.getBoundingClientRect().top + window.scrollY - window.innerHeight*0.32);
+        window.scrollTo({ top:y, behavior:'smooth' });
+        /* smooth scroll is dropped in some embedded browsers — guarantee arrival */
+        setTimeout(()=>{ if (Math.abs(window.scrollY - y) > 40) window.scrollTo(0, y) }, 420);
+      }
+      toastUndo('Added to '+d.first+"'s day", ()=>{ LOOP.store.removeHome(entry.id); justLogged=false; render() });
+    }, 80);
+    setTimeout(()=>{ justLogged=false; }, 6000);
+  };
+  $$('[data-del]').forEach(b=>b.onclick=()=>{
+    LOOP.store.removeHome(b.dataset.del); toast('Removed.'); render();
+  });
   const oq=$('[data-open-q]'); if(oq) oq.onclick=e=>{ e.preventDefault(); toast(q.why) };
 }
 
@@ -491,11 +548,6 @@ function connectCard(){
 
 /* ── interaction ──────────────────────────────────────── */
 function wire(){
-  $$('[data-obs]').forEach(b=>b.onclick=()=>{
-    LOOP.store.addHome(ME, b.dataset.obs);
-    toast('Logged: '+HOME_OBS.find(x=>x.id===b.dataset.obs).label);
-    render();
-  });
   $$('[data-dim]').forEach(c=>c.onclick=()=>location.href='growth.html?d='+c.dataset.dim);
   const md = $('#momentDone'); if(md) md.onclick=()=>toast('Nice. That’s the whole habit.');
   const sq = $('#shuffleQ'); if(sq) sq.onclick=()=>{ LOOP.store.bumpStarterSeed(); render() };

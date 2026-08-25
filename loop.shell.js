@@ -397,6 +397,16 @@ function foldable(title, body, extraStyle){
     <summary>${esc(title)}</summary><div class="foldbody">${body}</div></details>`;
 }
 
+/* a toast with an action — logging must be undoable */
+function toastUndo(msg, undo){
+  let t=$('.toast'); if(!t){ t=el('div','toast'); document.body.appendChild(t) }
+  t.innerHTML = `<span>${esc(msg)}</span><button class="t-undo">Undo</button>`;
+  t.classList.add('show','with-action');
+  clearTimeout(toastTimer);
+  t.querySelector('.t-undo').onclick = ()=>{ t.classList.remove('show','with-action'); undo&&undo() };
+  toastTimer = setTimeout(()=>t.classList.remove('show','with-action'), 7000);
+}
+
 let toastTimer;
 function toast(msg){
   let t = $('.toast');
