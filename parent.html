@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=113">
+<link rel="stylesheet" href="loop.css?v=115">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=113"></script>
-<script src="loop.engine.js?v=113"></script>
-<script src="loop.shell.js?v=113"></script>
+<script src="loop.data.js?v=115"></script>
+<script src="loop.engine.js?v=115"></script>
+<script src="loop.shell.js?v=115"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -193,6 +193,14 @@ function renderPhone(){
           <div class="gh">${gd?ico(gd.icon,20):'🎯'}<span class="gl">${gd?esc(gd.name):'Set by the teacher'}</span></div>
           <div class="gt">${esc(g.text)}</div>
         </div>`})()}
+
+      ${(()=>{const n=LOOP.activity(ME,40).length;const tier2=LOOP.store.tier();
+        if(tier2!=='connected') return '';
+        return `<a class="m-row" href="school.html">
+        <div class="ric" style="background:var(--school-bg)">${ico('school',18)}</div>
+        <div class="rtx"><div class="rtitle">Daily feed</div>
+          <div class="rsub">${n} things tagged for ${esc(d.first)} in the last three weeks</div></div>
+        <span class="chev">›</span></a>`})()}
 
       ${(()=>{const b=LOOP.choreBoard(ME),hc=LOOP.homeCoins(ME);return `
       <a class="m-row" href="chores.html">

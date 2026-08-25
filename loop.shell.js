@@ -20,9 +20,9 @@ const NAV = [
   { id:'home',   href:'parent.html',   ic:'🏠', navico:'nav-home',    label:'Home',     tab:true },
   { id:'growth', href:'growth.html',   ic:'🌱', glyph:'growth', label:'Growth',   tab:true },
   { id:'ask',    href:'ask.html',      ic:'💬', glyph:'ask',    label:'Ask',      tab:true },
-  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed', tabLabel:'Daily Feed', tab:true },
+  { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed' },
   { id:'kids',   href:'kids.html',     ic:'👥', navico:'nav-my-kids', label:'My Kids' },
-  { id:'msgs',   href:'messages.html', ic:'✉️', navico:'nav-messages',label:'Messages' },
+  { id:'msgs',   href:'messages.html', ic:'✉️', navico:'nav-messages',label:'Messages', tab:true },
   { id:'chores', href:'chores.html',   ic:'🏠', navico:'nav-my-kids', glyph:'home', label:'At Home', tab:true },
   { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'Settings' },
 ];

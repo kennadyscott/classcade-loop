@@ -300,6 +300,36 @@ Home rail (Ask and Messages own those).
 **The rule for anything new: if a second screen wants to show it, that screen
 gets a pointer, not a copy.**
 
+## Notes on the side · not built, captured deliberately
+
+### Vibe check (Emily's) — social-skill sharing between class and home
+
+**Idea, noted 2026-08-24.** Emily is building a *vibe check*. Integrate it so the **social skill being
+worked on in class** travels to the other side of the loop, so a parent can see exactly what the class
+is practising and reinforce the same thing at home.
+
+Why it fits: Loop already has the plumbing. `GOAL_LIBRARY` sets a per-child goal tied to an area, and
+the return channel carries capped, area-tagged notes. A class-wide social skill is the same shape one
+level up — a whole-class goal rather than an individual one. `CLASS_UPDATES` on Daily Feed is already
+the whole-class channel, so this most likely becomes a first-class *class skill of the week* rather
+than a new surface.
+
+**Open, and worth pinning down before building:** the ask as written reads *"allow the teacher to send
+the social skill they are working on to the teacher"* — same role twice. Two plausible readings, and
+they build differently:
+
+1. **Teacher → parent** (most likely): the teacher publishes the class's current social skill; every
+   family sees it on Home and in the feed. Cheap to build, reinforces at home, no new consent surface.
+2. **Parent → teacher**: the family names a social skill they're working on at home so the teacher can
+   support the same thing in class. Also cheap, and it uses the existing capped return channel — but it
+   is a different feature with a different owner.
+
+There is a third possibility worth naming: Emily's vibe check may be *child-facing*, in which case
+this touches the parked child data path and stops being a small integration.
+
+**Do not build until that is settled** — the direction determines which surface owns it, and the two
+directions are not symmetric.
+
 ## Open questions
 
 1. **Curiosity has no school source.** None of the eight Showdown signals feeds it. As specced, a
