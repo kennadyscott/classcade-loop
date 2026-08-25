@@ -4,12 +4,12 @@
 <title>At Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=119">
+<link rel="stylesheet" href="loop.css?v=122">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=119"></script>
-<script src="loop.engine.js?v=119"></script>
-<script src="loop.shell.js?v=119"></script>
+<script src="loop.data.js?v=122"></script>
+<script src="loop.engine.js?v=122"></script>
+<script src="loop.shell.js?v=122"></script>
 <script>
 const d = LOOP.child(ME);
 let editing = false, building = false;
@@ -69,9 +69,9 @@ function practiceSection(){
               ${assignedIds.includes(p.id)?'disabled':''}>${m}m</button>`).join('')}
           </span>
         </div>`).join('')}
-      <p class="ch-note">Coins only move when you release them, so they follow practice that actually
-        happened. A session of any of these is worth about the same — if reading paid less than fluency,
-        ${esc(d.first)} would simply stop reading.</p>
+      ${!LOOP.deep()?'':`<p class="ch-note">Coins only move when you release them, so they follow practice
+        that actually happened. A session of any of these is worth about the same — if reading paid less
+        than fluency, ${esc(d.first)} would simply stop reading.</p>`}
     </div>`;
 }
 
@@ -229,7 +229,9 @@ function body(){
       <span class="sb-tx">
         <b>${cb.streak?cb.streak+' day'+(cb.streak===1?'':'s')+' in a row':'No streak yet'}</b>
         <span>${cb.streak
-          ? `+${cb.base} for showing up${cb.bonus?` · +${cb.bonus} streak bonus`:''}${cb.perfect?` · +${CHECKIN.perfectWeek} perfect week`:''}`
+          ? (LOOP.deep()
+              ? `+${cb.base} for showing up${cb.bonus?` · +${cb.bonus} streak bonus`:''}${cb.perfect?` · +${CHECKIN.perfectWeek} perfect week`:''}`
+              : 'Keep it going.')
           : 'Check something off today to start one.'}</span></span>
       ${cb.streak?`<span class="sb-amt">+${cb.today}</span>`:''}
     </div>`})()}
@@ -243,9 +245,9 @@ function body(){
         </div>
         <button class="btn sm ghost" id="edit">Edit list</button>
       </div>
-      <p class="ch-note">The streak rewards showing up, and it's capped at
+      ${!LOOP.deep()?'':`<p class="ch-note">The streak rewards showing up, and it's capped at
         +${CHECKIN.maxStreakBonus} so it can never outweigh real effort. Same currency as Showdown — ${esc(d.first)} can spend these in the game, or on
-        something at home. Coins are a game, not a read: they never move a ${esc(LOOP.framework().name)} area.</p>
+        something at home. Coins are a game, not a read: they never move a ${esc(LOOP.framework().name)} area.</p>`}
     </div>
 
     ${!P.contributions?'':`
@@ -258,7 +260,7 @@ function body(){
     ${b.extras.length ? b.extras.map(choreRow).join('')
       : '<p class="small muted" style="margin:0 3px 10px">None on the list yet.</p>'}`}
 
-    ${sig.length?`
+    ${(sig.length && LOOP.deep())?`
     <div class="m-secrow">What this is telling Loop</div>
     <div class="s-card" style="background:var(--home-bg);border-color:rgba(14,147,132,.22)">
       ${sig.map(x=>`<div class="src" style="padding:9px 0">

@@ -20,7 +20,7 @@ const LOOP = (() => {
     fw:'loop.v1.framework', goals:'loop.v1.goals', checkin:'loop.v1.checkin',
     flags:'loop.v1.flags', flagsExtra:'loop.v1.flagsExtra',
     practice:'loop.v1.practice',
-    homePrefs:'loop.v1.homePrefs', custom:'loop.v1.custom',
+    homePrefs:'loop.v1.homePrefs', custom:'loop.v1.custom', depth:'loop.v1.depth',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -140,6 +140,8 @@ const LOOP = (() => {
                  c[type]=c[type].filter(x=>x.id!==id); wr(K.custom,c);
                  if(type==='chores') store.setChores(ME_SAFE(), store.chores(ME_SAFE()).filter(x=>x!==id));
                  syncCustom() },
+    depth:     ()=> rd(K.depth,null),
+    setDepth:  (v)=> wr(K.depth,v),
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -655,6 +657,8 @@ const LOOP = (() => {
   /* Custom items are pushed into the same arrays the rest of the engine
      already reads, so every lookup keeps working unchanged. Idempotent. */
   function ME_SAFE(){ try { return ME } catch(e){ return 'maya' } }
+  /* true when the parent asked for the machinery */
+  function deep(){ return store.depth() === 'deep' }
   function syncCustom(){
     const c = store.custom();
     c.chores.forEach(x=>{ if(!CHORES.some(y=>y.id===x.id)) CHORES.push(
@@ -681,6 +685,6 @@ const LOOP = (() => {
            coins, activity, moment, conference, concern, expectations, starters,
            choreBoard, choreStreak, homeCoins, choreSignals,
            applyFramework, framework, checkinDays, checkinBonus, flags, flagsHandled,
-           practiceToday, practiceCoins, practiceStreak, practiceMinutesThisWeek, syncCustom,
+           practiceToday, practiceCoins, practiceStreak, practiceMinutesThisWeek, syncCustom, deep,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

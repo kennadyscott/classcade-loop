@@ -4,12 +4,12 @@
 <title>Settings · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=119">
+<link rel="stylesheet" href="loop.css?v=122">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=119"></script>
-<script src="loop.engine.js?v=119"></script>
-<script src="loop.shell.js?v=119"></script>
+<script src="loop.data.js?v=122"></script>
+<script src="loop.engine.js?v=122"></script>
+<script src="loop.shell.js?v=122"></script>
 <script>
 const d = LOOP.child(ME);
 
@@ -63,6 +63,18 @@ function renderPhone(){
         <p class="small muted" style="margin-top:11px">${esc(TIER_COPY[tier].blurb)}</p>
         <button class="btn ${tier==='family'?'primary':'ghost'} sm block" style="margin-top:12px" id="flip">
           ${tier==='family'?'🔗 Connect a classroom':'Switch to Family'}</button>
+      </div>
+
+      <div class="m-secrow">How much you see</div>
+      <div class="s-card">
+        ${Object.keys(DEPTHS).map(k=>{const D=DEPTHS[k];const on=LOOP.store.depth()===k;return `
+        <button class="dp-row ${on?'on':''}" data-setdepth="${k}">
+          <span class="tick">✓</span>
+          <span class="tx"><span class="lb">${esc(D.name)} — ${esc(D.tag)}</span>
+            <span class="mt">${esc(D.blurb)}</span></span>
+        </button>`}).join('')}
+        <p class="tiny muted" style="margin-top:9px">Lite hides explanation, never an action. Anything the
+          school needs from you, and anything to do with safety, is identical in both.</p>
       </div>
 
       <div class="m-secrow">The weekly ritual</div>
@@ -269,6 +281,8 @@ function wire(){
     render();
   });
   $$('[data-pref]').forEach(s=>s.onchange=()=>{ LOOP.store.setPref(s.dataset.pref, s.value); toast('Saved.') });
+  $$('[data-setdepth]').forEach(b=>b.onclick=()=>{ LOOP.store.setDepth(b.dataset.setdepth);
+    toast('Now showing '+DEPTHS[b.dataset.setdepth].name+'.'); setTimeout(()=>location.reload(),600) });
   const fw=$('#fwPick'); if(fw) fw.onchange=()=>{ LOOP.store.setFramework(fw.value);
     toast('Now showing '+FRAMEWORKS[fw.value].name+'.'); setTimeout(()=>location.reload(),700) };
   $('#flip').onclick = ()=>{ LOOP.store.setTier(LOOP.store.tier()==='family'?'connected':'family'); location.reload() };

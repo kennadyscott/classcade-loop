@@ -4,13 +4,13 @@
 <title>Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=119">
+<link rel="stylesheet" href="loop.css?v=122">
 </head><body>
 <div id="app"></div>
 
-<script src="loop.data.js?v=119"></script>
-<script src="loop.engine.js?v=119"></script>
-<script src="loop.shell.js?v=119"></script>
+<script src="loop.data.js?v=122"></script>
+<script src="loop.engine.js?v=122"></script>
+<script src="loop.shell.js?v=122"></script>
 <script>
 const d = LOOP.child(ME);
 let pending = null;        /* an observation awaiting confirmation */
@@ -68,10 +68,10 @@ function weekBar(){
       ${fresh?'<b class="wb-new">New</b>':''}
       <span class="wb-lb">${R.complete?'Week done':'This week'}</span>
       <span class="wb-dt">${fmtLong(WEEK_START)}–${fmtLong(TODAY)}</span>
-      <span class="wb-prog">${done}/3</span>
+      ${LOOP.deep()?`<span class="wb-prog">${done}/3</span>`:''}
     </summary>
     <div class="wb-body">
-      ${R.steps.map(st=>`<span class="wb-step ${st.done?'done':''}">${st.done?'✓':'○'} ${esc(st.label)}</span>`).join('')}
+      ${LOOP.deep()?R.steps.map(st=>`<span class="wb-step ${st.done?'done':''}">${st.done?'✓':'○'} ${esc(st.label)}</span>`).join(''):''}
       ${R.complete ? `<div class="wb-done">🌱 That's the week. Nothing else to do — see you Sunday.</div>` : ''}
     </div>
   </details>`;
@@ -243,16 +243,16 @@ function renderPhone(){
       </a>`})()}
 
       <div class="m-secrow">${LOOP.framework().name} <span class="swipe">1 of 6 · swipe</span> <a href="growth.html">View all →</a></div>
-      <div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>
+      ${LOOP.deep()?`<div class="wl-asof">Read as of ${fmtLong(TODAY)} · a status word only changes on a pattern, never on one moment</div>`:''}
       <div class="m-growth" id="wlStrip">
         ${DIMENSIONS.map(dim=>{const x=r[dim.id];return `
           <div class="m-gcard" data-go="growth.html?d=${dim.id}">
             <div class="tile" style="background:${dim.tint}">${dimIcon(dim,22)}</div>
             <div class="nm">${esc(dim.name)}</div>
             <div class="st" style="color:${x.cold?'var(--muted-2)':dim.color}">${LOOP.LEVEL_LABEL[x.level]}${x.cold?'':' '+LOOP.ARROW[x.dir]}</div>
-            ${x.cold
+            ${!LOOP.deep() ? '' : (x.cold
               ? `<div class="nobar">Not enough yet</div>`
-              : `<div class="bar" role="img" aria-label="${LOOP.LEVEL_LABEL[x.level]}"><i style="width:${x.pct}%;background:${dim.color}"></i></div>`}
+              : `<div class="bar" role="img" aria-label="${LOOP.LEVEL_LABEL[x.level]}"><i style="width:${x.pct}%;background:${dim.color}"></i></div>`)}
           </div>`}).join('')}
       </div>
 

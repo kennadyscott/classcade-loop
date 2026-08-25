@@ -1013,3 +1013,32 @@ const PRACTICE = [
 
 /* Practice kept up this many days in a week is a pattern, not a payout. */
 const PRACTICE_STREAK_FOR_SIGNAL = 4;
+
+/* ══ DEPTH · Lite or In Depth ═══════════════════════════════════════
+   Chosen at signup, changeable any time. The rule that keeps Lite from
+   being a crippled version:
+
+     Lite hides EXPLANATION and INSTRUMENTATION.
+     Lite never hides an ACTION or anything safety-related.
+
+   So flags, Ask, the crisis lines, the conversation prompt, logging and the
+   chore list are identical in both. What Lite drops is the evidence trail,
+   the signal counts, the as-of dates, the ritual tracker and the progress
+   bars — the machinery that reassures one kind of parent and overwhelms
+   another.                                                              */
+const DEPTHS = {
+  lite: {
+    name:'Lite',
+    tag:'Just what I need',
+    blurb:'One thing to notice, one question to ask, and anything the school needs from you. Status words, no scores or charts.',
+    shows:['The week in one card','Tonight\'s question','Anything the school needs you to do','Your child\'s six areas in plain words','The chore list'],
+    hides:['Evidence trails and signal counts','Progress bars','Weekly ritual tracker','Coin and practice breakdowns'],
+  },
+  deep: {
+    name:'In Depth',
+    tag:'Show me everything',
+    blurb:'Everything Lite shows, plus what each read is built from, how it changed, and every control.',
+    shows:['Everything in Lite','What each read is built from','When a status word changed, and from what','The weekly ritual tracker','Coin, streak and practice detail'],
+    hides:[],
+  },
+};

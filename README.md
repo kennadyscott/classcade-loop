@@ -211,6 +211,30 @@ a media query and `body.appview`. Earlier passes duplicated; this is the pattern
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.
 
+## Lite or In Depth
+
+Chosen on first run (a gate before the app renders), changeable in Settings. The rule that keeps Lite
+from being a crippled version:
+
+> **Lite hides explanation and instrumentation. Lite never hides an action or anything safety-related.**
+
+| Identical in both | In Depth only |
+|---|---|
+| Flags — anything the school needs you to do | Progress bars on the area cards |
+| The week's noticing | Signal counts and the evidence trail |
+| Tonight's conversation | "As of" dates and *changed from X* |
+| Logging what you noticed | The weekly ritual tracker |
+| Ask, and every crisis line | Coin, streak and practice breakdowns |
+| The chore list and its coins | *What this is telling Loop* |
+
+Verified by diffing a Lite and an In Depth render of Home: bars 0 → 5, as-of absent → present, ritual
+chips 0 → 3, while flags stayed at 2, the conversation card stayed, and the six logging chips stayed.
+
+Note that Lite dropping the bars pushes Home *closer* to the product's own promise — a status word with
+no bar beside it is exactly the "describe, don't rank" position. In Depth is the one that needs the
+justification, which is why it also carries the as-of line explaining that a word only moves on a
+pattern.
+
 ## Build your own At Home page
 
 A gear beside the **At Home** title opens a builder. Three levels of control, because a chore list that

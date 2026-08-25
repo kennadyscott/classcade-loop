@@ -181,6 +181,7 @@ function mountApp(active){
   body.appendChild(app);
   mountViewToggle();
   mountMobileBar(active);
+  mountDepthGate();
   syncMode();
   window.addEventListener('resize', ()=>{ applyView(CURRENT_VIEW); });
   side.querySelectorAll('#tierToggle button').forEach(b=>{
@@ -311,6 +312,39 @@ function headerTabs(active){
       ${n.id==='msgs'?'<i class="ht-dot"></i>':''}
     </a>`).join('')}
   </nav>`;
+}
+
+/* First run: pick a depth before seeing the app. Written so neither option
+   reads as the lesser one — Lite is a choice, not a downgrade. */
+function depthChooser(){
+  return `
+  <div class="dp-wrap">
+    <div class="dp-card">
+      <img src="art/loop-monster-sm.png" alt="" class="dp-mon">
+      <div class="dp-eyebrow">Before you start</div>
+      <h2>How much do you want to see?</h2>
+      <p class="dp-sub">You can change this any time in Settings. Neither one hides anything the school
+        needs you to do, or anything to do with your child's safety.</p>
+      <div class="dp-opts">
+        ${Object.keys(DEPTHS).map(k=>{const D=DEPTHS[k];return `
+        <button class="dp-opt" data-depth="${k}">
+          <span class="dp-name">${esc(D.name)}<span class="dp-tag">${esc(D.tag)}</span></span>
+          <span class="dp-blurb">${esc(D.blurb)}</span>
+          <span class="dp-list">${D.shows.map(x=>`<span class="dp-yes">✓ ${esc(x)}</span>`).join('')}
+          ${D.hides.map(x=>`<span class="dp-no">— ${esc(x)}</span>`).join('')}</span>
+        </button>`}).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+function mountDepthGate(){
+  if (LOOP.store.depth()) return false;
+  const w = el('div','dp-gate', depthChooser());
+  document.body.appendChild(w);
+  w.querySelectorAll('[data-depth]').forEach(b=>b.onclick=()=>{
+    LOOP.store.setDepth(b.dataset.depth); location.reload();
+  });
+  return true;
 }
 
 /* greeting + child switcher */

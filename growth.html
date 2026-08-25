@@ -4,15 +4,15 @@
 <title>Growth · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=119">
+<link rel="stylesheet" href="loop.css?v=122">
 <style>
   .facet{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;margin:0 5px 5px 0}
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=119"></script>
-<script src="loop.engine.js?v=119"></script>
-<script src="loop.shell.js?v=119"></script>
+<script src="loop.data.js?v=122"></script>
+<script src="loop.engine.js?v=122"></script>
+<script src="loop.shell.js?v=122"></script>
 <script>
 const d = LOOP.child(ME);
 let sel = new URLSearchParams(location.search).get('d') || null;
@@ -70,8 +70,8 @@ function renderPhone(){
             <div class="tile" style="background:${dm.tint}">${dimIcon(dm,22)}</div>
             <div class="nm">${esc(dm.name)}</div>
             <div class="st" style="color:${y.cold?'var(--muted-2)':dm.color}">${LOOP.LEVEL_LABEL[y.level]}${y.cold?'':' '+LOOP.ARROW[y.dir]}</div>
-            ${y.cold ? `<div class="nobar">Not enough yet</div>`
-                     : `<div class="bar"><i style="width:${y.pct}%;background:${dm.color}"></i></div>`}
+            ${!LOOP.deep()?'':(y.cold ? `<div class="nobar">Not enough yet</div>`
+                     : `<div class="bar"><i style="width:${y.pct}%;background:${dm.color}"></i></div>`)}
           </button>`}).join('')}
       </div>
       <div class="g-dots" aria-hidden="true">${DIMENSIONS.map((z,i)=>`<i class="${i===idx?'on':''}"></i>`).join('')}</div>
@@ -91,11 +91,11 @@ function renderPhone(){
           <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
           <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
         </div>
-        <div class="g-asof">
+        ${!LOOP.deep()?'':`<div class="g-asof">
           As of ${fmtLong(x.asOf)}${x.changedFrom
             ? ` · <b>changed from ${esc(LOOP.LEVEL_LABEL[x.changedFrom])}</b>`
             : ' · unchanged since last week'}
-        </div>
+        </div>`}
         <div class="g-head">
           <div class="sh" style="background:${dim.tint}">${dimIcon(dim,24)}</div>
           <h2>${esc(ins.head)}</h2>
@@ -127,18 +127,18 @@ function renderPhone(){
         <p class="small muted">Connect ${esc(d.poss)} classroom and you can send this back to ${esc(d.poss)} teacher in one tap.</p></div>`}
       `}
 
-      <details class="g-fold">
+      ${!LOOP.deep()?'':`<details class="g-fold">
         <summary><span class="fi" style="background:${dim.tint}">${dimIcon(dim,15)}</span>What we're understanding</summary>
         <div class="fb"><p class="small muted" style="margin-bottom:10px">${esc(dim.q)}</p>
           ${dim.facets.map(f=>`<span class="facet" style="background:${dim.tint};color:${dim.color}">${esc(f)}</span>`).join('')}</div>
-      </details>
+      </details>`}
 
       ${exp?`<details class="g-fold">
         <summary><span class="fi" style="background:var(--tint)">${ico('school',15)}</span>Is this normal? · 3rd grade</summary>
         <div class="fb"><p class="small">${esc(exp)}</p></div>
       </details>`:''}
 
-      ${x.cold?'':`<details class="g-fold">
+      ${(x.cold||!LOOP.deep())?'':`<details class="g-fold">
         <summary><span class="fi" style="background:var(--tint)">📊</span>Everything feeding this · ${x.count}</summary>
         <div class="fb">
           ${x.events.slice(0,10).map(e=>`<div class="g-ev" style="padding:9px 0">
@@ -232,11 +232,11 @@ function detail(dim, x, ins, tier){
           <span class="trend ${LOOP.ARROW_CLASS[ins.dir]}">${LOOP.ARROW[ins.dir]}</span>
           <span class="chip ${LOOP.LEVEL_TONE[x.level]}">${LOOP.LEVEL_LABEL[x.level]}</span>
         </div>
-        <div class="g-asof">
+        ${!LOOP.deep()?'':`<div class="g-asof">
           As of ${fmtLong(x.asOf)}${x.changedFrom
             ? ` · <b>changed from ${esc(LOOP.LEVEL_LABEL[x.changedFrom])}</b>`
             : ' · unchanged since last week'}
-        </div>
+        </div>`}
         <h3 style="font-size:21px;line-height:1.25">${esc(ins.head)}</h3>
       </div>
     </div>
