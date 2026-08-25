@@ -93,6 +93,12 @@ function bog(slug, size, cls){
 
 /* Wraps whatever the page already put in <body> into the app shell. */
 function mountApp(active){
+  /* ?view=phone / ?view=desktop forces the view regardless of any saved
+     preference — so a shared link always opens the way you intended, even
+     for someone who toggled earlier. */
+  const forced = new URLSearchParams(location.search).get('view');
+  if (forced === 'phone' || forced === 'app')      LOOP.store.setView('app');
+  else if (forced === 'desktop' || forced === 'web') LOOP.store.setView('web');
   CURRENT_VIEW = LOOP.store.viewPref() || defaultViewFor(active);
   const tier = LOOP.store.tier();
   const body = document.body;
