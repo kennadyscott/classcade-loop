@@ -7,6 +7,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 const ICON = {
   home:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M11.3 2.4a1 1 0 0 1 1.4 0l8 7.4c.2.2.3.5.3.8V20a2 2 0 0 1-2 2h-4.2a1 1 0 0 1-1-1v-4.6a1.8 1.8 0 0 0-3.6 0V21a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2v-9.4c0-.3.1-.6.3-.8z"/></svg>',
+  chores:'<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M3.4 6.1a1.15 1.15 0 0 1 1.63 0l.98.98 2.44-2.44a1.15 1.15 0 1 1 1.63 1.63L6.83 9.52a1.15 1.15 0 0 1-1.63 0L3.4 7.73a1.15 1.15 0 0 1 0-1.63z"/><rect x="12.2" y="5.55" width="8.8" height="2.3" rx="1.15"/><path d="M3.4 13.1a1.15 1.15 0 0 1 1.63 0l.98.98 2.44-2.44a1.15 1.15 0 1 1 1.63 1.63l-3.25 3.25a1.15 1.15 0 0 1-1.63 0L3.4 14.73a1.15 1.15 0 0 1 0-1.63z"/><rect x="12.2" y="12.55" width="8.8" height="2.3" rx="1.15"/><circle cx="6.3" cy="19.5" r="2.35" fill="none" stroke="currentColor" stroke-width="2.1"/><rect x="12.2" y="18.35" width="8.8" height="2.3" rx="1.15"/></svg>',
   growth:'<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21a1 1 0 0 1-1-1v-5.1C6.9 14.4 4 11.6 4 8.2V6a1 1 0 0 1 1-1h1.4c3.3 0 5.8 2.2 6.3 5.3.9-2.2 3-3.8 5.5-3.8H20a1 1 0 0 1 1 1v1.3c0 3.4-2.8 6.1-6.3 6.1H13v5.1a1 1 0 0 1-1 1z"/></svg>',
   ask:   '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c5 0 9 3.4 9 7.6s-4 7.6-9 7.6c-.9 0-1.7-.1-2.5-.3l-4 2.1a.7.7 0 0 1-1-.8l.8-3.1C3.2 14.7 3 12.7 3 10.6 3 6.4 7 3 12 3z"/></svg>',
   more:  '<svg style="width:24px;height:24px;display:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
@@ -23,7 +24,7 @@ const NAV = [
   { id:'school', href:'school.html',   ic:'🏫', glyph:'school', label:'Daily Feed' },
   { id:'kids',   href:'kids.html',     ic:'👥', navico:'nav-my-kids', label:'My Kids' },
   { id:'msgs',   href:'messages.html', ic:'✉️', navico:'nav-messages',label:'Messages', tab:true },
-  { id:'chores', href:'chores.html',   ic:'🏠', navico:'nav-my-kids', glyph:'home', label:'At Home', tab:true },
+  { id:'chores', href:'chores.html',   ic:'✅', glyph:'chores', label:'At Home', tab:true },
   { id:'set',    href:'settings.html', ic:'⚙️', navico:'nav-menu',    label:'Settings', tab:true, tabLabel:'Settings' },
 ];
 /* Lite keeps the nav to the three surfaces a parent uses on a weekday —

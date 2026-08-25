@@ -280,6 +280,14 @@ late. Ask keeps a tile of its own because the crisis path can never be more than
    transparent on dark pages, so scrolled content painted through "9:41" — now z-index 60 and opaque
    once the page moves.
 
+### The At Home icon
+
+At Home was borrowing `nav-my-kids.png` — the same two-people raster as the My Kids surface — so two
+different destinations carried one icon. It now has its own inline `chores` glyph: two checked rows and
+one open one, which is literally what the page is. Inline rather than a raster because `fill=currentColor`
+recolors on the active tab for free, the way Growth and Ask already do; the raster nav icons need a
+hand-made `-on` twin, and there wasn't one for a chore list.
+
 ## Build your own At Home page
 
 A gear beside the **At Home** title opens a builder. Three levels of control, because a chore list that
