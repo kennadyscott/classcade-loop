@@ -4,12 +4,12 @@
 <title>At Home · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=117">
+<link rel="stylesheet" href="loop.css?v=118">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=117"></script>
-<script src="loop.engine.js?v=117"></script>
-<script src="loop.shell.js?v=117"></script>
+<script src="loop.data.js?v=118"></script>
+<script src="loop.engine.js?v=118"></script>
+<script src="loop.shell.js?v=118"></script>
 <script>
 const d = LOOP.child(ME);
 let editing = false;
@@ -31,6 +31,49 @@ function brandRow(){
 }
 
 function board(){ return LOOP.choreBoard(ME) }
+
+/* Practice: assign it, then release the coins once it has actually happened.
+   Two steps so the payout tracks practice rather than a tap. */
+function practiceSection(){
+  const today = LOOP.practiceToday(ME);
+  const pStreak = LOOP.practiceStreak(ME);
+  const mins = LOOP.practiceMinutesThisWeek(ME);
+  const assignedIds = today.map(x=>x.p);
+  return `
+    <div class="m-secrow">Practice${pStreak>=PRACTICE_STREAK_FOR_SIGNAL
+      ? ` <span class="ch-streak">${pStreak} days · ${mins} min this week</span>`
+      : (mins?` <span class="swipe">${mins} min this week</span>`:'')}</div>
+
+    ${today.length ? today.map(x=>`
+      <div class="pr-row ${x.done?'done':''}">
+        <span class="e">${x.meta.emoji}</span>
+        <span class="tx">
+          <span class="lb">${esc(x.meta.label)}</span>
+          <span class="mt">${x.m} minutes${x.done?' · released':' · assigned today'}</span>
+        </span>
+        <span class="cn ${x.done?'paid':''}">⊙ ${x.coins}</span>
+        <button class="btn sm ${x.done?'':'primary'}" data-release="${x.p}">
+          ${x.done?'Undo':'Release coins'}</button>
+      </div>`).join('')
+      : '<p class="small muted" style="margin:0 3px 10px">Nothing assigned today.</p>'}
+
+    <div class="pr-assign">
+      <div class="pa-h">Quick assign</div>
+      ${PRACTICE.map(p=>`
+        <div class="pa-row ${assignedIds.includes(p.id)?'on':''}">
+          <span class="e">${p.emoji}</span>
+          <span class="tx"><span class="lb">${esc(p.label)}</span>
+            <span class="mt">${esc(p.note)}</span></span>
+          <span class="mins">
+            ${p.mins.map(m=>`<button class="mbtn" data-assign2="${p.id}" data-mins="${m}"
+              ${assignedIds.includes(p.id)?'disabled':''}>${m}m</button>`).join('')}
+          </span>
+        </div>`).join('')}
+      <p class="ch-note">Coins only move when you release them, so they follow practice that actually
+        happened. A session of any of these is worth about the same — if reading paid less than fluency,
+        ${esc(d.first)} would simply stop reading.</p>
+    </div>`;
+}
 
 function choreRow(c){
   return `<button class="ch-row ${c.done?'done':''}" data-chore="${c.id}"
@@ -76,6 +119,8 @@ function body(){
   const sig = LOOP.choreSignals(ME);
   if (editing) return editList();
   return `
+    ${practiceSection()}
+
     ${(()=>{const cb=LOOP.checkinBonus(ME);return `
     <div class="ch-streakbar ${cb.streak?'on':''}">
       <span class="sb-flame">${cb.streak?'🔥':'○'}</span>
@@ -190,6 +235,18 @@ function wire(){
     const r = HOME_REWARDS.find(x=>x.id===b.dataset.reward);
     LOOP.store.spend(ME, r.id); render();
     toast('Spent '+r.coins+' coins on: '+r.label.toLowerCase());
+  });
+  $$('[data-assign2]').forEach(b=>b.onclick=()=>{
+    const p = PRACTICE.find(x=>x.id===b.dataset.assign2);
+    LOOP.store.assignPractice(ME, b.dataset.assign2, +b.dataset.mins);
+    render(); toast('Assigned '+b.dataset.mins+' minutes of '+p.label.toLowerCase()+'.');
+  });
+  $$('[data-release]').forEach(b=>b.onclick=()=>{
+    const e2 = LOOP.store.releasePractice(ME, b.dataset.release);
+    const p = PRACTICE.find(x=>x.id===b.dataset.release);
+    render();
+    if (e2 && e2.done) toastUndo('+'+(p.perMin*e2.m)+' coins released',
+      ()=>{ LOOP.store.releasePractice(ME, b.dataset.release); render() });
   });
   const e=$('#edit'); if(e) e.onclick=()=>{ editing=true; render(); window.scrollTo(0,0) };
   const de=$('#doneEdit'); if(de) de.onclick=()=>{ editing=false; render(); window.scrollTo(0,0) };

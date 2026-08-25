@@ -989,3 +989,27 @@ const ACTION_ITEMS = [
     label:'Library books back Thursday',
     detail:'Two still out on her card.' },
 ];
+
+/* ══ PRACTICE · assign it, then release the coins ═══════════════════
+   Two steps on purpose. A parent ASSIGNS practice, the child does it, and
+   the parent RELEASES the coins — so the payout is tied to practice that
+   actually happened rather than to a tap.
+
+   `perMin` is tuned so a normal session of any activity is worth roughly
+   the same. If reading paid less per session than fluency, a child would
+   simply stop reading.                                                  */
+const PRACTICE = [
+  { id:'fluency', label:'ClassCade fluency', emoji:'⚡', mins:[10,15,20], perMin:2, dim:'learning',
+    note:'Fluency drills in Showdown. The minutes come straight from the game.' },
+  { id:'reading', label:'Reading',           emoji:'📖', mins:[15,20,30], perMin:1, dim:'learning',
+    note:'Anything counts — school book, comic, cereal box.' },
+  { id:'math',    label:'Math facts',        emoji:'🔢', mins:[5,10,15],  perMin:2, dim:'learning',
+    note:'Short and daily beats long and weekly.' },
+  { id:'spelling',label:'Spelling or sight words', emoji:'🔤', mins:[5,10], perMin:2, dim:'learning',
+    note:'Out loud, not just on paper.' },
+  { id:'writing', label:'Writing',           emoji:'✏️', mins:[10,15],   perMin:2, dim:'learning',
+    note:'A journal line counts. So does a letter to someone.' },
+];
+
+/* Practice kept up this many days in a week is a pattern, not a payout. */
+const PRACTICE_STREAK_FOR_SIGNAL = 4;

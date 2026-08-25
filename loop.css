@@ -1975,3 +1975,41 @@ body.sm .m-secrow.flagrow{margin-top:2px}
 .m-flag .fl-acts{display:flex;gap:8px;margin-top:12px}
 .m-flag .fl-acts .btn{flex:1}
 @media (min-width:901px){ .m-flag .fl-acts .btn{flex:0 0 auto} }
+
+/* ══ PRACTICE ══════════════════════════════════════════════════════ */
+.pr-row{
+  display:flex;align-items:center;gap:11px;padding:12px 13px;margin-bottom:8px;
+  background:#fff;border:1px solid var(--line-soft);border-radius:14px
+}
+.pr-row.done{background:#f2fbf5;border-color:rgba(16,139,47,.28)}
+.pr-row .e{font-size:19px;flex:none}
+.pr-row .tx{flex:1;min-width:0}
+.pr-row .lb{display:block;font-size:14.5px;font-weight:900;letter-spacing:-.025em;line-height:1.3}
+.pr-row .mt{display:block;font-size:11.5px;color:var(--muted-2);font-weight:700;margin-top:2px}
+.pr-row .cn{
+  flex:none;font-size:11.5px;font-weight:900;color:#7a5a00;background:#fff6d9;
+  border-radius:999px;padding:4px 9px;box-shadow:inset 0 0 0 1px rgba(255,196,37,.4)
+}
+.pr-row .cn.paid{color:#12803a;background:#e9f8ee;box-shadow:inset 0 0 0 1px rgba(16,139,47,.22)}
+.pr-row .btn{flex:none}
+.pr-assign{background:var(--tint);border:1px solid var(--line-soft);border-radius:16px;padding:13px;margin-bottom:14px}
+.pa-h{font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.pa-row{display:flex;align-items:center;gap:11px;padding:9px 0}
+.pa-row + .pa-row{border-top:1px solid var(--line-soft)}
+.pa-row.on{opacity:.5}
+.pa-row .e{font-size:17px;flex:none}
+.pa-row .tx{flex:1;min-width:0}
+.pa-row .lb{display:block;font-size:13.5px;font-weight:800;letter-spacing:-.02em;line-height:1.3}
+.pa-row .mt{display:block;font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:1px}
+.pa-row .mins{display:flex;gap:5px;flex:none}
+.mbtn{
+  border:1px solid var(--line);background:#fff;border-radius:9px;padding:6px 8px;font:inherit;
+  font-size:11.5px;font-weight:900;color:var(--blue);cursor:pointer;min-width:34px
+}
+.mbtn:active{transform:translateY(1px)}
+.mbtn[disabled]{opacity:.4;cursor:default;color:var(--muted-2)}
+@media (max-width:900px){
+  .pa-row{flex-wrap:wrap}
+  .pa-row .tx{flex-basis:calc(100% - 32px)}
+  .pa-row .mins{margin-left:28px}
+}

@@ -19,6 +19,7 @@ const LOOP = (() => {
     chores:'loop.v1.chores', choreLog:'loop.v1.choreLog', spent:'loop.v1.spent',
     fw:'loop.v1.framework', goals:'loop.v1.goals', checkin:'loop.v1.checkin',
     flags:'loop.v1.flags', flagsExtra:'loop.v1.flagsExtra',
+    practice:'loop.v1.practice',
   };
   const rd = (k,f)=>{ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):f }catch(e){ return f } };
   const wr = (k,v)=>{ try{ localStorage.setItem(k,JSON.stringify(v)) }catch(e){} };
@@ -115,6 +116,17 @@ const LOOP = (() => {
     unmarkFlag:(id)=>{ const m=rd(K.flags,{}); delete m[id]; wr(K.flags,m) },
     sentFlags: ()=> rd(K.flagsExtra,[]),
     sendFlag:  (f)=>{ const l=rd(K.flagsExtra,[]); l.push(f); wr(K.flagsExtra,l); return f },
+    practice:  ()=> rd(K.practice,[]),
+    assignPractice:(s,pid,mins,dd)=>{ const l=rd(K.practice,[]);
+                 const day2=dd||TODAY;
+                 if (l.some(e=>e.s===s&&e.p===pid&&e.d===day2)) return null;
+                 const e={s:s,p:pid,m:mins,d:day2,done:false};
+                 l.push(e); wr(K.practice,l); return e },
+    releasePractice:(s,pid,dd)=>{ const l=rd(K.practice,[]); const day2=dd||TODAY;
+                 const e=l.find(x=>x.s===s&&x.p===pid&&x.d===day2);
+                 if(!e) return null; e.done=!e.done; wr(K.practice,l); return e },
+    unassignPractice:(s,pid,dd)=>{ const day2=dd||TODAY;
+                 wr(K.practice, rd(K.practice,[]).filter(e=>!(e.s===s&&e.p===pid&&e.d===day2))) },
     reset:     ()=> Object.values(K).forEach(k=>localStorage.removeItem(k)),
   };
 
@@ -154,6 +166,11 @@ const LOOP = (() => {
       return { s:studentId, src:'home', sig:'chore_'+id, v:0.8, d:TODAY, chore:true, w:w,
                detail:'kept up '+c.label.toLowerCase()+' '+days+' days this week' };
     }).filter(Boolean);
+    const pDays = practiceStreak(studentId);
+    if (pDays >= PRACTICE_STREAK_FOR_SIGNAL){
+      choreEvents.push({ s:studentId, src:'home', sig:'practice_streak', v:0.9, d:TODAY, chore:true,
+        w:{ learning:0.8 }, detail:'practised '+pDays+' days this week, '+practiceMinutesThisWeek(studentId)+' minutes in total' });
+    }
     return SEED_EVENTS.filter(e=>e.s===studentId)
       .concat(extra, choreEvents)
       .filter(e=>ago(e.d)<=WINDOW && ago(e.d)>=0);
@@ -521,7 +538,7 @@ const LOOP = (() => {
     return n;
   }
   function homeCoins(studentId){
-    let earned = checkinBonus(studentId).today;
+    let earned = checkinBonus(studentId).today + practiceCoins(studentId);
     store.choreLog().filter(e=>e.s===studentId).forEach(e=>{
       const c = CHORES.find(x=>x.id===e.c); if (c && c.kind==='extra') earned += c.coins;
     });
@@ -592,6 +609,36 @@ const LOOP = (() => {
     return ACTION_ITEMS.concat(store.sentFlags()).filter(f=>f.s===studentId && done[f.id]);
   }
 
+  /* ── practice ─────────────────────────────────────────────
+     Assigned, then released. Coins only move on release, so they track
+     practice that happened rather than practice that was set. */
+  function practiceToday(studentId, dd){
+    const day2 = dd || TODAY;
+    return store.practice().filter(e=>e.s===studentId && e.d===day2).map(e=>{
+      const p = PRACTICE.find(x=>x.id===e.p) || {};
+      return Object.assign({}, e, { meta:p, coins:(p.perMin||0)*e.m });
+    });
+  }
+  function practiceCoins(studentId){
+    return store.practice().filter(e=>e.s===studentId && e.done).reduce((a,e)=>{
+      const p = PRACTICE.find(x=>x.id===e.p); return a + ((p?p.perMin:0) * e.m);
+    },0);
+  }
+  function practiceStreak(studentId){
+    const done = store.practice().filter(e=>e.s===studentId && e.done);
+    const days = new Set(done.map(e=>e.d));
+    let n=0;
+    for (let i=0;i<7;i++){
+      const dt = new Date((day(TODAY)-i)*864e5).toISOString().slice(0,10);
+      if (days.has(dt)) n++;
+    }
+    return n;
+  }
+  function practiceMinutesThisWeek(studentId){
+    return store.practice().filter(e=>e.s===studentId && e.done && thisWeek(e.d))
+      .reduce((a,e)=>a+e.m,0);
+  }
+
   function concern(id){ return CONCERNS.find(c=>c.id===id) || null }
 
   function expectations(dimId, grade){
@@ -607,5 +654,6 @@ const LOOP = (() => {
            coins, activity, moment, conference, concern, expectations, starters,
            choreBoard, choreStreak, homeCoins, choreSignals,
            applyFramework, framework, checkinDays, checkinBonus, flags, flagsHandled,
+           practiceToday, practiceCoins, practiceStreak, practiceMinutesThisWeek,
            LEVEL_LABEL, LEVEL_TONE, ARROW, ARROW_CLASS, ago, thisWeek, joinList };
 })();

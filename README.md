@@ -211,6 +211,24 @@ a media query and `body.appview`. Earlier passes duplicated; this is the pattern
 scrollable nav; the Web/App toggle moves to the bottom-right, because the top-right corner of a phone
 belongs to the app and not to a dev control.
 
+## Practice · assign it, then release the coins
+
+Top of **At Home**. A parent quick-assigns a session — 10 minutes of ClassCade fluency, 20 minutes of
+reading, math facts, spelling, writing — and the coins only move when the parent **releases** them.
+
+**Two steps on purpose.** One tap would pay for practice being *set*, not practice being *done*. The
+release is where a parent confirms it actually happened, which is the only thing that makes the coins
+mean anything.
+
+**Sessions are worth roughly the same across activities.** `perMin` is tuned so 10 minutes of fluency
+and 20 minutes of reading both pay 20. If reading paid less per session than the ClassCade drill, a
+child would rationally stop reading — the reward structure would be quietly steering them toward the
+thing that pays, which is the opposite of the point.
+
+Same separation as everywhere else: coins are the game. What feeds the read is a **pattern** —
+practice on `PRACTICE_STREAK_FOR_SIGNAL` (4) days in a week becomes one home signal into Learning,
+carrying the week's total minutes.
+
 ## At Home · the chore board
 
 `chores.html`, tab **At Home**. Chores that align to Showdown's coin economy, built on two
