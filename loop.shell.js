@@ -88,7 +88,7 @@ function dimIcon(dim, px){ return dim.icon ? ico(dim.icon, px) : dim.ico }
 
 function bog(slug, size, cls){
   return `<img class="bog bog-${size||'sm'} ${cls||''}" src="boggies/${slug}.png"
-           alt="${BOGGIES[slug]||'Boggie'}" width="120" height="120" loading="lazy">`;
+           alt="${BOGGIES[slug]||'Boggie'}" width="120" height="120" decoding="async">`;
 }
 
 /* Wraps whatever the page already put in <body> into the app shell. */
@@ -313,12 +313,15 @@ function headerTabs(active){
 }
 
 /* greeting + child switcher */
-function topline(sub){
+function topline(sub, title){
   const kid = FAMILY.find(f=>f.id===ME) || FAMILY[0];
   return `
   <div class="topline">
     <div>
-      <h1 style="font-size:31px"><span class="hide-sm">${esc(PARENT.greeting)}, ${esc(PARENT.name)}! 👋</span><span class="show-sm">Hi, ${esc(PARENT.name)}! 👋</span></h1>
+      ${title
+        ? `<div class="page-eyebrow">${esc(PARENT.greeting)}, ${esc(PARENT.name)}</div>
+           <h1 style="font-size:31px">${esc(title)}</h1>`
+        : `<h1 style="font-size:31px"><span class="hide-sm">${esc(PARENT.greeting)}, ${esc(PARENT.name)}! 👋</span><span class="show-sm">Hi, ${esc(PARENT.name)}! 👋</span></h1>`}
       <p class="muted" style="margin-top:6px;font-size:15px">${sub}</p>
     </div>
     <div class="kidmenu" id="kidmenu">

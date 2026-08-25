@@ -4,12 +4,12 @@
 <title>Settings · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=102">
+<link rel="stylesheet" href="loop.css?v=106">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=102"></script>
-<script src="loop.engine.js?v=102"></script>
-<script src="loop.shell.js?v=102"></script>
+<script src="loop.data.js?v=106"></script>
+<script src="loop.engine.js?v=106"></script>
+<script src="loop.shell.js?v=106"></script>
 <script>
 const d = LOOP.child(ME);
 
@@ -130,7 +130,7 @@ function renderDesktop(){
   const p = LOOP.store.prefs();
   const tier = LOOP.store.tier();
   $('#app').innerHTML = `
-    ${topline('Your plan, your rhythm, and the rules Loop will not let you turn off.')}
+    ${topline('Your plan, your rhythm, and the rules Loop will not let you turn off.', 'Settings')}
     <div class="dash">
       <div class="stack">
 

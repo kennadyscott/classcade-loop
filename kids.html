@@ -4,12 +4,12 @@
 <title>My Kids · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=102">
+<link rel="stylesheet" href="loop.css?v=106">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=102"></script>
-<script src="loop.engine.js?v=102"></script>
-<script src="loop.shell.js?v=102"></script>
+<script src="loop.data.js?v=106"></script>
+<script src="loop.engine.js?v=106"></script>
+<script src="loop.shell.js?v=106"></script>
 <script>
 let connecting = null;
 function render(){
@@ -18,14 +18,36 @@ function render(){
     return Object.assign({}, f, { seeded, bog: LOOP.store.boggie(f.id) });
   });
   $('#app').innerHTML = `
-    ${topline('Everyone you\'re following, and how connected they are.')}
-    <div class="stack">
-      ${kids.map(kidCard).join('')}
-      <div class="card" style="border-style:dashed;text-align:center;background:transparent;box-shadow:none">
-        <div style="font-size:26px">➕</div>
-        <h4 style="margin:8px 0 4px">Add another child</h4>
-        <p class="small muted" style="margin-bottom:12px">Loop is priced per family, not per child.</p>
-        <button class="btn ghost sm" id="addKid">Add a child</button>
+    ${topline('Everyone you\'re following, and how connected they are.', 'My Kids')}
+    <div class="dash">
+      <div class="stack">
+        ${kids.map(kidCard).join('')}
+        <div class="card" style="border-style:dashed;text-align:center;background:transparent;box-shadow:none">
+          <div style="font-size:26px">➕</div>
+          <h4 style="margin:8px 0 4px">Add another child</h4>
+          <p class="small muted" style="margin-bottom:12px">Loop is priced per family, not per child.</p>
+          <button class="btn ghost sm" id="addKid">Add a child</button>
+        </div>
+      </div>
+      <div class="rail">
+        <div class="card">
+          <div class="sec-label">Your family</div>
+          <h4>${FAMILY.length} ${FAMILY.length===1?'child':'children'}</h4>
+          <p class="small muted" style="margin-top:5px">
+            ${FAMILY.filter(f=>f.connected).length} connected to a classroom ·
+            ${FAMILY.filter(f=>!f.connected).length} family only</p>
+          <p class="tiny muted" style="margin-top:10px">Loop is priced per family. Connecting a classroom
+            never changes the price — the school's ClassCade licence covers it.</p>
+        </div>
+        <div class="card tinted">
+          <div class="sec-label">What connecting changes</div>
+          <ul class="small muted" style="margin:0;padding-left:17px;line-height:1.75">
+            <li>Showdown signals feed all six areas</li>
+            <li>Prompts built from a real week</li>
+            <li>A reply channel to the teacher</li>
+          </ul>
+          <p class="tiny muted" style="margin-top:10px">A profile keeps working with no classroom at all.</p>
+        </div>
       </div>
     </div>`;
   wireTopline();

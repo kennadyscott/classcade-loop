@@ -1855,3 +1855,25 @@ body.sm .convo-acts .btn{flex:1;padding:10px 8px;font-size:12.5px;white-space:no
 body.sm .m-tile.convo.full .art-img{bottom:10px;right:8px;width:58px}
 body.sm .m-tile.convo.full .art-img{bottom:12px;right:10px;width:52px;opacity:.9}
 body.sm .m-tile.convo.full .convo-acts{padding-right:64px}
+/* desktop wayfinding: the greeting is demoted so the page can name itself */
+.page-eyebrow{
+  font-size:13px;font-weight:800;color:var(--muted);letter-spacing:-.01em;margin-bottom:3px
+}
+body.sm .page-eyebrow{display:none}
+/* the staged compose reads on desktop too */
+.cm-step{margin-top:18px}
+.cm-h{display:flex;align-items:center;gap:9px;margin-bottom:9px}
+.cm-n{width:22px;height:22px;border-radius:999px;flex:none;display:grid;place-items:center;
+  font-size:11px;font-weight:900;background:var(--tint);color:var(--muted);box-shadow:inset 0 0 0 1px var(--line)}
+.cm-n.done{background:var(--good);color:#fff;box-shadow:none}
+.cm-t{font-size:13.5px;font-weight:900;letter-spacing:-.02em}
+.cm-t span{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-top:1px}
+.cm-opt{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;
+  border-radius:12px;padding:9px 12px;font:inherit;font-size:13.5px;font-weight:800;letter-spacing:-.02em;
+  color:var(--ink);cursor:pointer}
+.cm-opt.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.cm-opt.on .cm-ck{display:grid}
+.cm-ck{display:none;width:17px;height:17px;border-radius:999px;background:rgba(255,255,255,.24);
+  place-items:center;font-size:9px;font-weight:900}
+.cm-send{margin-top:16px}
+.cm-help{font-size:12.5px;color:var(--muted);margin-top:8px}

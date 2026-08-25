@@ -4,15 +4,15 @@
 <title>Growth · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=102">
+<link rel="stylesheet" href="loop.css?v=106">
 <style>
   .facet{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;margin:0 5px 5px 0}
 </style>
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=102"></script>
-<script src="loop.engine.js?v=102"></script>
-<script src="loop.shell.js?v=102"></script>
+<script src="loop.data.js?v=106"></script>
+<script src="loop.engine.js?v=106"></script>
+<script src="loop.shell.js?v=106"></script>
 <script>
 const d = LOOP.child(ME);
 let sel = new URLSearchParams(location.search).get('d') || null;
@@ -192,7 +192,7 @@ function renderDesktop(){
   const ins = LOOP.insight(ME, sel, tier);
 
   $('#app').innerHTML = `
-    ${topline(`${esc(d.first)}'s growth, in six areas.`)}
+    ${topline(`${esc(d.first)}'s growth, in six areas.`, 'Growth')}
     <div class="wl-row" style="margin-bottom:18px">${DIMENSIONS.map(dm=>wlCard(r[dm.id])).join('')}</div>
     <div class="dash">
       <div class="stack"><div class="mo-1">${detail(dim, x, ins, tier)}</div></div>

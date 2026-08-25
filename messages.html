@@ -4,12 +4,12 @@
 <title>Messages · ClassCade Loop</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="loop.css?v=102">
+<link rel="stylesheet" href="loop.css?v=106">
 </head><body>
 <div id="app"></div>
-<script src="loop.data.js?v=102"></script>
-<script src="loop.engine.js?v=102"></script>
-<script src="loop.shell.js?v=102"></script>
+<script src="loop.data.js?v=106"></script>
+<script src="loop.engine.js?v=106"></script>
+<script src="loop.shell.js?v=106"></script>
 <script>
 const d = LOOP.child(ME);
 let pickDim = null, pickType = null, noteVal = '';
@@ -151,7 +151,7 @@ function renderDesktop(){
   const tier = LOOP.store.tier();
   const thread = buildThread();
   $('#app').innerHTML = `
-    ${topline('Structured context, in both directions. Deliberately not a chat.')}
+    ${topline('Structured context, in both directions. Deliberately not a chat.', 'Messages')}
     <div class="dash"><div class="stack">
       <div class="card">
         <div class="wl-head" style="margin:0 0 12px"><h3 style="font-size:17px">With Ms. Alvarez</h3></div>
@@ -159,24 +159,70 @@ function renderDesktop(){
       </div>
       <div class="card">
         <div class="sec-label">Send something</div>
-        <p class="small muted" style="margin-bottom:12px">Pick the area, pick the read, add a line if it helps.</p>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">
-          ${DIMENSIONS.map(x=>`<button class="btn sm ${pickDim===x.id?'sel':''}" data-dim="${x.id}">${dimIcon(x,16)} ${esc(x.name)}</button>`).join('')}
+
+        <div class="cm-step" style="margin-top:6px">
+          <div class="cm-h"><span class="cm-n ${pickDim?'done':''}">${pickDim?'✓':'1'}</span>
+            <span class="cm-t">Pick the area<span>What is this about?</span></span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${DIMENSIONS.map(x=>`<button class="cm-opt ${pickDim===x.id?'on':''}" data-dim="${x.id}"
+              aria-pressed="${pickDim===x.id}">${dimIcon(x,16)} <span>${esc(x.name)}</span>
+              <span class="cm-ck">✓</span></button>`).join('')}
+          </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-          ${RESPONSES.map(x=>`<button class="btn sm ${pickType===x.id?'sel':''}" data-type="${x.id}">${x.emoji} ${esc(x.label)}</button>`).join('')}
+
+        <div class="cm-step">
+          <div class="cm-h"><span class="cm-n ${pickType?'done':''}">${pickType?'✓':'2'}</span>
+            <span class="cm-t">Pick the read<span>How does it look from home?</span></span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            ${RESPONSES.map(x=>`<button class="cm-opt ${pickType===x.id?'on':''}" data-type="${x.id}"
+              aria-pressed="${pickType===x.id}"><span class="e">${x.emoji}</span>
+              <span>${esc(x.label)}</span><span class="cm-ck">✓</span></button>`).join('')}
+          </div>
         </div>
-        <textarea class="note" id="note" maxlength="${NOTE_CAP}" placeholder="Optional — one or two lines of context."></textarea>
-        <button class="btn primary sm" id="send" ${(!pickDim||!pickType)?'disabled':''}>Send to Ms. Alvarez</button>
+
+        <div class="cm-step">
+          <div class="cm-h"><span class="cm-n">3</span>
+            <span class="cm-t">Add a line<span>Optional — and capped at ${NOTE_CAP} characters</span></span></div>
+          <textarea class="note" id="note" maxlength="${NOTE_CAP}" placeholder="One or two lines of context.">${esc(noteVal)}</textarea>
+        </div>
+
+        <button class="btn primary cm-send" id="send" ${(!pickDim||!pickType)?'disabled':''}>Send to Ms. Alvarez</button>
+        <div class="cm-help" style="text-align:left">${(pickDim&&pickType)
+          ? `Goes out as one line tagged to <b>${esc((DIMENSIONS.find(x=>x.id===pickDim)||{}).name)}</b>.`
+          : (!pickDim && !pickType) ? 'Pick an area and a read to send.'
+            : !pickDim ? 'Still need an area — step 1.' : 'Still need a read — step 2.'}</div>
       </div>
-    </div><div class="rail"></div></div>`;
+    </div>
+    <div class="rail">
+      <div class="card">
+        <div class="sec-label">What a teacher sees</div>
+        <p class="small">One line per family, tagged to a dimension, on their class view.
+          They tap <strong>Acknowledge</strong> and you see that they saw it.</p>
+        <a class="link" href="teacher.html">Open the teacher view →</a>
+      </div>
+      <div class="card">
+        <div class="sec-label">Not available here</div>
+        <ul class="small muted" style="margin:0;padding-left:17px;line-height:1.75">
+          <li>Free-form messaging</li><li>Attachments</li><li>Read receipts on your side</li>
+          <li>Anything that expects a reply within the day</li>
+        </ul>
+        <p class="tiny muted" style="margin-top:10px">Urgent things belong in a phone call, not in a product.</p>
+      </div>
+      <div class="card tinted">
+        <div class="sec-label">Why this looks so limited</div>
+        <p class="small muted">A teacher with 24 families cannot absorb 24 open inboxes. Everything here is
+          one tap plus at most ${NOTE_CAP} characters, always attached to a specific area of growth.
+          The cap is the feature — it's what stops this becoming email.</p>
+      </div>
+    </div></div>`;
   wireTopline();
-  $$('[data-dim]').forEach(b=>b.onclick=()=>{ pickDim=b.dataset.dim; render() });
-  $$('[data-type]').forEach(b=>b.onclick=()=>{ pickType=b.dataset.type; render() });
+  $$('[data-dim]').forEach(b=>b.onclick=()=>{ pickDim = pickDim===b.dataset.dim?null:b.dataset.dim; render() });
+  $$('[data-type]').forEach(b=>b.onclick=()=>{ pickType = pickType===b.dataset.type?null:b.dataset.type; render() });
+  const t=$('#note'); if(t) t.oninput=()=>{ noteVal=t.value };
   const sd=$('#send'); if(sd) sd.onclick=()=>{
     if(!pickDim||!pickType) return;
-    LOOP.store.respond(`${ME}|${pickDim}|${WEEK_START}`, pickType, ($('#note')||{}).value||'');
-    pickDim=null; pickType=null; render(); toast('Sent.');
+    LOOP.store.respond(`${ME}|${pickDim}|${WEEK_START}`, pickType, noteVal);
+    pickDim=null; pickType=null; noteVal=''; render(); toast('Sent — one line, one area.');
   };
 }
 
